@@ -25,5 +25,5 @@ function end_timer() {
     local end_time=$( get_current_time )
     local start_time=$( cat "$file" )
 
-    printf "$(( $end_time - $start_time )) sec."
+    printf "$(( $end_time - $start_time )) second/s"
 }
