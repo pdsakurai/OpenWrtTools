@@ -40,12 +40,6 @@ function are_the_same_files() {
 function reroute_traffic_by_asn() {
     local asns=${1:?Missing: ASNs, delimited by whitespace}
     printf "Rerouting traffic..."
-
-    function reset_allowed_ips() {
-        uci -q revert $target_uci_option
-        uci -q delete $target_uci_option
-    }
-    reset_allowed_ips
     
     . ./temp_file.sh
     create_temp_file
@@ -57,6 +51,12 @@ function reroute_traffic_by_asn() {
     if are_the_same_files "$ip_subnets_file" "$new_file_name"; then
         printf "no changes made.\n"
     else
+        function reset_allowed_ips() {
+            uci -q revert $target_uci_option
+            uci -q delete $target_uci_option
+        }
+        reset_allowed_ips
+
         local ip_subnet
         while read ip_subnet; do
             uci add_list $target_uci_option="$ip_subnet"
