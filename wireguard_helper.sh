@@ -47,10 +47,14 @@ function reroute_traffic_by_asn() {
     create_temp_file
     local ip_subnets_file=$( get_last_created_temp_file )
 
+    . ./timer_helper.sh
+    local timer=$( start_timer )
     log_info "Started retrieving IPv4 subnets for ASNs: ${asns// /,}"
     $( . ./ipv4_subnet.sh; get_ipv4_subnets "$ip_subnets_file" "$asns" )
-    log_info "Done retrieving IPv4 subnets."
+    timer=$( end_timer "$timer" )
+    log_info "Done retrieving IPv4 subnets within $timer."
 
+    timer=$( start_timer )
     log_info "Started re-routing traffic."
     local new_file_name="${ip_subnets_file%/*}/$file_previous_allowed_ips"
     if are_the_same_files "$ip_subnets_file" "$new_file_name"; then
@@ -73,6 +77,7 @@ function reroute_traffic_by_asn() {
         }
         apply_changes
         mv "$ip_subnets_file" "$new_file_name"
-        log_info "Done re-routing traffic."
+        timer=$( end_timer "$timer" )
+        log_info "Done re-routing traffic within $timer."
     fi
 }
