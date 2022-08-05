@@ -17,8 +17,8 @@ readonly target_uci_section="network.wireguard_$target_interface"
 readonly target_uci_option="$target_uci_section.allowed_ips"
 
 function log_info() {
-    logger -t "wireguard_helper" "$@"
-    printf "$@\n"
+    logger -t "wireguard_helper_sh[$$]" "$@"
+    printf "wireguard_helper_sh[$$]: $@\n"
 }
 
 function are_the_same_files() {
