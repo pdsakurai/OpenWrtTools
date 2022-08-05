@@ -16,8 +16,6 @@ readonly asn_smart="10139"
 readonly target_uci_section="network.wireguard_$target_interface"
 readonly target_uci_option="$target_uci_section.allowed_ips"
 
-readonly file_previous_allowed_ips="wireguard_helper_allowed_ips.txt"
-
 function log_info() {
     logger -t "wireguard_helper" "$@"
     printf "$@\n"
@@ -56,8 +54,8 @@ function reroute_traffic_by_asn() {
 
     timer=$( start_timer )
     log_info "Started re-routing traffic."
-    local new_file_name="${ip_subnets_file%/*}/$file_previous_allowed_ips"
-    if are_the_same_files "$ip_subnets_file" "$new_file_name"; then
+    local file_previous_allowed_ips="/tmp/wireguard_helper_allowed_ips.txt"
+    if are_the_same_files "$ip_subnets_file" "$file_previous_allowed_ips"; then
         log_info "No changes made."
     else
         function reset_allowed_ips() {
@@ -76,7 +74,7 @@ function reroute_traffic_by_asn() {
             ifdown $target_interface && ifup $target_interface
         }
         apply_changes
-        mv "$ip_subnets_file" "$new_file_name"
+        mv "$ip_subnets_file" "$file_previous_allowed_ips"
         timer=$( end_timer "$timer" )
         log_info "Done re-routing traffic within $timer."
     fi
