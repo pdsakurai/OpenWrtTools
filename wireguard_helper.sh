@@ -20,6 +20,7 @@ readonly file_previous_allowed_ips="wireguard_helper_allowed_ips.txt"
 
 function log_info() {
     logger -t "wireguard_helper" "$@"
+    printf "$@\n"
 }
 
 function are_the_same_files() {
