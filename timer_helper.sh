@@ -3,12 +3,13 @@
 if [ -n "$_timer_helper_sh" ]; then return; fi
 readonly _timer_helper_sh="1"
 
+. ./temp_file.sh
+
 function get_current_time() {
     date +%s
 }
 
 function start_timer() {
-    . ./temp_file.sh
     create_temp_file
 
     local file=$( get_last_created_temp_file )
