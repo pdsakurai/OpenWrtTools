@@ -19,7 +19,7 @@ readonly target_uci_option="$target_uci_section.allowed_ips"
 readonly file_previous_allowed_ips="wireguard_helper_allowed_ips.txt"
 
 function log_info() {
-    logger -t "wireguard" "$@"
+    logger -t "wireguard_helper" "$@"
 }
 
 function are_the_same_files() {
