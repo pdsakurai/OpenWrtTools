@@ -45,8 +45,7 @@ function reroute_traffic_by_asn() {
     local asns=${1:?Missing: ASNs, delimited by whitespace}
     
     . ./temp_file.sh
-    create_temp_file
-    local ip_subnets_file=$( get_last_created_temp_file )
+    local ip_subnets_file=$( create_temp_file )
 
     . ./timer_helper.sh
     local timer=$( start_timer )

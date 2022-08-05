@@ -1,21 +1,19 @@
 #!/bin/sh
 
-_temp_file_sh_temp_files=""
+[ -n "$_temp_file_sh" ] \
+    && return \
+    || readonly _temp_file_sh="temp_file_sh[$$]"
 
-function create_temp_file() {
-    _temp_file_sh_temp_files="$( mktemp ) $_temp_file_sh_temp_files"
-}
-
-function get_last_created_temp_file() {
-    printf "${_temp_file_sh_temp_files%% *}"
-}
+readonly _temporary_directory="/tmp/temp_file_sh_PID$$"
+mkdir -p "$_temporary_directory"
+logger -t "$_temp_file_sh" "Created directory: $_temporary_directory"
 
 function _temp_file_delete_temp_files() {
-    local file
-    for file in $_temp_file_sh_temp_files; do
-        rm "$file"
-    done
-    _temp_file_sh_temp_files=""
+    rm -rf "$_temporary_directory"
+    logger -t "$_temp_file_sh" "Removed directory: $_temporary_directory"
 }
-
 trap _temp_file_delete_temp_files EXIT
+
+function create_temp_file() {
+    mktemp -p "$_temporary_directory"
+}

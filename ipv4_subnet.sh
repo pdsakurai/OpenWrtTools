@@ -100,12 +100,10 @@ function get_ipv4_subnets() {
 
     . ./temp_file.sh
 
-    create_temp_file
-    local merged_file=$( get_last_created_temp_file )
+    local merged_file=$( create_temp_file )
     merge_ipv4_subnets "$merged_file" "$asns"
 
-    create_temp_file
-    local translated_file=$( get_last_created_temp_file )
+    local translated_file=$( create_temp_file )
     translate_ipv4_subnets "$translated_file" "$merged_file"
 
     local sorted_file="$merged_file"
