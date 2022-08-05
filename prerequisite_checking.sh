@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if [ -n "$_prerequisite_checking_sh" ]; then return; fi
-readonly _prerequisite_checking_sh="1"
+[ -n "$_prerequisite_checking_sh" ] \
+    && return \
+    || readonly _prerequisite_checking_sh="prerequisite_checking_sh[$$]"
 
 function abort_if_missing_executable() {
     local files="${1:?Missing: Files to check delimited by a whitespace}"

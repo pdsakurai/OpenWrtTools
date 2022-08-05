@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if [ -n "$_ipv4_subnet_sh" ]; then return; fi
-readonly _ipv4_subnet_sh="1"
+[ -n "$_ipv4_subnet_sh" ] \
+    && return \
+    || readonly _ipv4_subnet_sh="ipv4_subnet_sh[$$]"
 
 . ./prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf" "/usr/bin"
 

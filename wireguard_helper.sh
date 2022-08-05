@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if [ -n "$_wireguard_helper_sh" ]; then return; fi
-readonly _wireguard_helper_sh="1"
+[ -n "$_wireguard_helper_sh" ] \
+    && return \
+    || readonly _wireguard_helper_sh="wireguard_helper_sh[$$]"
 
 #Configuration
 readonly target_interface="wireguard"

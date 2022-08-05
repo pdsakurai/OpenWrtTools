@@ -1,7 +1,8 @@
 #!/bin/sh
 
-if [ -n "$_timer_helper_sh" ]; then return; fi
-readonly _timer_helper_sh="1"
+[ -n "$_timer_helper_sh" ] \
+    && return \
+    || readonly _timer_helper_sh="timer_helper_sh[$$]"
 
 function get_current_time() {
     date +%s
