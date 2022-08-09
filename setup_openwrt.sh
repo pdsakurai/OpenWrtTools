@@ -1,6 +1,15 @@
 #!/bin/sh
 
+function log() {
+    local _setup_openwrt_sh="_setup_openwrt_sh[$$]"
+    logger -t "$_setup_openwrt_sh" "$@"
+    printf "$_setup_openwrt_sh: $@\n"
+}
+
 function restore_packages() {
+    . ./timer_helper.sh
+    local timer="$( start_timer )"
+    log "Restoring packages..."
     opkg update && opkg install \
         irqbalance \
         kmod-usb-net-rndis \ #For Android-tethering
@@ -9,11 +18,18 @@ function restore_packages() {
         luci-app-unbound unbound-control \
         luci-app-sqm \
         luci-app-wireguard
+    log "Done restoring packages within $( end_timer "$timer" )"
 }
 
 function modify_simpleadblock() {
     local fullfilepath_script="/etc/init.d/simple-adblock"
+    if [ ! -e $"fullfilepath_script" ]; then
+        log "Cannot find file: $fullfilepath_script"
+        return 1
+    fi
+
     sed 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
+    log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
 }
 
 function modify_sysctlconf() {
@@ -38,6 +54,7 @@ function modify_sysctlconf() {
         local value_current=$( read_sysctl_value "$param" )
         if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
             echo "$config" >> "$fullfilepath_conf"
+            log "Changed default value of $param from $value_current to $value_new"
         fi
     done
 }
@@ -48,4 +65,6 @@ function enable_irqbalance() {
     uci commit irqbalance
     service irqbalance enable
     service irqbalance start
+
+    log "Done enabling and starting irqbalance."
 }
