@@ -10,3 +10,8 @@ function restore_packages() {
         luci-app-sqm \
         luci-app-wireguard
 }
+
+function modify_simpleadblock() {
+    local fullfilepath_script="/etc/init.d/simple-adblock"
+    sed 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
+}
