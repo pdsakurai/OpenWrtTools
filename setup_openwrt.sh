@@ -41,3 +41,11 @@ function modify_sysctlconf() {
         fi
     done
 }
+
+function enable_irqbalance() {
+    uci revert irqbalance
+    uci set irqbalance.irqbalance.enabled='1'
+    uci commit irqbalance
+    service irqbalance enable
+    service irqbalance start
+}
