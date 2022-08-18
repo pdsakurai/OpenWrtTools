@@ -12,9 +12,13 @@ function log_info() {
 function get_all_wifi_iface() {
     local wifi_iface
     local uci_string
-    for uci_string in $( uci show wireless | grep $SSID | cut -d '=' -f 1 ); do
-        uci_string="${uci_string#wireless.}"
-        wifi_iface="${uci_string%.ssid} $wifi_iface"
+    for uci_string in $( uci show wireless | grep $SSID ); do
+        local found_ssid="$( printf "$uci_string" | cut -d '=' -f 2 | xargs )"
+        if [ "$SSID" == "$found_ssid" ]; then
+            uci_string="$( printf "$uci_string" | cut -d '=' -f 1 )"
+            uci_string="${uci_string#wireless.}"
+            wifi_iface="${uci_string%.ssid} $wifi_iface"
+        fi
     done
 
     printf "$wifi_iface"
