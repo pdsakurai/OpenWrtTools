@@ -13,7 +13,7 @@ function get_all_wifi_iface() {
     local wifi_iface
     local uci_string
     for uci_string in $( uci show wireless | grep $SSID ); do
-        local found_ssid="$( printf "$uci_string" | cut -d '=' -f 2 | xargs )"
+        local found_ssid="$( printf "$uci_string" | cut -d '=' -f 2 | xargs 2> /dev/null )"
         if [ "$SSID" == "$found_ssid" ]; then
             uci_string="$( printf "$uci_string" | cut -d '=' -f 1 )"
             uci_string="${uci_string#wireless.}"
