@@ -9,27 +9,56 @@ function log_info() {
     printf "$_toggle_ssid_sh: $@\n"
 }
 
-#To do, make a loop for multiple SSID hits
-function validate_SSID {
-    readonly WIRELESS_SSID_UCI_STRING="$( uci show wireless | grep $SSID | cut -d '=' -f 1 )"
-    [ -z "$WIRELESS_SSID_UCI_STRING" ] && log_info "SSID '$SSID' not found." && exit 1
+function get_all_wifi_iface() {
+    local wifi_iface
+    local uci_string
+    for uci_string in $( uci show wireless | grep $SSID | cut -d '=' -f 1 ); do
+        uci_string="${uci_string#wireless.}"
+        wifi_iface="${uci_string%.ssid} $wifi_iface"
+    done
 
-    readonly RADIO="$( uci show wireless | grep ${WIRELESS_SSID_UCI_STRING/ssid/device} | cut -d '=' -f 2 | cut -d "'" -f 2 )"
-    [ -z "$RADIO" ] && log_info "Radio tagged to SSID '$SSID' not found." && exit 1
+    printf "$wifi_iface"
 }
 
-function validate_NEWSTATE {
+function validate_SSID() {
+    [ -z "$( get_all_wifi_iface )" ] \
+        && log_info "SSID '$SSID' not found." \
+        && exit 1
+}
+
+function get_new_state() {
     case $NEW_STATE in
-        off|Off|OFF|0) new_state=1 ;;
-        on|On|ON|1)    new_state=0 ;;
-        *)             log_info "Invalid provided new state [off/on] for SSID; provided: $NEW_STATE" && exit 1 ;;
+        off|Off|OFF|0) printf 1 ;;
+        on|On|ON|1)    printf 0 ;;
     esac
 }
 
+function validate_NEWSTATE() {
+    [ -z "$( get_new_state )" ] \
+        && log_info "Invalid new state [off/on]: $NEW_STATE" \
+        && exit 1
+}
+
+function get_radio() {
+    local wifi_iface="${1:?Missing wifi-iface}"
+    local radio="$( uci show wireless | grep wireless.$wifi_iface.device | cut -d '=' -f 2 )"
+    
+    if [ -n "$radio" ]; then
+        printf "${radio//\'/}"
+        return 0
+    fi
+
+    log_info "Radio tagged to wifi-iface '$wifi_iface' not found."
+    return 1
+}
+
 function apply_changes {
-    uci -q set ${WIRELESS_SSID_UCI_STRING/ssid/disabled}=$new_state
-    uci commit wireless
-    wifi reload $RADIO
+    local new_state="$( get_new_state )"
+    for wifi_iface in $( get_all_wifi_iface ); do
+        uci -q set wireless.$wifi_iface.disabled=$new_state
+        uci commit wireless
+        wifi reload $( get_radio "$wifi_iface" )
+    done
     log_info "Successfully applied the new state '$NEW_STATE' for SSID '$SSID'."
 }
 
