@@ -58,6 +58,7 @@ function apply_changes {
         uci -q set wireless.$wifi_iface.disabled=$new_state
         uci commit wireless
         wifi reload $( get_radio "$wifi_iface" )
+        sleep 1m
     done
     log_info "Successfully applied the new state '$NEW_STATE' for SSID '$SSID'."
 }
