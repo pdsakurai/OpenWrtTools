@@ -57,7 +57,7 @@ function reroute_traffic_by_asn() {
     log_info "Started re-routing traffic."
     local file_previous_allowed_ips="/tmp/wireguard_helper_allowed_ips.txt"
     if are_the_same_files "$ip_subnets_file" "$file_previous_allowed_ips"; then
-        log_info "No changes made."
+        log_info "Same set of IP subnets produced. No changes made."
     else
         function reset_allowed_ips() {
             uci -q revert $target_uci_option
