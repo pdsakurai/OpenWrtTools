@@ -23,7 +23,7 @@ function restore_packages() {
 
 function modify_simpleadblock() {
     local fullfilepath_script="/etc/init.d/simple-adblock"
-    if [ ! -e $"fullfilepath_script" ]; then
+    if [ ! -e "$fullfilepath_script" ]; then
         log "Cannot find file: $fullfilepath_script"
         return 1
     fi
