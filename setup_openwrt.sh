@@ -230,8 +230,34 @@ forward-zone:
         fi
     }
 
+    function redirect_dns_requests() { 
+        uci revert firewall
+
+        uci add firewall redirect
+        firewall.@redirect[-1].target='DNAT'
+        firewall.@redirect[-1].name='Redirect DNS, port 53'
+        firewall.@redirect[-1].src='lan'
+        firewall.@redirect[-1].src_dport='53'
+
+        uci add firewall redirect
+        firewall.@redirect[-1].target='DNAT'
+        firewall.@redirect[-1].name='Redirect DNS, port 853'
+        firewall.@redirect[-1].src='lan'
+        firewall.@redirect[-1].src_dport='853'
+
+        uci add firewall redirect
+        firewall.@redirect[-1].target='DNAT'
+        firewall.@redirect[-1].name='Redirect DNS, port 5353'
+        firewall.@redirect[-1].src='lan'
+        firewall.@redirect[-1].src_dport='5353'
+
+        uci commit firewall
+        /etc/init.d/firewall restart
+    }
+
     apply_recommended_conf
     apply_recommended_uci_settings
     use_unbound_in_dnsmasq
     use_unbound_in_wan
+    redirect_dns_requests
 }
