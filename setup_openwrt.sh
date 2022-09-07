@@ -1,5 +1,8 @@
 #!/bin/sh
 
+readonly unbound_root_dir="/etc/unbound"
+readonly conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+
 function log() {
     local _setup_openwrt_sh="_setup_openwrt_sh[$$]"
     logger -t "$_setup_openwrt_sh" "$@"
@@ -20,18 +23,86 @@ function restore_packages() {
     log "Done restoring packages within $( end_timer "$timer" )"
 }
 
-function modify_simpleadblock() {
-    local fullfilepath_script="/etc/init.d/simple-adblock"
-    if [ ! -e "$fullfilepath_script" ]; then
-        log "Cannot find file: $fullfilepath_script"
-        return 1
-    fi
+function setup_simpleadblock() {
+    function use_always_null(){
+        local fullfilepath_script="/etc/init.d/simple-adblock"
+        if [ ! -e "$fullfilepath_script" ]; then
+            log "Cannot find file: $fullfilepath_script"
+            return 1
+        fi
 
-    sed -i 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
-    log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
+        sed -i 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
+        log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
+    }
+
+    function apply_recommended_uci_settings() {
+        local uci_simpleadblock="simple-adblock.config"
+
+        local options="""
+            config_update_enabled='0'
+            verbosity='2'
+            force_dns='0'
+            led='none'
+            dns='unbound.adb_list'
+            compressed_cache='1'
+            enabled='1'
+            parallel_downloads='1'
+            debug='0'
+        """
+        uci revert $uci_simpleadblock
+        for uci_option in $options; do
+            uci_option="$( printf $uci_option | xargs )"
+            [ -n $uci_option ] && uci set $uci_simpleadblock.$uci_option
+        done
+
+        local blocked_hosts_url="""
+            https://www.github.developerdan.com/hosts/lists/dating-services-extended.txt
+            http://sbc.io/hosts/alternates/gambling/hosts
+            https://www.github.developerdan.com/hosts/lists/hate-and-junk-extended.txt
+        """
+        uci -q delete $uci_simpleadblock.blocked_hosts_url
+        for uci_option in $blocked_hosts_url; do
+            uci_option="$( printf $uci_option | xargs )"
+            [ -n $uci_option ] && uci add_list $uci_simpleadblock.blocked_hosts_url="$uci_option"
+        done
+
+        local blocked_domains_url="""
+            'https://dbl.oisd.nl/'
+            'https://dbl.oisd.nl/nsfw/'
+            'https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt'
+            'https://www.stopforumspam.com/downloads/toxic_domains_whole.txt'
+        """
+        uci -q delete $uci_simpleadblock.blocked_domains_url
+        for uci_option in $blocked_domains_url; do
+            uci_option="$( printf $uci_option | xargs )"
+            [ -n $uci_option ] && uci add_list $uci_simpleadblock.blocked_domains_url="$uci_option"
+        done
+
+        uci commit $uci_simpleadblock
+        log "Recommended UCI options applied for simple-adblock."
+    }
+
+    function integrate_with_unbound() {
+        if [ $( grep -c simple-adblock "$conf_server_fullfilepath" ) -le 0 ]; then
+
+            local conf_server="""#For integration with simple-adblock
+include: /var/lib/unbound/*.simple-adblock"""
+
+            printf "$conf_server\n\n" >> "$conf_server_fullfilepath"
+
+            log "simple-adblock now integrated with unbound."
+        fi
+    }
+
+    use_always_null
+    apply_recommended_uci_settings
+    integrate_with_unbound
+
+    log "Restarting service: simple-adblock"
+    service simple-adblock restart
 }
 
-function enable_irqbalance() {
+function setup_irqbalance() {
     uci revert irqbalance
     uci set irqbalance.irqbalance.enabled='1'
     uci commit irqbalance
@@ -75,8 +146,6 @@ function setup_unbound() {
         done
     }
 
-    local unbound_root_dir="/etc/unbound"
-    local conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
     local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 
     function apply_recommended_conf() {
@@ -118,9 +187,7 @@ do-not-query-localhost: no
 ignore-cd-flag: yes
 
 # For less fragmentation (new default in 1.12.0)
-edns-buffer-size: $dns_packet_size
-
-include: /var/lib/unbound/*.simple-adblock"""
+edns-buffer-size: $dns_packet_size"""
 
         local conf_extended="""#DNS-over-TLS
 forward-zone:
@@ -269,8 +336,8 @@ rpz:
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
     rpz-action-override: nodata"""
 
-            printf "$conf_server" >> "$conf_server_fullfilepath"
-            printf "$conf_extended" >> "$conf_extended_fullfilepath"
+            printf "$conf_server\n\n" >> "$conf_server_fullfilepath"
+            printf "$conf_extended\n\n" >> "$conf_extended_fullfilepath"
         }
 
         function block_DoT() {
