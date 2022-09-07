@@ -67,3 +67,69 @@ function enable_irqbalance() {
 
     log "Done enabling and starting irqbalance."
 }
+
+function setup_unbound() {
+    local -r unbound_root_dir="/etc/unbound"
+    local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+    local -r conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
+
+    local -r conf_server="""
+# Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
+num-threads: 2 #Number of CPU cores (not threads)
+so-reuseport: yes
+msg-cache-slabs: 2 #Power of 2 closest to num-threads (for all *-slabs)
+rrset-cache-slabs: 2
+infra-cache-slabs: 2
+key-cache-slabs: 2
+ratelimit-slabs: 2
+ip-ratelimit-slabs: 2
+msg-cache-size: 50m #Formula: rrset-cache-size/2 (Recommended: 50m)
+rrset-cache-size: 100m
+so-rcvbuf: 8m #Depends on: sysctl -w net.core.rmem_max=8000000
+so-sndbuf: 8m #Depends on: sysctl -w net.core.wmem_max=8000000
+#Without lib-event
+#outgoing-range: 462 #Formula: 1024/num-threads - 50
+#num-queries-per-thread: 256 #Formula: 1024/num-threads/2
+#With lib-event
+outgoing-range: 8192
+num-queries-per-thread: 4096
+
+# For improving cache-hit ratio (Reference: https://unbound.docs.nlnetlabs.nl/en/latest/topics/serve-stale.html)
+prefetch: yes
+serve-expired: yes
+serve-expired-ttl: 86400 #1 day in seconds
+
+# For privacy
+qname-minimisation: yes
+harden-glue: yes
+harden-dnssec-stripped: yes
+use-caps-for-id: no
+hide-identity: yes
+hide-version: yes
+val-clean-additional: yes
+harden-short-bufsize: yes
+do-not-query-localhost: no
+ignore-cd-flag: yes
+
+# For less fragmentation (new default in 1.12.0)
+edns-buffer-size: 1232
+
+include: /var/lib/unbound/*.simple-adblock
+"""
+
+    local conf_extended="""
+#DNS-over-TLS
+forward-zone:
+    name: "."
+    forward-addr: 9.9.9.9@853#dns.quad9.net
+    forward-addr: 149.112.112.112@853#dns.quad9.net
+    forward-addr: 2620:fe::fe@853#dns.quad9.net
+    forward-addr: 2620:fe::9@853#dns.quad9.net
+    forward-first: no
+    forward-tls-upstream: yes
+    forward-no-cache: no
+"""
+
+    echo $conf_server > "$conf_server_fullfilepath"
+    echo $conf_extended > "$conf_extended_fullfilepath"
+}
