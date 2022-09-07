@@ -31,33 +31,6 @@ function modify_simpleadblock() {
     log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
 }
 
-function modify_sysctlconf() {
-    function read_sysctl_value() {
-        local param="${1:?Missing: parameter}"
-        sysctl "$param" 2> /dev/null | cut -d= -f2 | xargs
-    }
-
-    #For unbound
-    local for_unbound="""
-        net.core.rmem_max=8000000
-        net.core.wmem_max=8000000
-        net.ipv4.tcp_max_syn_backlog=256
-        net.core.somaxconn=256
-    """
-    local config
-    local fullfilepath_conf="/etc/sysctl.conf"
-    for config in $for_unbound; do
-        local param=$( printf "$config" | cut -d= -f1 )
-
-        local value_new=$( printf "$config" | cut -d= -f2 )
-        local value_current=$( read_sysctl_value "$param" )
-        if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
-            echo "$config" >> "$fullfilepath_conf"
-            log "Changed default value of $param from $value_current to $value_new"
-        fi
-    done
-}
-
 function enable_irqbalance() {
     uci revert irqbalance
     uci set irqbalance.irqbalance.enabled='1'
@@ -72,6 +45,33 @@ function setup_unbound() {
     local -r domain="${1:?Missing: domain}"
     local -r port="65345"
     local -r dns_packet_size="1232"
+
+    function modify_sysctlconf() {
+        function read_sysctl_value() {
+            local param="${1:?Missing: parameter}"
+            sysctl "$param" 2> /dev/null | cut -d= -f2 | xargs
+        }
+
+        #For unbound
+        local for_unbound="""
+            net.core.rmem_max=8000000
+            net.core.wmem_max=8000000
+            net.ipv4.tcp_max_syn_backlog=256
+            net.core.somaxconn=256
+        """
+        local config
+        local fullfilepath_conf="/etc/sysctl.conf"
+        for config in $for_unbound; do
+            local param=$( printf "$config" | cut -d= -f1 )
+
+            local value_new=$( printf "$config" | cut -d= -f2 )
+            local value_current=$( read_sysctl_value "$param" )
+            if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
+                echo "$config" >> "$fullfilepath_conf"
+                log "Changed default value of $param from $value_current to $value_new"
+            fi
+        done
+    }
 
     local -r unbound_root_dir="/etc/unbound"
     local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
