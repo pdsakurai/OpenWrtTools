@@ -17,8 +17,7 @@ function restore_packages() {
         irqbalance \
         kmod-usb-net-rndis \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
-        luci-app-unbound unbound-control \
-        luci-app-wireguard
+        luci-app-unbound unbound-control
     log "Done restoring packages within $( end_timer "$timer" )"
 }
 
