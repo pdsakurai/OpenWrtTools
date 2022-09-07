@@ -182,6 +182,36 @@ forward-zone:
         
         /etc/init.d/unbound restart
     }
+
+    function use_unbound_in_dnsmasq() {
+        local -r uci_dnsmasq="""
+            domainneeded='1'
+            authoritative='1'
+            local='/$domain/'
+            domain='$domain'
+            rebind_protection='0'
+            localservice='1'
+            localise_queries='1'
+            expandhosts='1'
+            ednspacket_max='$dns_packet_size'
+            cachesize='0'
+        """
+
+        uci revert dhcp
+        for uci_option in $uci_dnsmasq; do
+            uci_option="$( printf $uci_option | xargs )"
+            [ -n $uci_option ] && uci set dhcp.@dnsmasq[0].$uci_option
+        done
+        uci -q delete dhcp.@dnsmasq[0].server
+        uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$port"
+        uci -q delete dhcp.lan.dhcp_option
+        uci add_list dhcp.lan.dhcp_option='option:dns-server,0.0.0.0'
+        uci commit dhcp
+    
+        /etc/init.d/dnsmasq restart
+    }
+
     apply_recommended_conf
     apply_recommended_uci_settings
+    use_unbound_in_dnsmasq
 }
