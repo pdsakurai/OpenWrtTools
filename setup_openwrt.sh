@@ -136,8 +136,8 @@ forward-zone:
     forward-no-cache: no
         """
 
-        echo $conf_server | xargs > "$conf_server_fullfilepath"
-        echo $conf_extended | xargs > "$conf_extended_fullfilepath"
+        printf "$conf_server" > "$conf_server_fullfilepath"
+        printf "$conf_extended" > "$conf_extended_fullfilepath"
     }
 
     function apply_recommended_uci_settings() {
@@ -279,8 +279,8 @@ rpz:
     rpz-action-override: nodata
             """
 
-            echo $conf_server | xargs >> "$conf_server_fullfilepath"
-            echo $conf_extended | xargs >> "$conf_extended_fullfilepath"
+            printf "$conf_server" >> "$conf_server_fullfilepath"
+            printf "$conf_extended" >> "$conf_extended_fullfilepath"
 
             /etc/init.d/unbound restart
         }
