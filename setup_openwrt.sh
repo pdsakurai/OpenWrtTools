@@ -138,6 +138,8 @@ forward-zone:
 
         printf "$conf_server" > "$conf_server_fullfilepath"
         printf "$conf_extended" > "$conf_extended_fullfilepath"
+
+        log "Done applying recommended configuration for unbound."
     }
 
     function apply_recommended_uci_settings() {
@@ -180,8 +182,8 @@ forward-zone:
             [ -n $uci_option ] && uci set unbound.ub_main.$uci_option
         done
         uci commit unbound.ub_main
-        
         /etc/init.d/unbound restart
+        log "Done applying recommended UCI options for unbound."
     }
 
     function use_unbound_in_dnsmasq() {
@@ -210,6 +212,7 @@ forward-zone:
         uci commit dhcp
     
         /etc/init.d/dnsmasq restart
+        log "dnsmasq now uses unbound."
     }
 
     function use_unbound_in_wan() {
@@ -228,6 +231,7 @@ forward-zone:
         if [ -n "$( uci changes network )" ]; then
             uci commit network
             /etc/init.d/network restart
+            log "WAN interfaces now use unbound."
         fi
     }
 
@@ -262,6 +266,7 @@ forward-zone:
         if [ -n "$( uci changes firewall )" ]; then
             uci commit firewall
             /etc/init.d/firewall restart
+            log "DNS requests from LAN are now redirected to unbound."
         fi
     }
 
@@ -317,6 +322,7 @@ rpz:
 
         block_DoH
         block_DoT
+        log "DNS queries over HTTPS and TLS are now blocked."
     }
 
     modify_sysctlconf
@@ -326,4 +332,5 @@ rpz:
     use_unbound_in_wan
     redirect_dns_requests
     block_encrypted_dns_requests
+    log "Done set-up for unbound."
 }
