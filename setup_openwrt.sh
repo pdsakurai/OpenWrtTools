@@ -69,6 +69,8 @@ function enable_irqbalance() {
 }
 
 function setup_unbound() {
+    local -r domain="jmp"
+    local -r port="1053"
     local -r dns_packet_size="1232"
 
     function apply_recommended_conf() {
@@ -137,5 +139,49 @@ forward-zone:
         echo $conf_extended | xargs > "$conf_extended_fullfilepath"
     }
 
+    function apply_recommended_uci_settings() {
+        local -r uci_ub_main="""
+            enabled='1'
+            manual_conf='0'
+            localservice='1'
+            validator='1'
+            validator='1'
+            listen_port='$port'
+
+            rebind_localhost='0'
+            rebind_protection='1'
+            dns64='0'
+            domain_insecure=''
+            root_age='9'
+
+            dhcp_link='none'
+            domain='$domain'
+            domain_type='static'
+            add_local_fqdn='0'
+            add_wan_fqdn='0'
+            add_extra_dns='0'
+        
+            unbound_control='1'
+            protocol='default'
+            resource='large'
+            recursion='aggressive'
+            query_minimize='1'
+            query_min_strict='0'
+            edns_size='$dns_packet_size'
+            ttl_min='0'
+            rate_limit='0'
+            extended_stats='1'
+        """
+
+        uci revert unbound.ub_main
+        for uci_option in $uci_ub_main; do
+            uci_option="$( printf $uci_option | xargs )"
+            [ -n $uci_option ] && uci set unbound.ub_main.$uci_option
+        done
+        uci commit unbound.ub_main
+        
+        /etc/init.d/unbound restart
+    }
     apply_recommended_conf
+    apply_recommended_uci_settings
 }
