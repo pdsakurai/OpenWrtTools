@@ -211,7 +211,27 @@ forward-zone:
         /etc/init.d/dnsmasq restart
     }
 
+    function use_unbound_in_wan() {
+        function get_all_wan() {
+            uci show network | grep .*wan.*=interface | cut -d= -f1 | cut -d. -f2
+        }
+
+        uci revert network
+        for wan in $( get_all_wan ); do
+            uci -q delete network.$wan.dns
+            uci add_list network.$wan.dns="127.0.0.1"
+            uci add_list network.$wan.dns="::1"
+            uci set network.$wan.peerdns="0"
+        done
+        
+        if [ -n "$( uci changes network )" ]; then
+            uci commit network
+            /etc/init.d/network restart
+        fi
+    }
+
     apply_recommended_conf
     apply_recommended_uci_settings
     use_unbound_in_dnsmasq
+    use_unbound_in_wan
 }
