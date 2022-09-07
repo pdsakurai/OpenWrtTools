@@ -69,6 +69,9 @@ function enable_irqbalance() {
 }
 
 function setup_unbound() {
+    local -r dns_packet_size="1232"
+
+    function apply_recommended_conf() {
     local -r unbound_root_dir="/etc/unbound"
     local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
     local -r conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
@@ -112,7 +115,7 @@ do-not-query-localhost: no
 ignore-cd-flag: yes
 
 # For less fragmentation (new default in 1.12.0)
-edns-buffer-size: 1232
+            edns-buffer-size: $dns_packet_size
 
 include: /var/lib/unbound/*.simple-adblock
 """
@@ -132,4 +135,7 @@ forward-zone:
 
     echo $conf_server > "$conf_server_fullfilepath"
     echo $conf_extended > "$conf_extended_fullfilepath"
+    }
+
+    apply_recommended_conf
 }
