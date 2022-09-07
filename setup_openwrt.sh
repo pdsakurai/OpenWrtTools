@@ -136,7 +136,7 @@ forward-zone:
         printf "$conf_server" > "$conf_server_fullfilepath"
         printf "$conf_extended" > "$conf_extended_fullfilepath"
 
-        log "Done applying recommended configuration for unbound."
+        log "Recommended configuration applied for unbound."
     }
 
     function apply_recommended_uci_settings() {
@@ -179,8 +179,7 @@ forward-zone:
             [ -n $uci_option ] && uci set unbound.ub_main.$uci_option
         done
         uci commit unbound.ub_main
-        /etc/init.d/unbound restart
-        log "Done applying recommended UCI options for unbound."
+        log "Recommended UCI options applied for unbound."
     }
 
     function use_unbound_in_dnsmasq() {
@@ -207,8 +206,7 @@ forward-zone:
         uci -q delete dhcp.lan.dhcp_option
         uci add_list dhcp.lan.dhcp_option='option:dns-server,0.0.0.0'
         uci commit dhcp
-    
-        /etc/init.d/dnsmasq restart
+
         log "dnsmasq now uses unbound."
     }
 
@@ -225,11 +223,8 @@ forward-zone:
             uci set network.$wan.peerdns="0"
         done
 
-        if [ -n "$( uci changes network )" ]; then
-            uci commit network
-            /etc/init.d/network restart
-            log "WAN interfaces now use unbound."
-        fi
+        uci commit network
+        log "WAN interfaces now use unbound."
     }
 
     function redirect_dns_requests() {
@@ -259,12 +254,8 @@ forward-zone:
         uci revert firewall
         remove_old_redirections
         redirect_dns_ports
-
-        if [ -n "$( uci changes firewall )" ]; then
-            uci commit firewall
-            /etc/init.d/firewall restart
-            log "DNS requests from LAN are now redirected to unbound."
-        fi
+        uci commit firewall
+        log "DNS requests from LAN are now redirected to unbound."
     }
 
     function block_encrypted_dns_requests() {
@@ -279,8 +270,6 @@ module-config: \"respip validator iterator\""""
 
             printf "$conf_server" >> "$conf_server_fullfilepath"
             printf "$conf_extended" >> "$conf_extended_fullfilepath"
-
-            /etc/init.d/unbound restart
         }
 
         function block_DoT() {
@@ -307,10 +296,7 @@ module-config: \"respip validator iterator\""""
             uci set firewall.@rule[-1].dest_port='853'
             uci set firewall.@rule[-1].target='REJECT'
 
-            if [ -n "$( uci changes firewall )" ]; then
-                uci commit firewall
-                /etc/init.d/firewall restart
-            fi
+            uci commit firewall
         }
 
         block_DoH
@@ -325,5 +311,11 @@ module-config: \"respip validator iterator\""""
     use_unbound_in_wan
     redirect_dns_requests
     block_encrypted_dns_requests
-    log "Done set-up for unbound."
+
+    local services_to_restart="firewall unbound dnsmasq network"
+    log "Done set-up for unbound. Restarting services: $services_to_restart"
+
+    for item in $services; do
+        service $item restart
+    done
 }
