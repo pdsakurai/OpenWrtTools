@@ -70,7 +70,7 @@ function enable_irqbalance() {
 
 function setup_unbound() {
     local -r domain="${1:?Missing: domain}"
-    local -r port="1053"
+    local -r port="65345"
     local -r dns_packet_size="1232"
 
     function apply_recommended_conf() {
