@@ -68,6 +68,7 @@ function setup_unbound() {
             local value_current=$( read_sysctl_value "$param" )
             if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
                 echo "$config" >> "$fullfilepath_conf"
+                sysctl -w $config
                 log "Changed default value of $param from $value_current to $value_new"
             fi
         done
