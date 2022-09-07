@@ -73,11 +73,11 @@ function setup_unbound() {
     local -r port="65345"
     local -r dns_packet_size="1232"
 
-    function apply_recommended_conf() {
-        local -r unbound_root_dir="/etc/unbound"
-        local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
-        local -r conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
+    local -r unbound_root_dir="/etc/unbound"
+    local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+    local -r conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 
+    function apply_recommended_conf() {
         local -r conf_server="""
 # Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
 num-threads: 2 #Number of CPU cores (not threads)
@@ -265,22 +265,57 @@ forward-zone:
     }
 
     function block_encrypted_dns_requests() {
-        local -r name_prefix="Block DNS-over-"
+        function block_DoH() {
+            local -r conf_server="""
+#For blocking DNS-over-HTTPS
+module-config: "respip validator iterator"
+            """
 
-        uci revert firewall
+            local -r conf_extended="""
+rpz:
+    name: DNS-over-HTTPS
+    url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
+    rpz-action-override: nodata
+            """
 
-        uci add firewall rule
-        uci set firewall.@rule[-1].name="${name_prefix}TLS"
-        uci set firewall.@rule[-1].proto='tcp'
-        uci set firewall.@rule[-1].src='lan'
-        uci set firewall.@rule[-1].dest='wan'
-        uci set firewall.@rule[-1].dest_port='853'
-        uci set firewall.@rule[-1].target='REJECT'
+            echo $conf_server | xargs >> "$conf_server_fullfilepath"
+            echo $conf_extended | xargs >> "$conf_extended_fullfilepath"
 
-        if [ -n "$( uci changes firewall )" ]; then
-            uci commit firewall
-            /etc/init.d/firewall restart
-        fi
+            /etc/init.d/unbound restart
+        }
+
+        function block_DoT() {
+            local -r name="Block DNS-over-TLS"
+            function remove_old_rules() {
+                function get_old_rules() {
+                    uci show firewall | grep "rule.*name='$name" | cut -d. -f 2
+                }
+
+                for option in $( get_old_rules ); do
+                    uci delete firewall.$option
+                done
+            }
+
+            uci revert firewall
+
+            remove_old_rules
+
+            uci add firewall rule
+            uci set firewall.@rule[-1].name="$name"
+            uci set firewall.@rule[-1].proto='tcp'
+            uci set firewall.@rule[-1].src='lan'
+            uci set firewall.@rule[-1].dest='wan'
+            uci set firewall.@rule[-1].dest_port='853'
+            uci set firewall.@rule[-1].target='REJECT'
+
+            if [ -n "$( uci changes firewall )" ]; then
+                uci commit firewall
+                /etc/init.d/firewall restart
+            fi
+        }
+
+        block_DoH
+        block_DoT
     }
 
     apply_recommended_conf
