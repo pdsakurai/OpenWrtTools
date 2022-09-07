@@ -319,6 +319,7 @@ rpz:
         block_DoT
     }
 
+    modify_sysctlconf
     apply_recommended_conf
     apply_recommended_uci_settings
     use_unbound_in_dnsmasq
