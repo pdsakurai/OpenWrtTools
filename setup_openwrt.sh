@@ -379,9 +379,75 @@ rpz:
     redirect_dns_requests
     block_encrypted_dns_requests
 
-    local services_to_restart="firewall unbound dnsmasq network"
     log "Done set-up for unbound."
 
+    local services_to_restart="firewall unbound dnsmasq network"
+    for item in $services_to_restart; do
+        log "Restarting service: $item"
+        service $item restart
+    done
+}
+
+
+function setup_ntp_server() {
+    function redirect_NTP_queries() {
+        local name="Redirect NTP, port 123"
+        function remove_old_redirections() {
+            function get_old_redirects() {
+                uci show firewall | grep "redirect.*name='$name" | cut -d. -f 2 | sort -r
+            }
+
+            for option in $( get_old_redirects ); do
+                uci delete firewall.$option
+            done
+        }
+
+        uci revert firewall
+        remove_old_redirections
+    
+        uci add firewall redirect
+        uci set firewall.@redirect[-1].target='DNAT'
+        uci set firewall.@redirect[-1].name="$name"
+        uci set firewall.@redirect[-1].proto='udp'
+        uci set firewall.@redirect[-1].src='lan'
+        uci set firewall.@redirect[-1].src_dport='123'
+
+        uci commit firewall
+    }
+
+    function apply_recommended_uci_settings() {
+        local uci_ntp="system.ntp"
+        uci revert $uci_ntp
+
+        uci set $uci_ntp.enabled='1'
+        uci set $uci_ntp.enable_server='1'
+
+        uci -q delete $uci_ntp.interface
+        uci add_list $uci_ntp.interface="lan"
+
+        local servers="""
+            ph.pool.ntp.org
+            0.asia.pool.ntp.org
+            1.asia.pool.ntp.org
+            2.asia.pool.ntp.org
+            3.asia.pool.ntp.org
+        """
+        uci -q delete $uci_ntp.server
+        for server in $servers; do
+            server="$( printf $server | xargs )"
+            [ -n $server ] && uci add_list $uci_ntp.server="$server"
+        done
+        uci commit $uci_ntp
+
+        log "Applied recommended UCI settings for NTP"
+    }
+
+    redirect_NTP_queries
+    apply_recommended_uci_settings
+
+    log "Done set-up for NTP server."
+
+    local services_to_restart="firewall sysntpd"
     for item in $services_to_restart; do
         log "Restarting service: $item"
         service $item restart
