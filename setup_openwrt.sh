@@ -133,8 +133,8 @@ forward-zone:
     forward-tls-upstream: yes
     forward-no-cache: no"""
 
-        printf "$conf_server" > "$conf_server_fullfilepath"
-        printf "$conf_extended" > "$conf_extended_fullfilepath"
+        printf "$conf_server\n\n" > "$conf_server_fullfilepath"
+        printf "$conf_extended\n\n" > "$conf_extended_fullfilepath"
 
         log "Recommended configuration applied for unbound."
     }
