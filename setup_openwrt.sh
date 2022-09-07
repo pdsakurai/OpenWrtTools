@@ -244,7 +244,7 @@ function setup_unbound() {
         }
 
         function redirect_dns_ports() {
-            local -r dns_ports="53 853 5353"
+            local -r dns_ports="53 5353"
             for port in $( printf $dns_ports ); do
                 uci add firewall redirect
                 firewall.@redirect[-1].target='DNAT'
@@ -264,9 +264,29 @@ function setup_unbound() {
         fi
     }
 
+    function block_encrypted_dns_requests() {
+        local -r name_prefix="Block DNS-over-"
+
+        uci revert firewall
+
+        uci add firewall rule
+        uci set firewall.@rule[-1].name="${name_prefix}TLS"
+        uci set firewall.@rule[-1].proto='tcp'
+        uci set firewall.@rule[-1].src='lan'
+        uci set firewall.@rule[-1].dest='wan'
+        uci set firewall.@rule[-1].dest_port='853'
+        uci set firewall.@rule[-1].target='REJECT'
+
+        if [ -n "$( uci changes firewall )" ]; then
+            uci commit firewall
+            /etc/init.d/firewall restart
+        fi
+    }
+
     apply_recommended_conf
     apply_recommended_uci_settings
     use_unbound_in_dnsmasq
     use_unbound_in_wan
     redirect_dns_requests
+    block_encrypted_dns_requests
 }
