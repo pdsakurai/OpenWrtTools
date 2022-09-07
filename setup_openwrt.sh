@@ -232,7 +232,7 @@ forward-zone:
 
         function remove_old_redirections() {
             function get_old_redirects() {
-                uci show firewall | grep "redirect.*name='$name_prefix" | cut -d. -f 2
+                uci show firewall | grep "redirect.*name='$name_prefix" | cut -d. -f 2 | sort -r
             }
 
             for option in $( get_old_redirects ); do
@@ -276,7 +276,7 @@ module-config: \"respip validator iterator\""""
             local name="Block DNS-over-TLS"
             function remove_old_rules() {
                 function get_old_rules() {
-                    uci show firewall | grep "rule.*name='$name" | cut -d. -f 2
+                    uci show firewall | grep "rule.*name='$name" | cut -d. -f 2 | sort -r
                 }
 
                 for option in $( get_old_rules ); do
