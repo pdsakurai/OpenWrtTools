@@ -133,8 +133,8 @@ forward-zone:
     forward-no-cache: no
 """
 
-    echo $conf_server > "$conf_server_fullfilepath"
-    echo $conf_extended > "$conf_extended_fullfilepath"
+        echo $conf_server | xargs > "$conf_server_fullfilepath"
+        echo $conf_extended | xargs > "$conf_extended_fullfilepath"
     }
 
     apply_recommended_conf
