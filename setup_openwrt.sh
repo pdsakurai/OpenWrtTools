@@ -274,7 +274,7 @@ forward-zone:
         function block_DoH() {
             local conf_server="""
 #For blocking DNS-over-HTTPS
-module-config: "respip validator iterator"
+module-config: \"respip validator iterator\"
             """
 
             local conf_extended="""
