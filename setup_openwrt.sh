@@ -80,8 +80,7 @@ function setup_unbound() {
     local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 
     function apply_recommended_conf() {
-        local conf_server="""
-# Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
+        local conf_server="""# Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
 num-threads: 2 #Number of CPU cores (not threads)
 so-reuseport: yes
 msg-cache-slabs: 2 #Power of 2 closest to num-threads (for all *-slabs)
@@ -121,11 +120,9 @@ ignore-cd-flag: yes
 # For less fragmentation (new default in 1.12.0)
 edns-buffer-size: $dns_packet_size
 
-include: /var/lib/unbound/*.simple-adblock
-        """
+include: /var/lib/unbound/*.simple-adblock"""
 
-        local conf_extended="""
-#DNS-over-TLS
+        local conf_extended="""#DNS-over-TLS
 forward-zone:
     name: "."
     forward-addr: 9.9.9.9@853#dns.quad9.net
@@ -134,8 +131,7 @@ forward-zone:
     forward-addr: 2620:fe::9@853#dns.quad9.net
     forward-first: no
     forward-tls-upstream: yes
-    forward-no-cache: no
-        """
+    forward-no-cache: no"""
 
         printf "$conf_server" > "$conf_server_fullfilepath"
         printf "$conf_extended" > "$conf_extended_fullfilepath"
@@ -273,17 +269,13 @@ forward-zone:
 
     function block_encrypted_dns_requests() {
         function block_DoH() {
-            local conf_server="""
-#For blocking DNS-over-HTTPS
-module-config: \"respip validator iterator\"
-            """
+            local conf_server="""#For blocking DNS-over-HTTPS
+module-config: \"respip validator iterator\""""
 
-            local conf_extended="""
-rpz:
+            local conf_extended="""rpz:
     name: DNS-over-HTTPS
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
-    rpz-action-override: nodata
-            """
+    rpz-action-override: nodata"""
 
             printf "$conf_server" >> "$conf_server_fullfilepath"
             printf "$conf_extended" >> "$conf_extended_fullfilepath"
