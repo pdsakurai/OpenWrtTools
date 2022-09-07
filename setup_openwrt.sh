@@ -42,9 +42,9 @@ function enable_irqbalance() {
 }
 
 function setup_unbound() {
-    local -r domain="${1:?Missing: domain}"
+    local domain="${1:?Missing: domain}"
     local port="1053"
-    local -r dns_packet_size="1232"
+    local dns_packet_size="1232"
 
     function modify_sysctlconf() {
         function read_sysctl_value() {
@@ -74,12 +74,12 @@ function setup_unbound() {
         done
     }
 
-    local -r unbound_root_dir="/etc/unbound"
-    local -r conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
-    local -r conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
+    local unbound_root_dir="/etc/unbound"
+    local conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+    local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 
     function apply_recommended_conf() {
-        local -r conf_server="""
+        local conf_server="""
 # Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
 num-threads: 2 #Number of CPU cores (not threads)
 so-reuseport: yes
@@ -141,7 +141,7 @@ forward-zone:
     }
 
     function apply_recommended_uci_settings() {
-        local -r uci_ub_main="""
+        local uci_ub_main="""
             enabled='1'
             manual_conf='0'
             localservice='1'
@@ -185,7 +185,7 @@ forward-zone:
     }
 
     function use_unbound_in_dnsmasq() {
-        local -r uci_dnsmasq="""
+        local uci_dnsmasq="""
             domainneeded='1'
             authoritative='1'
             local='/$domain/'
@@ -232,7 +232,7 @@ forward-zone:
     }
 
     function redirect_dns_requests() {
-        local -r name_prefix="Redirect DNS"
+        local name_prefix="Redirect DNS"
 
         function remove_old_redirections() {
             function get_old_redirects() {
@@ -245,7 +245,7 @@ forward-zone:
         }
 
         function redirect_dns_ports() {
-            local -r dns_ports="53 5353"
+            local dns_ports="53 5353"
             for port in $( printf $dns_ports ); do
                 uci add firewall redirect
                 firewall.@redirect[-1].target='DNAT'
@@ -267,12 +267,12 @@ forward-zone:
 
     function block_encrypted_dns_requests() {
         function block_DoH() {
-            local -r conf_server="""
+            local conf_server="""
 #For blocking DNS-over-HTTPS
 module-config: "respip validator iterator"
             """
 
-            local -r conf_extended="""
+            local conf_extended="""
 rpz:
     name: DNS-over-HTTPS
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
@@ -286,7 +286,7 @@ rpz:
         }
 
         function block_DoT() {
-            local -r name="Block DNS-over-TLS"
+            local name="Block DNS-over-TLS"
             function remove_old_rules() {
                 function get_old_rules() {
                     uci show firewall | grep "rule.*name='$name" | cut -d. -f 2
