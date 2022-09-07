@@ -453,3 +453,13 @@ function setup_ntp_server() {
         service $item restart
     done
 }
+
+function setup_router(){
+    setup_ntp_server
+    restore_packages
+    setup_irqbalance
+    setup_unbound
+    setup_simpleadblock
+
+    log "Completed setting up router."
+}
