@@ -233,6 +233,15 @@ forward-zone:
     function redirect_dns_requests() { 
         local -r name_prefix="Redirect DNS"
 
+        function remove_old_redirections() {
+            function get_old_redirects() {
+                uci show firewall | grep "redirect.*name='$name_prefix" | cut -d. -f 2
+            }
+
+            for option in $( get_old_redirects ); do
+                uci delete firewall.$option
+            done
+        }
 
         function redirect_dns_ports() {
             local -r dns_ports="53 853 5353"
@@ -246,6 +255,7 @@ forward-zone:
         }
 
         uci revert firewall
+        remove_old_redirections
         redirect_dns_ports
 
         if [ -n "$( uci changes firewall )" ]; then
