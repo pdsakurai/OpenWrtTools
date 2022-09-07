@@ -263,7 +263,8 @@ forward-zone:
             local conf_server="""#For blocking DNS-over-HTTPS
 module-config: \"respip validator iterator\""""
 
-            local conf_extended="""rpz:
+            local conf_extended="""#For blocking DNS-over-HTTPS
+rpz:
     name: DNS-over-HTTPS
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
     rpz-action-override: nodata"""
