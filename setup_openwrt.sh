@@ -313,9 +313,10 @@ module-config: \"respip validator iterator\""""
     block_encrypted_dns_requests
 
     local services_to_restart="firewall unbound dnsmasq network"
-    log "Done set-up for unbound. Restarting services: $services_to_restart"
+    log "Done set-up for unbound."
 
-    for item in $services; do
+    for item in $services_to_restart; do
+        log "Restarting service: $item"
         service $item restart
     done
 }
