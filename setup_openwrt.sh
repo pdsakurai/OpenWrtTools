@@ -453,12 +453,34 @@ function setup_ntp_server() {
     done
 }
 
+
+function transmit_max_radio_power_always() {
+    local pkg="wireless-regdb_2022.06.06-1_all.ipk"
+    local pkg_url="https://cdn.discordapp.com/attachments/792707384619040798/1010520144650457169/wireless-regdb_2022.06.06-1_all.ipk"
+    local dir="/tmp"
+
+    wget -P $dir -O $pkg $pkg_url
+    opkg install --force-reinstall $dir/$pkg
+
+    uci revert wireless
+    for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
+        uci delete $uci_option
+    done
+
+    if [ -n "$( uci changes wireless )" ]; then
+        uci commit wireless
+        wifi
+        log "Wi-Fi radios are now transmitting at max power."
+    fi
+}
+
 function setup_router(){
     setup_ntp_server
     restore_packages
     setup_irqbalance
     setup_unbound
     setup_simpleadblock
+    transmit_max_radio_power_always
 
     log "Completed setting up router."
 }
