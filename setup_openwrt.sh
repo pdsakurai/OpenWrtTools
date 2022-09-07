@@ -231,28 +231,27 @@ forward-zone:
     }
 
     function redirect_dns_requests() { 
+        local -r name_prefix="Redirect DNS"
+
+
+        function redirect_dns_ports() {
+            local -r dns_ports="53 853 5353"
+            for port in $( printf $dns_ports ); do
+        uci add firewall redirect
+        firewall.@redirect[-1].target='DNAT'
+                firewall.@redirect[-1].name="$name_prefix - port $port"
+        firewall.@redirect[-1].src='lan'
+                firewall.@redirect[-1].src_dport="$port"
+            done
+        }
+
         uci revert firewall
+        redirect_dns_ports
 
-        uci add firewall redirect
-        firewall.@redirect[-1].target='DNAT'
-        firewall.@redirect[-1].name='Redirect DNS, port 53'
-        firewall.@redirect[-1].src='lan'
-        firewall.@redirect[-1].src_dport='53'
-
-        uci add firewall redirect
-        firewall.@redirect[-1].target='DNAT'
-        firewall.@redirect[-1].name='Redirect DNS, port 853'
-        firewall.@redirect[-1].src='lan'
-        firewall.@redirect[-1].src_dport='853'
-
-        uci add firewall redirect
-        firewall.@redirect[-1].target='DNAT'
-        firewall.@redirect[-1].name='Redirect DNS, port 5353'
-        firewall.@redirect[-1].src='lan'
-        firewall.@redirect[-1].src_dport='5353'
-
+        if [ -n "$( uci changes firewall )" ]; then
         uci commit firewall
         /etc/init.d/firewall restart
+        fi
     }
 
     apply_recommended_conf
