@@ -28,7 +28,7 @@ function modify_simpleadblock() {
         return 1
     fi
 
-    sed 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
+    sed -i 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
     log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
 }
 
