@@ -474,13 +474,38 @@ function transmit_max_radio_power_always() {
     fi
 }
 
-function setup_router(){
+function switch_to_odhcpd() {
+    opkg remove odhcpd-ipv6only
+    opkg install odhcpd
+    uci set dhcp.lan.dhcpv4="server"
+    uci set dhcp.odhcpd.maindhcp="1"
+    uci set dhcp.odhcpd.leasefile="/var/lib/odhcpd/dhcp.leases"
+    uci set dhcp.odhcpd.leasetrigger="/usr/lib/unbound/odhcpd.sh"
+    uci -q delete dhcp.@dnsmasq[0]
+    uci commit dhcp
+
+    uci set unbound.ub_main.add_local_fqdn="3"
+    uci set unbound.ub_main.add_wan_fqdn="1"
+    uci set unbound.ub_main.dhcp4_slaac6="1"
+    uci set unbound.ub_main.dhcp_link="odhcpd"
+    uci set unbound.ub_main.listen_port="53"
+    uci commit unbound
+
+    opkg remove dnsmasq
+    service unbound restart
+    service odhcpd restart
+
+    log "Used odhcpd with unbound, instead of dnsmasq."
+}
+
+function setup_router() {
     setup_ntp_server
     restore_packages
     setup_irqbalance
     setup_unbound
     setup_simpleadblock
     transmit_max_radio_power_always
+    switch_to_odhcpd
 
     log "Completed setting up router."
 }
