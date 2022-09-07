@@ -252,10 +252,10 @@ forward-zone:
             local dns_ports="53 5353"
             for port in $( printf $dns_ports ); do
                 uci add firewall redirect
-                firewall.@redirect[-1].target='DNAT'
-                firewall.@redirect[-1].name="$name_prefix - port $port"
-                firewall.@redirect[-1].src='lan'
-                firewall.@redirect[-1].src_dport="$port"
+                uci set firewall.@redirect[-1].target='DNAT'
+                uci set firewall.@redirect[-1].name="$name_prefix - port $port"
+                uci set firewall.@redirect[-1].src='lan'
+                uci set firewall.@redirect[-1].src_dport="$port"
             done
         }
 
