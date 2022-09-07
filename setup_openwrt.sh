@@ -12,7 +12,7 @@ function restore_packages() {
     log "Restoring packages..."
     opkg update && opkg install \
         irqbalance \
-        kmod-usb-net-rndis \ #For Android-tethering
+        kmod-usb-net-rndis \
         luci-app-banip \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
         luci-app-unbound unbound-control \
