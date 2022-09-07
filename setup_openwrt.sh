@@ -69,7 +69,7 @@ function enable_irqbalance() {
 }
 
 function setup_unbound() {
-    local -r domain="jmp"
+    local -r domain="${1:?Missing: domain}"
     local -r port="1053"
     local -r dns_packet_size="1232"
 
