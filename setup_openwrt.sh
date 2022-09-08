@@ -185,7 +185,19 @@ do-not-query-localhost: no
 ignore-cd-flag: yes
 
 # For less fragmentation (new default in 1.12.0)
-edns-buffer-size: $dns_packet_size"""
+edns-buffer-size: $dns_packet_size
+
+#Overriding the OpenWrt config by using the default
+outgoing-num-tcp: 10
+incoming-num-tcp: 10
+msg-buffer-size: 65552
+infra-cache-numhosts: 10000
+harden-large-queries: no
+ratelimit-size: 4m
+ip-ratelimit-size: 4m
+cache-max-ttl: 86400
+cache-max-negative-ttl: 3600
+val-bogus-ttl: 60"""
 
         local conf_extended="""#DNS-over-TLS
 forward-zone:
