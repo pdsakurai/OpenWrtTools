@@ -2,6 +2,7 @@
 
 readonly unbound_root_dir="/etc/unbound"
 readonly conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+readonly resources_dir="$( pwd )/resources"
 
 function log() {
     local _setup_openwrt_sh="_setup_openwrt_sh[$$]"
@@ -36,44 +37,19 @@ function setup_simpleadblock() {
     function apply_recommended_uci_settings() {
         local uci_simpleadblock="simple-adblock.config"
 
-        local options="""
-            config_update_enabled='0'
-            verbosity='2'
-            force_dns='0'
-            led='none'
-            dns='unbound.adb_list'
-            compressed_cache='1'
-            enabled='1'
-            parallel_downloads='1'
-            debug='0'
-        """
         uci revert $uci_simpleadblock
-        for uci_option in $options; do
+
+        while read uci_option; do
             uci_option="$( printf $uci_option | xargs )"
             [ -n $uci_option ] && uci set $uci_simpleadblock.$uci_option
-        done
+        done < "$resources_dir/$uci_simpleadblock"
 
-        local blocked_hosts_url="""
-            https://www.github.developerdan.com/hosts/lists/dating-services-extended.txt
-            http://sbc.io/hosts/alternates/gambling/hosts
-            https://www.github.developerdan.com/hosts/lists/hate-and-junk-extended.txt
-        """
-        uci -q delete $uci_simpleadblock.blocked_hosts_url
-        for uci_option in $blocked_hosts_url; do
-            uci_option="$( printf $uci_option | xargs )"
-            [ -n $uci_option ] && uci add_list $uci_simpleadblock.blocked_hosts_url="$uci_option"
-        done
-
-        local blocked_domains_url="""
-            'https://dbl.oisd.nl/'
-            'https://dbl.oisd.nl/nsfw/'
-            'https://s3.amazonaws.com/lists.disconnect.me/simple_malvertising.txt'
-            'https://www.stopforumspam.com/downloads/toxic_domains_whole.txt'
-        """
-        uci -q delete $uci_simpleadblock.blocked_domains_url
-        for uci_option in $blocked_domains_url; do
-            uci_option="$( printf $uci_option | xargs )"
-            [ -n $uci_option ] && uci add_list $uci_simpleadblock.blocked_domains_url="$uci_option"
+        for item in blocked_domains_url blocked_hosts_url; do
+            uci -q delete $uci_simpleadblock.$item
+            while read uci_option; do
+                uci_option="$( printf $uci_option | xargs )"
+                [ -n $uci_option ] && uci add_list $uci_simpleadblock.$item="$uci_option"
+            done < "$resources_dir/$uci_simpleadblock.$item"
         done
 
         uci commit $uci_simpleadblock
