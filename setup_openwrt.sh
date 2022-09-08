@@ -110,6 +110,20 @@ function setup_irqbalance() {
     log "Done enabling and starting irqbalance."
 }
 
+
+function delete_firewall_entries() {
+    local type=${1:?Missing: Firewall entry type}
+    local name=${2:?Missing: Entry name}
+
+    function search_entries() {
+        uci show firewall | grep "$type.*name='$name" | cut -d. -f 2 | sort -r
+    }
+
+    for entry in $( search_entries ); do
+        uci delete firewall.$entry
+    done
+}
+
 function setup_unbound() {
     local domain="${1:?Missing: domain}"
     local port="${2:-1053}"
@@ -306,30 +320,22 @@ forward-zone:
 
     function redirect_dns_requests() {
         local name_prefix="Redirect DNS"
+        local type="redirect"
 
-        function remove_old_redirections() {
-            function get_old_redirects() {
-                uci show firewall | grep "redirect.*name='$name_prefix" | cut -d. -f 2 | sort -r
-            }
-
-            for option in $( get_old_redirects ); do
-                uci delete firewall.$option
-            done
-        }
 
         function redirect_dns_ports() {
             local dns_ports="53 5353"
             for port in $dns_ports; do
-                uci add firewall redirect
-                uci set firewall.@redirect[-1].target='DNAT'
-                uci set firewall.@redirect[-1].name="$name_prefix - port $port"
-                uci set firewall.@redirect[-1].src='lan'
-                uci set firewall.@redirect[-1].src_dport="$port"
+                uci add firewall $type
+                uci set firewall.@$type[-1].target='DNAT'
+                uci set firewall.@$type[-1].name="$name_prefix - port $port"
+                uci set firewall.@$type[-1].src='lan'
+                uci set firewall.@$type[-1].src_dport="$port"
             done
         }
 
         uci revert firewall
-        remove_old_redirections
+        delete_firewall_entries "$type" "$name_prefix"
         redirect_dns_ports
         uci commit firewall
         log "DNS requests from LAN are now redirected to unbound."
@@ -352,27 +358,19 @@ rpz:
 
         function block_DoT() {
             local name="Block DNS-over-TLS"
-            function remove_old_rules() {
-                function get_old_rules() {
-                    uci show firewall | grep "rule.*name='$name" | cut -d. -f 2 | sort -r
-                }
-
-                for option in $( get_old_rules ); do
-                    uci delete firewall.$option
-                done
-            }
+            local type="rule"
 
             uci revert firewall
 
-            remove_old_rules
+            delete_firewall_entries "$type" "$name"
 
             uci add firewall rule
-            uci set firewall.@rule[-1].name="$name"
-            uci set firewall.@rule[-1].proto='tcp'
-            uci set firewall.@rule[-1].src='lan'
-            uci set firewall.@rule[-1].dest='wan'
-            uci set firewall.@rule[-1].dest_port='853'
-            uci set firewall.@rule[-1].target='REJECT'
+            uci set firewall.@$type[-1].name="$name"
+            uci set firewall.@$type[-1].proto='tcp'
+            uci set firewall.@$type[-1].src='lan'
+            uci set firewall.@$type[-1].dest='wan'
+            uci set firewall.@$type[-1].dest_port='853'
+            uci set firewall.@$type[-1].target='REJECT'
 
             uci commit firewall
         }
@@ -403,25 +401,17 @@ rpz:
 function setup_ntp_server() {
     function redirect_NTP_queries() {
         local name="Redirect NTP, port 123"
-        function remove_old_redirections() {
-            function get_old_redirects() {
-                uci show firewall | grep "redirect.*name='$name" | cut -d. -f 2 | sort -r
-            }
-
-            for option in $( get_old_redirects ); do
-                uci delete firewall.$option
-            done
-        }
+        local type="redirect"
 
         uci revert firewall
-        remove_old_redirections
+        delete_firewall_entries "$type" "$name"
     
-        uci add firewall redirect
-        uci set firewall.@redirect[-1].target='DNAT'
-        uci set firewall.@redirect[-1].name="$name"
-        uci set firewall.@redirect[-1].proto='udp'
-        uci set firewall.@redirect[-1].src='lan'
-        uci set firewall.@redirect[-1].src_dport='123'
+        uci add firewall $type
+        uci set firewall.@$type[-1].target='DNAT'
+        uci set firewall.@$type[-1].name="$name"
+        uci set firewall.@$type[-1].proto='udp'
+        uci set firewall.@$type[-1].src='lan'
+        uci set firewall.@$type[-1].src_dport='123'
 
         uci commit firewall
     }
