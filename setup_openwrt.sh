@@ -25,11 +25,7 @@ function restore_packages() {
 function setup_simpleadblock() {
     function use_always_null(){
         local fullfilepath_script="/etc/init.d/simple-adblock"
-        if [ ! -e "$fullfilepath_script" ]; then
-            log "Cannot find file: $fullfilepath_script"
-            return 1
-        fi
-
+        [ ! -e "$fullfilepath_script" ] && log "Cannot find file: $fullfilepath_script" && return 1
         sed -i 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
         log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
     }
