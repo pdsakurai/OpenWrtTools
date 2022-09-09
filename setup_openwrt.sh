@@ -198,41 +198,40 @@ forward-zone:
         log "Recommended configuration applied for unbound."
     }
 
-    function clean_uci_option() {
-        local uci_option=${1:?Missing: UCI option}
-        uci_option="$( printf $uci_option | xargs )"
-        uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
-        uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
-        printf $uci_option | sed s/\$port/$port/
+    function load_uci_from_file() {
+        local uci_option_prefix="${1:?Missing: UCI option prefix}"
+        local uci_option_suffix_filename="${2:?Missing: Filename}"
+
+        while read uci_option_suffix; do
+            uci_option_suffix="$( printf $uci_option_suffix | xargs )"
+            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$domain/$domain/ )"
+            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$dns_packet_size/$dns_packet_size/ )"
+            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$port/$port/ )"
+            [ -n $uci_option_suffix ] && uci set $uci_option_prefix.$uci_option_suffix
+        done < "$resources_dir/$uci_option_suffix_filename"
     }
 
     function apply_recommended_uci_settings() {
         local uci_unbound="unbound.@unbound[0]"
         uci revert $uci_unbound
-
-        while read uci_option; do
-            uci_option="$( clean_uci_option $uci_option )"
-            [ -n $uci_option ] && uci set $uci_unbound.$uci_option
-        done < "$resources_dir/unbound.uci"
-
+        load_uci_from_file "$uci_unbound" "unbound.uci"
         uci commit $uci_unbound
         log "Recommended UCI options applied for unbound."
     }
 
     function use_unbound_in_dnsmasq() {
-        uci revert dhcp
+        local uci_dnsmasq="dhcp.@dnsmasq[0]"
+        uci revert $uci_dnsmasq
+        load_uci_from_file "$uci_dnsmasq" "unbound.dnsmasq.uci"
+        uci -q delete $uci_dnsmasq.server
+        uci add_list $uci_dnsmasq.server="127.0.0.1#$port"
+        uci commit $uci_dnsmasq
 
-        while read uci_option; do
-            uci_option="$( clean_uci_option $uci_option )"
-            [ -n $uci_option ] && uci set dhcp.@dnsmasq[0].$uci_option
-        done < "$resources_dir/unbound.dnsmasq.uci"
-
-        uci -q delete dhcp.@dnsmasq[0].server
-        uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$port"
-        uci -q delete dhcp.lan.dhcp_option
-        uci add_list dhcp.lan.dhcp_option='option:dns-server,0.0.0.0'
-
-        uci commit dhcp
+        local uci_dhcp="dhcp.$domain.dhcp_option"
+        uci revert $uci_dhcp
+        uci -q delete $uci_dhcp
+        uci add_list $uci_dhcp='option:dns-server,0.0.0.0'
+        uci commit $uci_dhcp
         log "dnsmasq now uses unbound."
     }
 
@@ -256,7 +255,6 @@ forward-zone:
     function redirect_dns_requests() {
         local name_prefix="Redirect DNS"
         local type="redirect"
-
 
         function redirect_dns_ports() {
             local dns_ports="53 5353"
