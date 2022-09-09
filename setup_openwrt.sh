@@ -35,7 +35,7 @@ function setup_simpleadblock() {
     }
 
     function apply_recommended_uci_settings() {
-        local uci_simpleadblock="simple-adblock.config"
+        local uci_simpleadblock="simple-adblock.uci"
 
         uci revert $uci_simpleadblock
 
