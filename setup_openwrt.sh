@@ -326,7 +326,10 @@ module-config: \"respip validator iterator\""""
 rpz:
     name: DNS-over-HTTPS
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
-    rpz-action-override: nodata"""
+    rpz-action-override: nodata
+    zonefile: DOH.rpz
+    rpz-log: yes
+    rpz-log-name: Blocked-DoT/DoH"""
 
             printf "$conf_server\n\n" >> "$conf_server_fullfilepath"
             printf "$conf_extended\n\n" >> "$conf_extended_fullfilepath"
