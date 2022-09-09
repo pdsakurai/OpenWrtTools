@@ -54,12 +54,8 @@ function setup_simpleadblock() {
 
     function integrate_with_unbound() {
         if [ $( grep -c simple-adblock "$conf_server_fullfilepath" ) -le 0 ]; then
-
-            local conf_server="""#For integration with simple-adblock
-include: /var/lib/unbound/*.simple-adblock"""
-
-            printf "$conf_server\n\n" >> "$conf_server_fullfilepath"
-
+            printf "\n\n" >> "$conf_server_fullfilepath"
+            cat "$resources_dir/simple-adblock.unbound_srv.conf" >> "$conf_server_fullfilepath"
             log "simple-adblock now integrated with unbound."
         fi
     }
