@@ -205,7 +205,7 @@ function setup_unbound() {
     }
 
     function block_encrypted_dns_requests() {
-        function block_DoH() {
+        function block_DoH_and_DoT_by_DNS() {
             local conf_server="""#For blocking DNS-over-HTTPS
 module-config: \"respip validator iterator\""""
 
@@ -223,7 +223,7 @@ rpz:
             printf "$conf_extended\n\n" >> "$unbound_conf_ext_fullfilepath"
         }
 
-        function block_DoT() {
+        function block_DoT_by_firewall() {
             local name="Block DNS-over-TLS"
             local type="rule"
 
@@ -242,8 +242,8 @@ rpz:
             uci commit firewall
         }
 
-        block_DoH
-        block_DoT
+        block_DoH_and_DoT_by_DNS
+        block_DoT_by_firewall
         log "DNS queries over HTTPS and TLS are now blocked."
     }
 
