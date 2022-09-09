@@ -13,7 +13,8 @@ function get_wifi_radios() {
 log "Restarting Wi-Fi radios..."
 
 for radio in $( get_wifi_radios ); do
-    wifi reload $radio
+    wifi down $radio
+    wifi up $radio
     sleep 1m
 done
 
