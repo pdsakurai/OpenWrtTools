@@ -1,9 +1,9 @@
 #!/bin/sh
 
-readonly unbound_root_dir="/etc/unbound"
-readonly unbound_conf_srv_fullfilepath="$unbound_root_dir/unbound_srv.conf"
-readonly unbound_conf_ext_fullfilepath="$unbound_root_dir/unbound_ext.conf"
-readonly resources_dir="$( pwd )/resources"
+UNBOUND_ROOT_DIR="/etc/unbound"
+UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
+UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
+RESOURCES_DIR="$( pwd )/resources"
 
 function log() {
     local _setup_openwrt_sh="_setup_openwrt_sh[$$]"
@@ -45,14 +45,14 @@ function setup_simpleadblock() {
         while read uci_option; do
             uci_option="$( printf $uci_option | xargs )"
             [ -n $uci_option ] && uci set $uci_simpleadblock.$uci_option
-        done < "$resources_dir/$uci_simpleadblock"
+        done < "$RESOURCES_DIR/$uci_simpleadblock"
 
         for item in blocked_domains_url blocked_hosts_url; do
             uci -q delete $uci_simpleadblock.$item
             while read uci_option; do
                 uci_option="$( printf $uci_option | xargs )"
                 [ -n $uci_option ] && uci add_list $uci_simpleadblock.$item="$uci_option"
-            done < "$resources_dir/$uci_simpleadblock.$item"
+            done < "$RESOURCES_DIR/$uci_simpleadblock.$item"
         done
 
         uci commit $uci_simpleadblock
@@ -60,9 +60,9 @@ function setup_simpleadblock() {
     }
 
     function integrate_with_unbound() {
-        if [ $( grep -c simple-adblock "$unbound_conf_srv_fullfilepath" ) -le 0 ]; then
-            printf "\n\n" >> "$unbound_conf_srv_fullfilepath"
-            cat "$resources_dir/simple-adblock.unbound_srv.conf" >> "$unbound_conf_srv_fullfilepath"
+        if [ $( grep -c simple-adblock "$UNBOUND_CONF_SRV_FULLFILEPATH" ) -le 0 ]; then
+            printf "\n\n" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
+            cat "$RESOURCES_DIR/simple-adblock.unbound_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
             log "simple-adblock now integrated with unbound."
         fi
     }
@@ -117,12 +117,12 @@ function setup_unbound() {
                 sysctl -w $config
                 log "Changed default value of $param from $value_current to $value_new"
             fi
-        done < "$resources_dir/unbound.sysctl.conf"
+        done < "$RESOURCES_DIR/unbound.sysctl.conf"
     }
 
     function apply_baseline_conf() {
-        sed s/\$dns_packet_size/$dns_packet_size/ "$resources_dir/unbound.unbound_srv.conf" > "$unbound_conf_srv_fullfilepath"
-        cp -f "$resources_dir/unbound.unbound_ext.conf" "$unbound_conf_ext_fullfilepath"
+        sed s/\$dns_packet_size/$dns_packet_size/ "$RESOURCES_DIR/unbound.unbound_srv.conf" > "$UNBOUND_CONF_SRV_FULLFILEPATH"
+        cp -f "$RESOURCES_DIR/unbound.unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH"
         log "Baseline configuration applied for unbound."
     }
 
@@ -136,7 +136,7 @@ function setup_unbound() {
             uci_option_suffix="$( printf $uci_option_suffix | sed s/\$dns_packet_size/$dns_packet_size/ )"
             uci_option_suffix="$( printf $uci_option_suffix | sed s/\$port/$port/ )"
             [ -n $uci_option_suffix ] && uci set $uci_option_prefix.$uci_option_suffix
-        done < "$resources_dir/$uci_option_suffix_filename"
+        done < "$RESOURCES_DIR/$uci_option_suffix_filename"
     }
 
     function apply_uci_options() {
@@ -204,11 +204,11 @@ function setup_unbound() {
 
     function block_encrypted_dns_requests() {
         function block_DoH_and_DoT_by_DNS() {
-            printf "\n\n" >> "$unbound_conf_srv_fullfilepath"
-            cat "$resources_dir/firewall.unbound_srv.conf" >> "$unbound_conf_srv_fullfilepath"
+            printf "\n\n" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
+            cat "$RESOURCES_DIR/firewall.unbound_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
 
-            printf "\n\n" >> "$unbound_conf_ext_fullfilepath"
-            cat "$resources_dir/firewall.unbound_ext.conf" >> "$unbound_conf_ext_fullfilepath"
+            printf "\n\n" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
+            cat "$RESOURCES_DIR/firewall.unbound_ext.conf" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
         }
 
         function block_DoT_by_firewall() {
