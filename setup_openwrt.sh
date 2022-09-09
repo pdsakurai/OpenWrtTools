@@ -19,7 +19,7 @@ function restart_services() {
     done
 }
 
-function restore_packages() {
+function install_packages() {
     . ./timer_helper.sh
     local timer="$( start_timer )"
     log "Restoring packages..."
@@ -352,7 +352,7 @@ function switch_to_odhcpd() {
 
 function setup_router() {
     setup_ntp_server
-    restore_packages
+    install_packages
     setup_irqbalance
     setup_unbound
     setup_simpleadblock
