@@ -361,3 +361,10 @@ function setup_router() {
 
     log "Completed setting up router."
 }
+
+function setup_dumb_ap() {
+    setup_irqbalance
+    transmit_max_radio_power_always
+
+    log "Completed setting up dumb AP."
+}
