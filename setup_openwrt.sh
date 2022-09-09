@@ -10,6 +10,14 @@ function log() {
     printf "$_setup_openwrt_sh: $@\n"
 }
 
+function restart_services() {
+    local services="$@"
+    for item in ${@:?Missing: Service/s}; do
+        log "Restarting service: $item"
+        service $item restart
+    done
+}
+
 function restore_packages() {
     . ./timer_helper.sh
     local timer="$( start_timer )"
@@ -63,9 +71,7 @@ function setup_simpleadblock() {
     use_always_null
     apply_recommended_uci_settings
     integrate_with_unbound
-
-    log "Restarting service: simple-adblock"
-    service simple-adblock restart
+    restart_services simple-adblock
 }
 
 function setup_irqbalance() {
@@ -317,11 +323,7 @@ rpz:
 
     log "Done set-up for unbound."
 
-    local services_to_restart="firewall unbound dnsmasq network"
-    for item in $services_to_restart; do
-        log "Restarting service: $item"
-        service $item restart
-    done
+    restart_services firewall unbound dnsmasq network
 }
 
 
@@ -375,11 +377,7 @@ function setup_ntp_server() {
 
     log "Done set-up for NTP server."
 
-    local services_to_restart="firewall sysntpd"
-    for item in $services_to_restart; do
-        log "Restarting service: $item"
-        service $item restart
-    done
+    restart_services firewall sysntpd
 }
 
 
@@ -421,10 +419,9 @@ function switch_to_odhcpd() {
     uci commit unbound
 
     opkg remove dnsmasq
-    service unbound restart
-    service odhcpd restart
-
     log "Used odhcpd with unbound, instead of dnsmasq."
+
+    restart_services unbound odhcp
 }
 
 function setup_router() {
