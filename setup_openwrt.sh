@@ -20,16 +20,13 @@ function restart_services() {
 }
 
 function install_packages() {
-    . ./timer_helper.sh
-    local timer="$( start_timer )"
-    log "Restoring packages..."
     opkg update
     opkg install \
         irqbalance \
         kmod-usb-net-rndis \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
         luci-app-unbound unbound-control
-    log "Done restoring packages within $( end_timer "$timer" )"
+    log "Done installing packages."
 }
 
 function setup_simpleadblock() {
