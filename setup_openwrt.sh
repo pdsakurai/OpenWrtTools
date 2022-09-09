@@ -199,45 +199,16 @@ forward-zone:
     }
 
     function apply_recommended_uci_settings() {
-        local uci_ub_main="""
-            enabled='1'
-            manual_conf='0'
-            localservice='1'
-            validator='1'
-            validator='1'
-            listen_port='$port'
-
-            rebind_localhost='0'
-            rebind_protection='1'
-            dns64='0'
-            domain_insecure=''
-            root_age='9'
-
-            dhcp_link='none'
-            domain='$domain'
-            domain_type='static'
-            add_local_fqdn='0'
-            add_wan_fqdn='0'
-            add_extra_dns='0'
-        
-            unbound_control='1'
-            protocol='default'
-            resource='large'
-            recursion='aggressive'
-            query_minimize='1'
-            query_min_strict='0'
-            edns_size='$dns_packet_size'
-            ttl_min='0'
-            rate_limit='0'
-            extended_stats='1'
-        """
-
-        uci revert unbound.ub_main
-        for uci_option in $uci_ub_main; do
+        local uci_unbound="unbound.@unbound[0]"
+        uci revert $uci_unbound
+        while read uci_option; do
             uci_option="$( printf $uci_option | xargs )"
-            [ -n $uci_option ] && uci set unbound.ub_main.$uci_option
-        done
-        uci commit unbound.ub_main
+            uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
+            uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
+            uci_option="$( printf $uci_option | sed s/\$port/$port/ )"
+            [ -n $uci_option ] && uci set $uci_unbound.$uci_option
+        done < "$resources_dir/unbound.uci"
+        uci commit $uci_unbound
         log "Recommended UCI options applied for unbound."
     }
 
