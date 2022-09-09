@@ -206,21 +206,11 @@ function setup_unbound() {
 
     function block_encrypted_dns_requests() {
         function block_DoH_and_DoT_by_DNS() {
-            local conf_server="""#For blocking DNS-over-HTTPS
-module-config: \"respip validator iterator\""""
+            printf "\n\n" >> "$unbound_conf_srv_fullfilepath"
+            cat "$resources_dir/firewall.unbound_srv.conf" >> "$unbound_conf_srv_fullfilepath"
 
-            local conf_extended="""#For blocking DNS-over-HTTPS
-rpz:
-    name: Restrict_DoT/DoH
-    url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
-    zonefile: Restrict_DoT_and_DoH.rpz
-    rpz-log: yes
-    rpz-log-name: Restrict_DoT/DoH
-    rpz-action-override: nxdomain
-    rpz-signal-nxdomain-ra: yes"""
-
-            printf "$conf_server\n\n" >> "$unbound_conf_srv_fullfilepath"
-            printf "$conf_extended\n\n" >> "$unbound_conf_ext_fullfilepath"
+            printf "\n\n" >> "$unbound_conf_ext_fullfilepath"
+            cat "$resources_dir/firewall.unbound_ext.conf" >> "$unbound_conf_ext_fullfilepath"
         }
 
         function block_DoT_by_firewall() {
