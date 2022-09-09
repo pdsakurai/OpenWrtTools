@@ -141,7 +141,7 @@ function setup_unbound() {
         done < "$resources_dir/$uci_option_suffix_filename"
     }
 
-    function apply_recommended_uci_settings() {
+    function apply_uci_options() {
         local uci_unbound="unbound.@unbound[0]"
         uci revert $uci_unbound
         load_uci_from_file "$uci_unbound" "unbound.uci"
@@ -249,7 +249,7 @@ rpz:
 
     modify_sysctlconf
     apply_baseline_conf
-    apply_recommended_uci_settings
+    apply_uci_options
     use_unbound_in_dnsmasq
     use_unbound_in_wan
     redirect_dns_requests
@@ -279,7 +279,7 @@ function setup_ntp_server() {
         uci commit firewall
     }
 
-    function apply_recommended_uci_settings() {
+    function apply_uci_options() {
         local uci_ntp="system.ntp"
         uci revert $uci_ntp
 
@@ -307,7 +307,7 @@ function setup_ntp_server() {
     }
 
     redirect_NTP_queries
-    apply_recommended_uci_settings
+    apply_uci_options
 
     log "Done set-up for NTP server."
 
