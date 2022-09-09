@@ -155,7 +155,7 @@ function setup_unbound() {
         uci add_list $uci_dnsmasq.server="127.0.0.1#$port"
         uci commit $uci_dnsmasq
 
-        local uci_dhcp="dhcp.$domain.dhcp_option"
+        local uci_dhcp="dhcp.lan.dhcp_option"
         uci revert $uci_dhcp
         uci -q delete $uci_dhcp
         uci add_list $uci_dhcp='option:dns-server,0.0.0.0'
