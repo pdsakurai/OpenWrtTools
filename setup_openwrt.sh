@@ -38,7 +38,7 @@ function setup_simpleadblock() {
         log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
     }
 
-    function apply_recommended_uci_settings() {
+    function apply_uci_options() {
         local uci_simpleadblock="simple-adblock.uci"
 
         uci revert $uci_simpleadblock
@@ -69,7 +69,7 @@ function setup_simpleadblock() {
     }
 
     use_always_null
-    apply_recommended_uci_settings
+    apply_uci_options
     integrate_with_unbound
     restart_services simple-adblock
 }
