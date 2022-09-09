@@ -23,7 +23,8 @@ function restore_packages() {
     . ./timer_helper.sh
     local timer="$( start_timer )"
     log "Restoring packages..."
-    opkg update && opkg install \
+    opkg update
+    opkg install \
         irqbalance \
         kmod-usb-net-rndis \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
@@ -326,6 +327,7 @@ function transmit_max_radio_power_always() {
 }
 
 function switch_to_odhcpd() {
+    opkg update
     opkg remove odhcpd-ipv6only
     opkg install odhcpd
     uci set dhcp.lan.dhcpv4="server"
