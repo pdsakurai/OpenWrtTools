@@ -1,7 +1,8 @@
 #!/bin/sh
 
 readonly unbound_root_dir="/etc/unbound"
-readonly conf_server_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+readonly unbound_conf_srv_fullfilepath="$unbound_root_dir/unbound_srv.conf"
+readonly unbound_conf_ext_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 readonly resources_dir="$( pwd )/resources"
 
 function log() {
@@ -61,9 +62,9 @@ function setup_simpleadblock() {
     }
 
     function integrate_with_unbound() {
-        if [ $( grep -c simple-adblock "$conf_server_fullfilepath" ) -le 0 ]; then
-            printf "\n\n" >> "$conf_server_fullfilepath"
-            cat "$resources_dir/simple-adblock.unbound_srv.conf" >> "$conf_server_fullfilepath"
+        if [ $( grep -c simple-adblock "$unbound_conf_srv_fullfilepath" ) -le 0 ]; then
+            printf "\n\n" >> "$unbound_conf_srv_fullfilepath"
+            cat "$resources_dir/simple-adblock.unbound_srv.conf" >> "$unbound_conf_srv_fullfilepath"
             log "simple-adblock now integrated with unbound."
         fi
     }
@@ -121,11 +122,9 @@ function setup_unbound() {
         done < "$resources_dir/unbound.sysctl.conf"
     }
 
-    local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
-
     function apply_baseline_conf() {
-        sed s/\$dns_packet_size/$dns_packet_size/ "$resources_dir/unbound.unbound_srv.conf" > "$conf_server_fullfilepath"
-        cp -f "$resources_dir/unbound.unbound_ext.conf" "$conf_extended_fullfilepath"
+        sed s/\$dns_packet_size/$dns_packet_size/ "$resources_dir/unbound.unbound_srv.conf" > "$unbound_conf_srv_fullfilepath"
+        cp -f "$resources_dir/unbound.unbound_ext.conf" "$unbound_conf_ext_fullfilepath"
         log "Baseline configuration applied for unbound."
     }
 
@@ -220,8 +219,8 @@ rpz:
     rpz-action-override: nxdomain
     rpz-signal-nxdomain-ra: yes"""
 
-            printf "$conf_server\n\n" >> "$conf_server_fullfilepath"
-            printf "$conf_extended\n\n" >> "$conf_extended_fullfilepath"
+            printf "$conf_server\n\n" >> "$unbound_conf_srv_fullfilepath"
+            printf "$conf_extended\n\n" >> "$unbound_conf_ext_fullfilepath"
         }
 
         function block_DoT() {
