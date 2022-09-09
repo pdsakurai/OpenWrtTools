@@ -112,16 +112,8 @@ function setup_unbound() {
             sysctl "$param" 2> /dev/null | cut -d= -f2 | xargs
         }
 
-        #For unbound
-        local for_unbound="""
-            net.core.rmem_max=8000000
-            net.core.wmem_max=8000000
-            net.ipv4.tcp_max_syn_backlog=256
-            net.core.somaxconn=256
-        """
-        local config
         local fullfilepath_conf="/etc/sysctl.conf"
-        for config in $for_unbound; do
+        while read config; do
             local param=$( printf "$config" | cut -d= -f1 )
 
             local value_new=$( printf "$config" | cut -d= -f2 )
@@ -131,7 +123,7 @@ function setup_unbound() {
                 sysctl -w $config
                 log "Changed default value of $param from $value_current to $value_new"
             fi
-        done
+        done < "$resources_dir/unbound.sysctl.conf"
     }
 
     local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
