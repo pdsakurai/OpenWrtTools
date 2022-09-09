@@ -108,18 +108,16 @@ function setup_unbound() {
 
     function modify_sysctlconf() {
         function read_sysctl_value() {
-            local param="${1:?Missing: parameter}"
-            sysctl "$param" 2> /dev/null | cut -d= -f2 | xargs
+            sysctl "${1:?Missing: parameter}" 2> /dev/null | cut -d= -f2 | xargs
         }
 
-        local fullfilepath_conf="/etc/sysctl.conf"
         while read config; do
             local param=$( printf "$config" | cut -d= -f1 )
 
             local value_new=$( printf "$config" | cut -d= -f2 )
             local value_current=$( read_sysctl_value "$param" )
             if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
-                echo "$config" >> "$fullfilepath_conf"
+                echo "$config" >> "/etc/sysctl.conf"
                 sysctl -w $config
                 log "Changed default value of $param from $value_current to $value_new"
             fi
