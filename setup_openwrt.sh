@@ -67,9 +67,17 @@ function setup_simpleadblock() {
         fi
     }
 
+    function add_cron_job() {
+        [ $( grep -c simple-adblock /etc/crontabs/root ) -le 0 ] \
+            && echo "\n#For refreshing simple-adblock's blocklist" >> "/etc/crontabs/root" \
+            && echo "30 03 * * 1 /etc/init.d/simple-adblock dl" >> "/etc/crontabs/root" \
+            && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
+    }
+
     use_always_null
     apply_uci_options
     integrate_with_unbound
+    add_cron_job
     restart_services simple-adblock
 }
 
