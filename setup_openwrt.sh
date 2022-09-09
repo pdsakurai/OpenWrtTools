@@ -84,7 +84,6 @@ function setup_irqbalance() {
     log "Done enabling and starting irqbalance."
 }
 
-
 function delete_firewall_entries() {
     local type=${1:?Missing: Firewall entry type}
     local name=${2:?Missing: Entry name}
@@ -124,74 +123,10 @@ function setup_unbound() {
 
     local conf_extended_fullfilepath="$unbound_root_dir/unbound_ext.conf"
 
-    function apply_recommended_conf() {
-        local conf_server="""# Performance tricks (Reference: https://nlnetlabs.nl/documentation/unbound/howto-optimise/)
-num-threads: 2 #Number of CPU cores (not threads)
-so-reuseport: yes
-msg-cache-slabs: 2 #Power of 2 closest to num-threads (for all *-slabs)
-rrset-cache-slabs: 2
-infra-cache-slabs: 2
-key-cache-slabs: 2
-ratelimit-slabs: 2
-ip-ratelimit-slabs: 2
-msg-cache-size: 50m #Formula: rrset-cache-size/2 (Recommended: 50m)
-rrset-cache-size: 100m
-so-rcvbuf: 8m #Depends on: sysctl -w net.core.rmem_max=8000000
-so-sndbuf: 8m #Depends on: sysctl -w net.core.wmem_max=8000000
-#Without lib-event
-#outgoing-range: 462 #Formula: 1024/num-threads - 50
-#num-queries-per-thread: 256 #Formula: 1024/num-threads/2
-#With lib-event
-outgoing-range: 8192
-num-queries-per-thread: 4096
-
-# For improving cache-hit ratio (Reference: https://unbound.docs.nlnetlabs.nl/en/latest/topics/serve-stale.html)
-prefetch: yes
-serve-expired: yes
-serve-expired-ttl: 86400 #1 day in seconds
-
-# For privacy
-qname-minimisation: yes
-harden-glue: yes
-harden-dnssec-stripped: yes
-use-caps-for-id: no
-hide-identity: yes
-hide-version: yes
-val-clean-additional: yes
-harden-short-bufsize: yes
-do-not-query-localhost: no
-ignore-cd-flag: yes
-
-# For less fragmentation (new default in 1.12.0)
-edns-buffer-size: $dns_packet_size
-
-#Overriding the OpenWrt config by using the default
-outgoing-num-tcp: 10
-incoming-num-tcp: 10
-msg-buffer-size: 65552
-infra-cache-numhosts: 10000
-harden-large-queries: no
-ratelimit-size: 4m
-ip-ratelimit-size: 4m
-cache-max-ttl: 86400
-cache-max-negative-ttl: 3600
-val-bogus-ttl: 60"""
-
-        local conf_extended="""#DNS-over-TLS
-forward-zone:
-    name: "."
-    forward-addr: 9.9.9.9@853#dns.quad9.net
-    forward-addr: 149.112.112.112@853#dns.quad9.net
-    forward-addr: 2620:fe::fe@853#dns.quad9.net
-    forward-addr: 2620:fe::9@853#dns.quad9.net
-    forward-first: no
-    forward-tls-upstream: yes
-    forward-no-cache: no"""
-
-        printf "$conf_server\n\n" > "$conf_server_fullfilepath"
-        printf "$conf_extended\n\n" > "$conf_extended_fullfilepath"
-
-        log "Recommended configuration applied for unbound."
+    function apply_baseline_conf() {
+        sed s/\$dns_packet_size/$dns_packet_size/ "$resources_dir/unbound.unbound_srv.conf" > "$conf_server_fullfilepath"
+        cp -f "$resources_dir/unbound.unbound_ext.conf" "$conf_extended_fullfilepath"
+        log "Baseline configuration applied for unbound."
     }
 
     function load_uci_from_file() {
@@ -314,7 +249,7 @@ rpz:
     }
 
     modify_sysctlconf
-    apply_recommended_conf
+    apply_baseline_conf
     apply_recommended_uci_settings
     use_unbound_in_dnsmasq
     use_unbound_in_wan
