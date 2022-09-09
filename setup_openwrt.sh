@@ -242,24 +242,14 @@ forward-zone:
     }
 
     function use_unbound_in_dnsmasq() {
-        local uci_dnsmasq="""
-            domainneeded='1'
-            authoritative='1'
-            local='/$domain/'
-            domain='$domain'
-            rebind_protection='0'
-            localservice='1'
-            localise_queries='1'
-            expandhosts='1'
-            ednspacket_max='$dns_packet_size'
-            cachesize='0'
-        """
-
         uci revert dhcp
-        for uci_option in $uci_dnsmasq; do
+        while read uci_option; do
             uci_option="$( printf $uci_option | xargs )"
+            uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
+            uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
             [ -n $uci_option ] && uci set dhcp.@dnsmasq[0].$uci_option
-        done
+        done < "$resources_dir/unbound.dnsmasq.uci"
+
         uci -q delete dhcp.@dnsmasq[0].server
         uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$port"
         uci -q delete dhcp.lan.dhcp_option
