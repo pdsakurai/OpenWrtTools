@@ -198,26 +198,32 @@ forward-zone:
         log "Recommended configuration applied for unbound."
     }
 
+    function clean_uci_option() {
+        local uci_option=${1:?Missing: UCI option}
+        uci_option="$( printf $uci_option | xargs )"
+        uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
+        uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
+        printf $uci_option | sed s/\$port/$port/
+    }
+
     function apply_recommended_uci_settings() {
         local uci_unbound="unbound.@unbound[0]"
         uci revert $uci_unbound
+
         while read uci_option; do
-            uci_option="$( printf $uci_option | xargs )"
-            uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
-            uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
-            uci_option="$( printf $uci_option | sed s/\$port/$port/ )"
+            uci_option="$( clean_uci_option $uci_option )"
             [ -n $uci_option ] && uci set $uci_unbound.$uci_option
         done < "$resources_dir/unbound.uci"
+
         uci commit $uci_unbound
         log "Recommended UCI options applied for unbound."
     }
 
     function use_unbound_in_dnsmasq() {
         uci revert dhcp
+
         while read uci_option; do
-            uci_option="$( printf $uci_option | xargs )"
-            uci_option="$( printf $uci_option | sed s/\$domain/$domain/ )"
-            uci_option="$( printf $uci_option | sed s/\$dns_packet_size/$dns_packet_size/ )"
+            uci_option="$( clean_uci_option $uci_option )"
             [ -n $uci_option ] && uci set dhcp.@dnsmasq[0].$uci_option
         done < "$resources_dir/unbound.dnsmasq.uci"
 
@@ -225,8 +231,8 @@ forward-zone:
         uci add_list dhcp.@dnsmasq[0].server="127.0.0.1#$port"
         uci -q delete dhcp.lan.dhcp_option
         uci add_list dhcp.lan.dhcp_option='option:dns-server,0.0.0.0'
-        uci commit dhcp
 
+        uci commit dhcp
         log "dnsmasq now uses unbound."
     }
 
