@@ -25,7 +25,8 @@ function install_packages() {
         irqbalance \
         kmod-usb-net-rndis \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
-        luci-app-unbound unbound-control
+        luci-app-unbound unbound-control \
+        luci-app-dawn
     log "Done installing packages."
 }
 
@@ -355,10 +356,25 @@ function switch_to_odhcpd() {
     restart_services unbound odhcp
 }
 
+function setup_dawn() {
+    local uci_option="network.lan.ipaddr="
+    local ip_address="$( uci show network | grep $uci_option | sed s/$uci_option// | xargs | head -1 )"
+    local broadcast_address="$( ip address | grep $ip_address | sed 's/.*brd \(.*\) scope.*/\1/' )"
+
+    uci_option="dawn.@network[0]"
+    uci revert $uci_option
+    uci set $uci_option.broadcast_ip="$broadcast_address"
+    uci commit $uci_option
+
+    log "dawn is now broadcasting via $broadcast_address"
+    restart_services dawn
+}
+
 function setup_router() {
     setup_ntp_server
     install_packages
     setup_irqbalance
+    setup_dawn
     setup_unbound
     setup_simpleadblock
     transmit_max_radio_power_always
@@ -369,6 +385,7 @@ function setup_router() {
 
 function setup_dumb_ap() {
     setup_irqbalance
+    setup_dawn
     transmit_max_radio_power_always
 
     log "Completed setting up dumb AP."
