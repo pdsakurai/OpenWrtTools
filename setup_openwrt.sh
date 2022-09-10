@@ -316,8 +316,9 @@ function setup_ntp_server() {
 
 
 function transmit_max_radio_power_always() {
+    #Source: https://discord.com/channels/413223793016963073/792707384619040798/1018010444918693898
     local pkg="wireless-regdb_2022.06.06-1_all.ipk"
-    local pkg_url="https://cdn.discordapp.com/attachments/792707384619040798/1010520144650457169/wireless-regdb_2022.06.06-1_all.ipk"
+    local pkg_url="https://raw.githubusercontent.com/pdsakurai/OpenWrtTools/main/resources/$pkg"
     local dir="/tmp"
 
     wget -P $dir -O $pkg $pkg_url
