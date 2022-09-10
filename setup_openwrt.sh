@@ -39,21 +39,22 @@ function setup_simpleadblock() {
     }
 
     function apply_uci_options() {
-        local uci_simpleadblock="simple-adblock.uci"
+        local uci_simpleadblock="simple-adblock.config"
+        local simpleadblock_config="simple-adblock.uci"
 
         uci revert $uci_simpleadblock
 
         while read uci_option; do
-            uci_option="$( printf $uci_option | xargs )"
-            [ -n $uci_option ] && uci set $uci_simpleadblock.$uci_option
-        done < "$RESOURCES_DIR/$uci_simpleadblock"
+            uci_option="$( printf "$uci_option" | xargs )"
+            [ -n "$uci_option" ] && uci set $uci_simpleadblock.$uci_option
+        done < "$RESOURCES_DIR/$simpleadblock_config"
 
         for item in blocked_domains_url blocked_hosts_url; do
             uci -q delete $uci_simpleadblock.$item
             while read uci_option; do
-                uci_option="$( printf $uci_option | xargs )"
-                [ -n $uci_option ] && uci add_list $uci_simpleadblock.$item="$uci_option"
-            done < "$RESOURCES_DIR/$uci_simpleadblock.$item"
+                uci_option="$( printf "$uci_option" | xargs )"
+                [ -n "$uci_option" ] && uci add_list $uci_simpleadblock.$item="$uci_option"
+            done < "$RESOURCES_DIR/$simpleadblock_config.$item"
         done
 
         uci commit $uci_simpleadblock
