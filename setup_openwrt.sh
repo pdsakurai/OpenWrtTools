@@ -70,9 +70,11 @@ function setup_simpleadblock() {
     }
 
     function add_cron_job() {
-        [ $( grep -c simple-adblock /etc/crontabs/root ) -le 0 ] \
-            && echo "\n#For refreshing simple-adblock's blocklist" >> "/etc/crontabs/root" \
-            && echo "30 03 * * 1 /etc/init.d/simple-adblock dl" >> "/etc/crontabs/root" \
+        local cronjob="/etc/crontabs/root"
+        touch "$cronjob"
+        [ $( grep -c simple-adblock "$cronjob" ) -le 0 ] \
+            && echo "#For refreshing simple-adblock's blocklist" >> "$cronjob" \
+            && echo "30 03 * * 1 /etc/init.d/simple-adblock dl" >> "$cronjob" \
             && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
     }
 
