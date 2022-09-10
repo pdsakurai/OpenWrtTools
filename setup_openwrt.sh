@@ -109,7 +109,7 @@ function delete_firewall_entries() {
 }
 
 function setup_unbound() {
-    local domain="${1:?Missing: domain}"
+    local domain="${1:-lan}"
     local port="${2:-1053}"
 
     local dns_packet_size="1232"
