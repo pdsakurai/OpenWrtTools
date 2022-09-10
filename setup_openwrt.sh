@@ -336,6 +336,9 @@ function switch_to_odhcpd() {
     opkg remove odhcpd-ipv6only
     opkg install odhcpd
     uci set dhcp.lan.dhcpv4="server"
+    uci set dhcp.lan.dhcpv6="server"
+    uci set dhcp.lan.ra='server'
+    uci set dhcp.lan.ra_management='1'
     uci set dhcp.odhcpd.maindhcp="1"
     uci set dhcp.odhcpd.leasefile="/var/lib/odhcpd/dhcp.leases"
     uci set dhcp.odhcpd.leasetrigger="/usr/lib/unbound/odhcpd.sh"
