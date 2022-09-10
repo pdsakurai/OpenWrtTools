@@ -335,6 +335,7 @@ function switch_to_odhcpd() {
     opkg update
     opkg remove odhcpd-ipv6only
     opkg install odhcpd
+    uci revert dhcp
     uci set dhcp.lan.dhcpv4="server"
     uci set dhcp.lan.dhcpv6="server"
     uci set dhcp.lan.ra='server'
@@ -345,12 +346,14 @@ function switch_to_odhcpd() {
     uci -q delete dhcp.@dnsmasq[0]
     uci commit dhcp
 
-    uci set unbound.ub_main.add_local_fqdn="3"
-    uci set unbound.ub_main.add_wan_fqdn="1"
-    uci set unbound.ub_main.dhcp4_slaac6="1"
-    uci set unbound.ub_main.dhcp_link="odhcpd"
-    uci set unbound.ub_main.listen_port="53"
-    uci commit unbound
+    local uci_option="unbound.@unbound[0]"
+    uci revert $uci_option
+    uci set $uci_option.add_local_fqdn="3"
+    uci set $uci_option.add_wan_fqdn="1"
+    uci set $uci_option.dhcp4_slaac6="1"
+    uci set $uci_option.dhcp_link="odhcpd"
+    uci set $uci_option.listen_port="53"
+    uci commit $uci_option
 
     opkg remove dnsmasq
     log "Used odhcpd with unbound, instead of dnsmasq."
