@@ -21,12 +21,7 @@ function restart_services() {
 
 function install_packages() {
     opkg update
-    opkg install \
-        irqbalance \
-        kmod-usb-net-rndis \
-        gawk grep sed coreutils-sort luci-app-simple-adblock \
-        luci-app-unbound unbound-control \
-        luci-app-dawn
+    opkg install ${@:?Missing: packages}
     log "Done installing packages."
 }
 
@@ -376,7 +371,12 @@ function setup_dawn() {
 
 function setup_router() {
     setup_ntp_server
-    install_packages
+    install_packages \
+        irqbalance \
+        kmod-usb-net-rndis \
+        gawk grep sed coreutils-sort luci-app-simple-adblock \
+        luci-app-unbound unbound-control \
+        luci-app-dawn
     setup_irqbalance
     setup_dawn
     setup_unbound
@@ -388,6 +388,9 @@ function setup_router() {
 }
 
 function setup_dumb_ap() {
+    install_packages \
+        irqbalance \
+        luci-app-dawn
     setup_irqbalance
     setup_dawn
     transmit_max_radio_power_always
