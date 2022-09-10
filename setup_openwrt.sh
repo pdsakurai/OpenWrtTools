@@ -356,7 +356,7 @@ function switch_to_odhcpd() {
     opkg remove dnsmasq
     log "Used odhcpd with unbound, instead of dnsmasq."
 
-    restart_services unbound odhcp
+    restart_services unbound odhcpd
 }
 
 function setup_dawn() {
