@@ -143,11 +143,11 @@ function setup_unbound() {
         local uci_option_suffix_filename="${2:?Missing: Filename}"
 
         while read uci_option_suffix; do
-            uci_option_suffix="$( printf $uci_option_suffix | xargs )"
-            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$domain/$domain/ )"
-            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$dns_packet_size/$dns_packet_size/ )"
-            uci_option_suffix="$( printf $uci_option_suffix | sed s/\$port/$port/ )"
-            [ -n $uci_option_suffix ] && uci set $uci_option_prefix.$uci_option_suffix
+            uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
+            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$domain/$domain/ )"
+            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$dns_packet_size/$dns_packet_size/ )"
+            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$port/$port/ )"
+            [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
         done < "$RESOURCES_DIR/$uci_option_suffix_filename"
     }
 
@@ -298,8 +298,8 @@ function setup_ntp_server() {
         """
         uci -q delete $uci_ntp.server
         for server in $servers; do
-            server="$( printf $server | xargs )"
-            [ -n $server ] && uci add_list $uci_ntp.server="$server"
+            server="$( printf "$server" | xargs )"
+            [ -n "$server" ] && uci add_list $uci_ntp.server="$server"
         done
         uci commit $uci_ntp
 
