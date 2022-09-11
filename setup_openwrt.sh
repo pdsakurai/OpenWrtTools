@@ -362,17 +362,42 @@ function switch_to_odhcpd() {
 }
 
 function setup_dawn() {
-    local uci_option="network.lan.ipaddr="
-    local ip_address="$( uci show network | grep $uci_option | sed s/$uci_option// | xargs | head -1 )"
-    local broadcast_address="$( ip address | grep $ip_address | sed 's/.*brd \(.*\) scope.*/\1/' )"
+    function enable_802dot11k_and_802dot11v() {
+        opkg update
+        opkg remove wpad-basic-wolfssl
+        opkg install wpad-wolfssl
 
-    uci_option="dawn.@network[0]"
-    uci revert $uci_option
-    uci set $uci_option.broadcast_ip="$broadcast_address"
-    uci commit $uci_option
+        function get_all_wifi_iface_uci() {
+            uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
+        }
+
+        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+            uci revert $uci_option_prefix
+            while read uci_option_suffix; do
+                uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
+                [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
+            done < "$RESOURCES_DIR/dawn.wireless.uci"
+
+            uci commit $uci_option_prefix
+        done
+    }
+
+    function apply_recommended_uci_options() {
+        local uci_option="network.lan.ipaddr="
+        local ip_address="$( uci show network | grep $uci_option | sed s/$uci_option// | xargs | head -1 )"
+        local broadcast_address="$( ip address | grep $ip_address | sed 's/.*brd \(.*\) scope.*/\1/' )"
+
+        uci_option="dawn.@network[0]"
+        uci revert $uci_option
+        uci set $uci_option.broadcast_ip="$broadcast_address"
+        uci commit $uci_option
+    }
+
+    apply_recommended_uci_options
+    enable_802dot11k_and_802dot11v
 
     log "dawn is now broadcasting via $broadcast_address"
-    restart_services dawn
+    restart_services network dawn
 }
 
 function setup_router() {
