@@ -99,7 +99,7 @@ function setup_simpleadblock() {
     }; apply_uci_options
 
     function integrate_with_unbound() {
-        [ load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" ] \
+        load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
             && log "simple-adblock now integrated with unbound."
     }; integrate_with_unbound
 
@@ -107,7 +107,7 @@ function setup_simpleadblock() {
         local cronjob="/etc/crontabs/root"
         touch "$cronjob"
 
-        [ load_and_append_to_another_file "$resources_dir/cron" "$cronjob" ] \
+        load_and_append_to_another_file "$resources_dir/cron" "$cronjob" \
             && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
     }; add_cron_job
 
