@@ -144,6 +144,13 @@ function setup_unbound() {
     local dns_packet_size="1232"
     local resources_dir="$RESOURCES_DIR/unbound"
 
+    function clean_uci_option() {
+        local uci_option="$1"
+        uci_option="$( printf "$uci_option" | sed s/\$domain/$domain/ )"
+        uci_option="$( printf "$uci_option" | sed s/\$dns_packet_size/$dns_packet_size/ )"
+        printf "$uci_option" | sed s/\$port/$port/
+    }
+
     function modify_sysctlconf() {
         function read_sysctl_value() {
             sysctl "${1:?Missing: parameter}" 2> /dev/null | cut -d= -f2 | xargs
@@ -171,24 +178,6 @@ function setup_unbound() {
             && load_and_append_to_another_file "$RESOURCES_DIR/unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             log "Baseline configuration applied for unbound."
     }; apply_baseline_conf
-
-    function load_uci_from_file() {
-        local uci_option_prefix="${1:?Missing: UCI option prefix}"
-        local uci_option_suffix_filename="${2:?Missing: Filename}"
-
-        while read uci_option_suffix; do
-            uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
-            uci_option_suffix="$( clean_uci_option "$uci_option_suffix" )"
-            [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
-        done < "$RESOURCES_DIR/$uci_option_suffix_filename"
-    }
-
-    function clean_uci_option() {
-        local uci_option="$1"
-        uci_option="$( printf "$uci_option" | sed s/\$domain/$domain/ )"
-        uci_option="$( printf "$uci_option" | sed s/\$dns_packet_size/$dns_packet_size/ )"
-        printf "$uci_option" | sed s/\$port/$port/
-    }
 
     function apply_uci_options() {
         local uci_unbound="unbound.@unbound[0]"
