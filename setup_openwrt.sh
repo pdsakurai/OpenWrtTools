@@ -94,24 +94,18 @@ function setup_simpleadblock() {
     }; apply_uci_options
 
     function integrate_with_unbound() {
-        if [ $( grep -c simple-adblock "$UNBOUND_CONF_SRV_FULLFILEPATH" ) -le 0 ]; then
-            printf "\n\n" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
-            cat "$RESOURCES_DIR/simple-adblock.unbound_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
-            log "simple-adblock now integrated with unbound."
-        fi
-    }
+        [ load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" ] \
+            && log "simple-adblock now integrated with unbound."
+    }; integrate_with_unbound
 
     function add_cron_job() {
         local cronjob="/etc/crontabs/root"
         touch "$cronjob"
-        [ $( grep -c simple-adblock "$cronjob" ) -le 0 ] \
-            && echo "#For refreshing simple-adblock's blocklist" >> "$cronjob" \
-            && echo "30 03 * * 1 /etc/init.d/simple-adblock dl" >> "$cronjob" \
-            && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
-    }
 
-    integrate_with_unbound
-    add_cron_job
+        [ load_and_append_to_another_file "$resources_dir/cron" "$cronjob" ] \
+            && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
+    }; add_cron_job
+
     restart_services simple-adblock
 }
 
