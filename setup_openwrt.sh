@@ -79,6 +79,11 @@ function setup_simpleadblock() {
         log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
     }; use_always_null
 
+    function prevent_reloading_whenever_wan_reloads() {
+        sed -i "s/\(procd_add.*trigger.*wan.*\)/#\1/" "$script_fullfilepath"
+        log "Prevented reloading simple-adblock whenever wan reloads."
+    }; prevent_reloading_whenever_wan_reloads
+
     function apply_uci_options() {
         local uci_option="simple-adblock.config"
         local uci_options_fullfilepath="$resources_dir/uci.$uci_option"
