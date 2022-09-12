@@ -6,9 +6,9 @@ UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 RESOURCES_DIR="$( pwd )/resources"
 
 function log() {
-    local _setup_openwrt_sh="_setup_openwrt_sh[$$]"
-    logger -t "$_setup_openwrt_sh" "$@"
-    printf "$_setup_openwrt_sh: $@\n"
+    local tag="setup_openwrt_sh[$$]"
+    logger -t "$tag" "$@"
+    printf "$tag: $@\n"
 }
 
 function restart_services() {
