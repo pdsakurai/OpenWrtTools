@@ -223,6 +223,8 @@ function setup_unbound() {
         local name_prefix="Redirect DNS"
         local type="redirect"
 
+        uci revert firewall
+        delete_firewall_entries "$type" "$name_prefix"
         function redirect_dns_ports() {
             local dns_ports="53 5353"
             for port in $dns_ports; do
@@ -232,11 +234,7 @@ function setup_unbound() {
                 uci set firewall.@$type[-1].src='lan'
                 uci set firewall.@$type[-1].src_dport="$port"
             done
-        }
-
-        uci revert firewall
-        delete_firewall_entries "$type" "$name_prefix"
-        redirect_dns_ports
+        }; redirect_dns_ports
         uci commit firewall
         log "DNS requests from LAN are now redirected to unbound."
     }
