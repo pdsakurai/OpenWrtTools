@@ -363,7 +363,7 @@ function switch_back_to_dnsmasq() {
     opkg install dnsmasq odhcpd-ipv6only
 
     uci -q delete dhcp.odhcpd
-    uci add dhcp dnsmasq
+    [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
     uci commit dhcp
 
     local uci_option="unbound.@unbound[0]"
