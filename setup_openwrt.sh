@@ -70,10 +70,11 @@ function load_and_append_to_another_file() {
 
 function setup_simpleadblock() {
     local resources_dir="$RESOURCES_DIR/simple-adblock"
+
     local script_fullfilepath="/etc/init.d/simple-adblock"
+    [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
 
     function use_always_null(){
-        [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
         sed -i 's/\(local-zone\)*static/\1always_null/' "$script_fullfilepath"
         log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
     }; use_always_null
