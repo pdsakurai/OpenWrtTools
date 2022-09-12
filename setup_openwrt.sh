@@ -369,6 +369,7 @@ function switch_back_to_dnsmasq() {
     local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 | xargs )"
     setup_unbound "$domain"
 
+    restart_services odhcpd
     log "Done restoring dnsmasq."
 }
 
