@@ -1,0 +1,2 @@
+#For refreshing simple-adblock's blocklist
+30 03 * * 1 /etc/init.d/simple-adblock dl
