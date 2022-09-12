@@ -12,7 +12,7 @@ root_age='9'
 
 dhcp_link='none'
 domain='$domain'
-domain_type='static'
+domain_type='refuse'
 add_local_fqdn='0'
 add_wan_fqdn='0'
 add_extra_dns='0'
