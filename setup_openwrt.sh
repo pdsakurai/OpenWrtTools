@@ -175,7 +175,7 @@ function setup_unbound() {
             && is_there_change="true" \
             && sed -i s/\$dns_packet_size/$dns_packet_size/ "$UNBOUND_CONF_SRV_FULLFILEPATH"
         [ -n $"is_there_change" ] \
-            && load_and_append_to_another_file "$RESOURCES_DIR/unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
+            && load_and_append_to_another_file "$resources_dir/unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             log "Baseline configuration applied for unbound."
     }; apply_baseline_conf
 
