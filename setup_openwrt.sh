@@ -366,11 +366,6 @@ function switch_back_to_dnsmasq() {
     [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
     uci commit dhcp
 
-    local uci_option="unbound.@unbound[0]"
-    uci revert $uci_option
-    uci set $uci_option.dhcp4_slaac6="0"
-    uci commit $uci_option
-
     local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 | xargs )"
     setup_unbound "$domain"
 
