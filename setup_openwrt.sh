@@ -201,18 +201,17 @@ function setup_unbound() {
     function use_unbound_in_dnsmasq() {
         local uci_dnsmasq="dhcp.@dnsmasq[0]"
         uci revert $uci_dnsmasq
-        load_uci_from_file "$uci_dnsmasq" "unbound.dnsmasq.uci"
-        uci -q delete $uci_dnsmasq.server
-        uci add_list $uci_dnsmasq.server="127.0.0.1#$port"
+        set_uci_from_file "$uci_dnsmasq" "$resources_dir/uci.$uci_dnsmasq" "clean_uci_option"
+        add_list_uci_from_file "$uci_dnsmasq.server" "$resources_dir/uci.$uci_dnsmasq.server" "clean_uci_option"
         uci commit $uci_dnsmasq
 
         local uci_dhcp="dhcp.lan.dhcp_option"
         uci revert $uci_dhcp
-        uci -q delete $uci_dhcp
-        uci add_list $uci_dhcp='option:dns-server,0.0.0.0'
+        add_list_uci_from_file "$uci_dhcp" "$resources_dir/uci.$uci_dhcp"
         uci commit $uci_dhcp
+
         log "dnsmasq now uses unbound."
-    }
+    }; use_unbound_in_dnsmasq
 
     function use_unbound_in_wan() {
         function get_all_wan() {
@@ -286,7 +285,6 @@ function setup_unbound() {
         log "DNS queries over HTTPS and TLS are now blocked."
     }
 
-    use_unbound_in_dnsmasq
     use_unbound_in_wan
     redirect_dns_requests
     block_encrypted_dns_requests
