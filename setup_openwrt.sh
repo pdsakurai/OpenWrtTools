@@ -24,36 +24,73 @@ function install_packages() {
     log "Done installing packages."
 }
 
+function _process_uci_from_file() {
+    local uci_operation="${1:?Missing: UCI operation}"
+    local uci_option="${2:?Missing: UCI option}"
+    local uci_option_values_fullfilepath="${3:?Missing: UCI option values fullfilepath}"
+    local line_cleaner_func="$4"
+
+    [ "$uci_operation" == "add_list" ] && uci -q delete $uci_option
+    while read uci_option_value; do
+        uci_option_value="$( printf "$uci_option_value" | xargs )"
+        [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
+        [ -n "$uci_option_value" ] && case $uci_operation in
+            "add_list")
+                uci add_list $uci_option="$uci_option_value"
+                ;;
+            "set")
+                uci set $uci_option.$uci_option_value
+                ;;
+            *)
+                log "Invalid UCI operation given: $uci_operation"
+                exit 1
+                ;;
+        esac
+    done < "$uci_option_values_fullfilepath"
+}
+
+function set_uci_from_file() {
+    _process_uci_from_file "set" "$1" "$2" "$3"
+}
+
+function add_list_uci_from_file() {
+    _process_uci_from_file "add_list" "$1" "$2" "$3"
+}
+
+function load_and_append_to_another_file() {
+    local source_file="${1:?Missing: Source file}"
+    local destination_file="${1:?Missing: Destionation file}"
+
+    local expected_first_line="$( head -1 "$source_file" )"
+    [ $( grep -xc "$expected_first_line" "$destination_file" ) -gt 0 ] && return 1
+
+    printf "\n\n" >> "$destination_file"
+    cat "$source_file" >> "$destination_file"
+}
+
 function setup_simpleadblock() {
+    local resources_dir="$RESOURCES_DIR/simple-adblock"
+    local script_fullfilepath="/etc/init.d/simple-adblock"
+
     function use_always_null(){
-        local fullfilepath_script="/etc/init.d/simple-adblock"
-        [ ! -e "$fullfilepath_script" ] && log "Cannot find file: $fullfilepath_script" && return 1
-        sed -i 's/\(local-zone\)*static/\1always_null/' "$fullfilepath_script"
+        [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
+        sed -i 's/\(local-zone\)*static/\1always_null/' "$script_fullfilepath"
         log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
-    }
+    }; use_always_null
 
     function apply_uci_options() {
-        local uci_simpleadblock="simple-adblock.config"
-        local simpleadblock_config="simple-adblock.uci"
+        local uci_option="simple-adblock.config"
+        local uci_options_fullfilepath="$resources_dir/uci.$uci_option"
 
-        uci revert $uci_simpleadblock
-
-        while read uci_option; do
-            uci_option="$( printf "$uci_option" | xargs )"
-            [ -n "$uci_option" ] && uci set $uci_simpleadblock.$uci_option
-        done < "$RESOURCES_DIR/$simpleadblock_config"
-
-        for item in blocked_domains_url blocked_hosts_url; do
-            uci -q delete $uci_simpleadblock.$item
-            while read uci_option; do
-                uci_option="$( printf "$uci_option" | xargs )"
-                [ -n "$uci_option" ] && uci add_list $uci_simpleadblock.$item="$uci_option"
-            done < "$RESOURCES_DIR/$simpleadblock_config.$item"
+        uci revert $uci_option
+        set_uci_from_file "$uci_option" "$uci_options_fullfilepath"
+        for uci_option_suffix in blocked_domains_url blocked_hosts_url; do
+            add_list_uci_from_file "$uci_option.$uci_option_suffix" "$uci_options_fullfilepath.$uci_option_suffix"
         done
+        uci commit $uci_option
 
-        uci commit $uci_simpleadblock
         log "Recommended UCI options applied for simple-adblock."
-    }
+    }; apply_uci_options
 
     function integrate_with_unbound() {
         if [ $( grep -c simple-adblock "$UNBOUND_CONF_SRV_FULLFILEPATH" ) -le 0 ]; then
@@ -72,8 +109,6 @@ function setup_simpleadblock() {
             && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
     }
 
-    use_always_null
-    apply_uci_options
     integrate_with_unbound
     add_cron_job
     restart_services simple-adblock
