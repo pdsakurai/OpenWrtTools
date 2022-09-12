@@ -142,6 +142,7 @@ function setup_unbound() {
     local port="${2:-1053}"
 
     local dns_packet_size="1232"
+    local resources_dir="$RESOURCES_DIR/unbound"
 
     function modify_sysctlconf() {
         function read_sysctl_value() {
@@ -158,8 +159,8 @@ function setup_unbound() {
                 sysctl -w $config
                 log "Changed default value of $param from $value_current to $value_new"
             fi
-        done < "$RESOURCES_DIR/unbound.sysctl.conf"
-    }
+        done < "$resources_dir/sysctl.conf"
+    }; modify_sysctlconf
 
     function apply_baseline_conf() {
         sed s/\$dns_packet_size/$dns_packet_size/ "$RESOURCES_DIR/unbound.unbound_srv.conf" > "$UNBOUND_CONF_SRV_FULLFILEPATH"
@@ -276,7 +277,6 @@ function setup_unbound() {
         log "DNS queries over HTTPS and TLS are now blocked."
     }
 
-    modify_sysctlconf
     apply_baseline_conf
     apply_uci_options
     use_unbound_in_dnsmasq
