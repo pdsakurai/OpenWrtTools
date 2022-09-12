@@ -163,10 +163,12 @@ function setup_unbound() {
     }; modify_sysctlconf
 
     function apply_baseline_conf() {
-        sed s/\$dns_packet_size/$dns_packet_size/ "$RESOURCES_DIR/unbound.unbound_srv.conf" > "$UNBOUND_CONF_SRV_FULLFILEPATH"
-        cp -f "$RESOURCES_DIR/unbound.unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH"
+        load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH"
+        sed -i s/\$dns_packet_size/$dns_packet_size/ "$UNBOUND_CONF_SRV_FULLFILEPATH"
+
+        load_and_append_to_another_file "$RESOURCES_DIR/unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH"
         log "Baseline configuration applied for unbound."
-    }
+    }; apply_baseline_conf
 
     function load_uci_from_file() {
         local uci_option_prefix="${1:?Missing: UCI option prefix}"
@@ -277,7 +279,6 @@ function setup_unbound() {
         log "DNS queries over HTTPS and TLS are now blocked."
     }
 
-    apply_baseline_conf
     apply_uci_options
     use_unbound_in_dnsmasq
     use_unbound_in_wan
