@@ -439,7 +439,7 @@ function setup_router() {
     setup_unbound
     setup_simpleadblock
     transmit_max_radio_power_always
-    switch_to_odhcpd
+    # switch_to_odhcpd #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 
     log "Completed setting up router."
 }
