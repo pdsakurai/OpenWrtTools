@@ -178,20 +178,25 @@ function setup_unbound() {
 
         while read uci_option_suffix; do
             uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
-            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$domain/$domain/ )"
-            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$dns_packet_size/$dns_packet_size/ )"
-            uci_option_suffix="$( printf "$uci_option_suffix" | sed s/\$port/$port/ )"
+            uci_option_suffix="$( clean_uci_option "$uci_option_suffix" )"
             [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
         done < "$RESOURCES_DIR/$uci_option_suffix_filename"
+    }
+
+    function clean_uci_option() {
+        local uci_option="$1"
+        uci_option="$( printf "$uci_option" | sed s/\$domain/$domain/ )"
+        uci_option="$( printf "$uci_option" | sed s/\$dns_packet_size/$dns_packet_size/ )"
+        printf "$uci_option" | sed s/\$port/$port/
     }
 
     function apply_uci_options() {
         local uci_unbound="unbound.@unbound[0]"
         uci revert $uci_unbound
-        load_uci_from_file "$uci_unbound" "unbound.uci"
+        set_uci_from_file "$uci_unbound" "$resources_dir/uci.$uci_unbound" "clean_uci_option"
         uci commit $uci_unbound
         log "Recommended UCI options applied for unbound."
-    }
+    }; apply_uci_options
 
     function use_unbound_in_dnsmasq() {
         local uci_dnsmasq="dhcp.@dnsmasq[0]"
@@ -281,7 +286,6 @@ function setup_unbound() {
         log "DNS queries over HTTPS and TLS are now blocked."
     }
 
-    apply_uci_options
     use_unbound_in_dnsmasq
     use_unbound_in_wan
     redirect_dns_requests
