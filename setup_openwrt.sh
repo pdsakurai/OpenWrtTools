@@ -12,7 +12,6 @@ function log() {
 }
 
 function restart_services() {
-    local services="$@"
     for item in ${@:?Missing: Service/s}; do
         log "Restarting service: $item"
         service $item restart
