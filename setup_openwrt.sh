@@ -1,15 +1,11 @@
 #!/bin/sh
 
+source ./src/logger_helper.sh "setup_openwrt.sh"
+
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 RESOURCES_DIR="$( pwd )/resources"
-
-function log() {
-    local tag="setup_openwrt_sh[$$]"
-    logger -t "$tag" "$@"
-    printf "$tag: $@\n"
-}
 
 function restart_services() {
     for item in ${@:?Missing: Service/s}; do
