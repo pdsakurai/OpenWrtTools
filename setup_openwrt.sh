@@ -88,19 +88,6 @@ function setup_irqbalance() {
     log "Done enabling and starting irqbalance."
 }
 
-function delete_firewall_entries() {
-    local type=${1:?Missing: Firewall entry type}
-    local name=${2:?Missing: Entry name}
-
-    function search_entries() {
-        uci show firewall | grep "$type.*name='$name" | cut -d. -f 2 | sort -r
-    }
-
-    for entry in $( search_entries ); do
-        uci delete firewall.$entry
-    done
-}
-
 function setup_unbound() {
     local domain="${1:?Missing: Domain}"
     local port="${2:-1053}"
