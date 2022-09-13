@@ -10,12 +10,8 @@ function get_wifi_radios() {
     uci show wireless | grep wireless.*=wifi-device | sed 's/wireless.\(radio.*\)=wifi-device/\1/'
 }
 
-log "Restarting Wi-Fi radios..."
-
 for radio in $( get_wifi_radios ); do
+    log "Restarting Wi-Fi radio: $radio"
     wifi up $radio
-    log "Restarted Wi-Fi radio: $radio"
     sleep 1m
 done
-
-log "Done restarting Wi-Fi radios."
