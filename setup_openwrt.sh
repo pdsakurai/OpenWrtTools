@@ -397,7 +397,7 @@ function restart_radios() {
     [ -x "$restart_radios_sh" ] && $restart_radios_sh
 }
 
-setup_802dot11r() {
+function setup_802dot11r() {
     function get_all_SSIDs() {
         uci show wireless | grep "wireless\..*=wifi-iface" | sed "s/wireless\.\(.*\)=.*/\1/"
     }
