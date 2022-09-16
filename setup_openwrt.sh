@@ -303,7 +303,6 @@ function transmit_max_radio_power_always() {
 
     if [ -n "$( uci changes wireless )" ]; then
         uci commit wireless
-        wifi
         log "Wi-Fi radios are now transmitting at max power."
     fi
 }
@@ -413,7 +412,6 @@ setup_802dot11r() {
 
     if [ -n "$( uci changes wireless )" ]; then
         uci commit wireless
-        restart_radios
         log "Done setting up 802.11r in all SSIDs."
     fi
 }
@@ -435,6 +433,7 @@ function setup_router() {
     # switch_to_odhcpd #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 
     log "Completed setting up router."
+    restart_radios
 }
 
 function setup_dumb_ap() {
@@ -447,4 +446,5 @@ function setup_dumb_ap() {
     transmit_max_radio_power_always
 
     log "Completed setting up dumb AP."
+    restart_radios
 }
