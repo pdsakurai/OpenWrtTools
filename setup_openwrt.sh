@@ -333,24 +333,32 @@ function switch_to_odhcpd() {
 }
 
 function setup_wifi() {
-    function enable_802dot11r() {
-        function get_all_SSIDs() {
-            uci show wireless | grep "wireless\..*=wifi-iface" | sed "s/wireless\.\(.*\)=.*/\1/"
-        }
+    local are_there_changes=
 
-        uci revert wireless
-        for ssid in $( get_all_SSIDs ); do
-            uci set wireless.$ssid.ieee80211r='1'
-            uci set wireless.$ssid.reassociation_deadline='20000'
-            uci set wireless.$ssid.ft_over_ds='0'
-            uci set wireless.$ssid.ft_psk_generate_local='1'
-            uci set wireless.$ssid.mobility_domain='ACED'
-        done
+    function commit_and_log_if_there_are_changes() {
+        local uci_option="${1:?Missing: UCI option}"
+        local log_text="${2:?Missing: Log text}"
 
-        if [ -n "$( uci changes wireless )" ]; then
-            uci commit wireless
-            log "Done enabling 802.11r in all SSIDs."
+        if [ -n "$( uci changes $uci_option )" ]; then
+            uci commit $uci_option
+            log "$log_text"
+            are_there_changes=0
         fi
+    }
+    function get_all_wifi_iface_uci() {
+        uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
+    }
+
+    function enable_802dot11r() {
+        uci revert wireless
+        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+            uci set $uci_option_prefix.ieee80211r='1'
+            uci set $uci_option_prefix.reassociation_deadline='20000'
+            uci set $uci_option_prefix.ft_over_ds='0'
+            uci set $uci_option_prefix.ft_psk_generate_local='1'
+            uci set $uci_option_prefix.mobility_domain='ACED'
+        done
+        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs."
     }; enable_802dot11r
 
     function transmit_max_radio_power_always() {
@@ -366,11 +374,7 @@ function setup_wifi() {
         for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
             uci delete $uci_option
         done
-
-        if [ -n "$( uci changes wireless )" ]; then
-            uci commit wireless
-            log "Wi-Fi radios are now transmitting at max power."
-        fi
+        commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power."
     }; transmit_max_radio_power_always
 
     function setup_dawn() {
@@ -379,19 +383,14 @@ function setup_wifi() {
             opkg remove wpad-basic-wolfssl
             opkg install wpad-wolfssl
 
-            function get_all_wifi_iface_uci() {
-                uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
-            }
-
             for uci_option_prefix in $( get_all_wifi_iface_uci ); do
                 uci revert $uci_option_prefix
                 while read uci_option_suffix; do
                     uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
                     [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
                 done < "$RESOURCES_DIR/dawn.wireless.uci"
-
-                uci commit $uci_option_prefix
             done
+            commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs."
         }; enable_802dot11k_and_802dot11v
 
         function apply_recommended_uci_options() {
@@ -402,13 +401,11 @@ function setup_wifi() {
             uci_option="dawn.@network[0]"
             uci revert $uci_option
             uci set $uci_option.broadcast_ip="$broadcast_address"
-            uci commit $uci_option
+            commit_and_log_if_there_are_changes "$uci_option" "dawn is now broadcasting via $broadcast_address"            
         }; apply_recommended_uci_options
-
-        log "dawn is now broadcasting via $broadcast_address"
     }; setup_dawn
 
-    restart_services network dawn
+    [ -n "$are_there_changes" ] && restart_services network dawn
     log "Done setting up WiFi"
 }
 
