@@ -286,27 +286,6 @@ function setup_ntp_server() {
     restart_services firewall sysntpd
 }
 
-
-function transmit_max_radio_power_always() {
-    #Source: https://discord.com/channels/413223793016963073/792707384619040798/1018010444918693898
-    local pkg="wireless-regdb_2022.06.06-1_all.ipk"
-    local pkg_url="https://raw.githubusercontent.com/pdsakurai/OpenWrtTools/main/resources/$pkg"
-    local dir="/tmp"
-
-    wget -P $dir -O $pkg $pkg_url
-    opkg install --force-reinstall $dir/$pkg
-
-    uci revert wireless
-    for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
-        uci delete $uci_option
-    done
-
-    if [ -n "$( uci changes wireless )" ]; then
-        uci commit wireless
-        log "Wi-Fi radios are now transmitting at max power."
-    fi
-}
-
 function switch_back_to_dnsmasq() {
     opkg update
     opkg remove odhcpd
@@ -353,68 +332,87 @@ function switch_to_odhcpd() {
     restart_services unbound odhcpd
 }
 
-function setup_dawn() {
-    function enable_802dot11k_and_802dot11v() {
-        opkg update
-        opkg remove wpad-basic-wolfssl
-        opkg install wpad-wolfssl
-
-        function get_all_wifi_iface_uci() {
-            uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
+function setup_wifi() {
+    function enable_802dot11r() {
+        function get_all_SSIDs() {
+            uci show wireless | grep "wireless\..*=wifi-iface" | sed "s/wireless\.\(.*\)=.*/\1/"
         }
 
-        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
-            uci revert $uci_option_prefix
-            while read uci_option_suffix; do
-                uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
-                [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
-            done < "$RESOURCES_DIR/dawn.wireless.uci"
-
-            uci commit $uci_option_prefix
+        uci revert wireless
+        for ssid in $( get_all_SSIDs ); do
+            uci set wireless.$ssid.ieee80211r='1'
+            uci set wireless.$ssid.reassociation_deadline='20000'
+            uci set wireless.$ssid.ft_over_ds='0'
+            uci set wireless.$ssid.ft_psk_generate_local='1'
+            uci set wireless.$ssid.mobility_domain='ACED'
         done
-    }
 
-    function apply_recommended_uci_options() {
-        local uci_option="network.lan.ipaddr="
-        local ip_address="$( uci show network | grep $uci_option | sed s/$uci_option// | xargs | head -1 )"
-        local broadcast_address="$( ip address | grep $ip_address | sed 's/.*brd \(.*\) scope.*/\1/' )"
+        if [ -n "$( uci changes wireless )" ]; then
+            uci commit wireless
+            log "Done enabling 802.11r in all SSIDs."
+        fi
+    }; enable_802dot11r
 
-        uci_option="dawn.@network[0]"
-        uci revert $uci_option
-        uci set $uci_option.broadcast_ip="$broadcast_address"
-        uci commit $uci_option
-    }
+    function transmit_max_radio_power_always() {
+        #Source: https://discord.com/channels/413223793016963073/792707384619040798/1018010444918693898
+        local pkg="wireless-regdb_2022.06.06-1_all.ipk"
+        local pkg_url="https://raw.githubusercontent.com/pdsakurai/OpenWrtTools/main/resources/$pkg"
+        local dir="/tmp"
 
-    apply_recommended_uci_options
-    enable_802dot11k_and_802dot11v
+        wget -P $dir -O $pkg $pkg_url
+        opkg install --force-reinstall $dir/$pkg
 
-    log "dawn is now broadcasting via $broadcast_address"
+        uci revert wireless
+        for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
+            uci delete $uci_option
+        done
+
+        if [ -n "$( uci changes wireless )" ]; then
+            uci commit wireless
+            log "Wi-Fi radios are now transmitting at max power."
+        fi
+    }; transmit_max_radio_power_always
+
+    function setup_dawn() {
+        function enable_802dot11k_and_802dot11v() {
+            opkg update
+            opkg remove wpad-basic-wolfssl
+            opkg install wpad-wolfssl
+
+            function get_all_wifi_iface_uci() {
+                uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
+            }
+
+            for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+                uci revert $uci_option_prefix
+                while read uci_option_suffix; do
+                    uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
+                    [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
+                done < "$RESOURCES_DIR/dawn.wireless.uci"
+
+                uci commit $uci_option_prefix
+            done
+        }; enable_802dot11k_and_802dot11v
+
+        function apply_recommended_uci_options() {
+            local uci_option="network.lan.ipaddr="
+            local ip_address="$( uci show network | grep $uci_option | sed s/$uci_option// | xargs | head -1 )"
+            local broadcast_address="$( ip address | grep $ip_address | sed 's/.*brd \(.*\) scope.*/\1/' )"
+
+            uci_option="dawn.@network[0]"
+            uci revert $uci_option
+            uci set $uci_option.broadcast_ip="$broadcast_address"
+            uci commit $uci_option
+        }; apply_recommended_uci_options
+
+        log "dawn is now broadcasting via $broadcast_address"
+    }; setup_dawn
+
     restart_services network dawn
+    log "Done setting up WiFi"
 }
 
-function restart_radios() {
-    local restart_radios_sh="./restart_wifi_radios.sh"
-    [ -x "$restart_radios_sh" ] && $restart_radios_sh
-}
 
-function setup_802dot11r() {
-    function get_all_SSIDs() {
-        uci show wireless | grep "wireless\..*=wifi-iface" | sed "s/wireless\.\(.*\)=.*/\1/"
-    }
-
-    uci revert wireless
-    for ssid in $( get_all_SSIDs ); do
-        uci set wireless.$ssid.ieee80211r='1'
-        uci set wireless.$ssid.reassociation_deadline='20000'
-        uci set wireless.$ssid.ft_over_ds='0'
-        uci set wireless.$ssid.ft_psk_generate_local='1'
-    done
-
-    if [ -n "$( uci changes wireless )" ]; then
-        uci commit wireless
-        log "Done setting up 802.11r in all SSIDs."
-    fi
-}
 
 function setup_router() {
     setup_ntp_server
@@ -425,15 +423,12 @@ function setup_router() {
         luci-app-unbound unbound-control \
         luci-app-dawn
     setup_irqbalance
-    setup_dawn
     setup_unbound
     setup_simpleadblock
-    setup_802dot11r
-    transmit_max_radio_power_always
+    setup_wifi
     # switch_to_odhcpd #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 
     log "Completed setting up router."
-    restart_radios
 }
 
 function setup_dumb_ap() {
@@ -441,10 +436,7 @@ function setup_dumb_ap() {
         irqbalance \
         luci-app-dawn
     setup_irqbalance
-    setup_dawn
-    setup_802dot11r
-    transmit_max_radio_power_always
+    setup_wifi
 
     log "Completed setting up dumb AP."
-    restart_radios
 }
