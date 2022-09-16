@@ -393,6 +393,31 @@ function setup_dawn() {
     restart_services network dawn
 }
 
+function restart_radios() {
+    local restart_radios_sh="./restart_wifi_radios.sh"
+    [ -x "$restart_radios_sh" ] && $restart_radios_sh
+}
+
+setup_802dot11r() {
+    function get_all_SSIDs() {
+        uci show wireless | grep "wireless\..*=wifi-iface" | sed "s/wireless\.\(.*\)=.*/\1/"
+    }
+
+    uci revert wireless
+    for ssid in $( get_all_SSIDs ); do
+        uci set wireless.$ssid.ieee80211r='1'
+        uci set wireless.$ssid.reassociation_deadline='20000'
+        uci set wireless.$ssid.ft_over_ds='0'
+        uci set wireless.$ssid.ft_psk_generate_local='1'
+    done
+
+    if [ -n "$( uci changes wireless )" ]; then
+        uci commit wireless
+        restart_radios
+        log "Done setting up 802.11r in all SSIDs."
+    fi
+}
+
 function setup_router() {
     setup_ntp_server
     install_packages \
@@ -405,6 +430,7 @@ function setup_router() {
     setup_dawn
     setup_unbound
     setup_simpleadblock
+    setup_802dot11r
     transmit_max_radio_power_always
     # switch_to_odhcpd #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 
@@ -417,6 +443,7 @@ function setup_dumb_ap() {
         luci-app-dawn
     setup_irqbalance
     setup_dawn
+    setup_802dot11r
     transmit_max_radio_power_always
 
     log "Completed setting up dumb AP."
