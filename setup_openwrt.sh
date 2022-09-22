@@ -393,7 +393,7 @@ function setup_dawn() {
             while read uci_option_suffix; do
                 uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
                 [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
-            done < "$RESOURCES_DIR/dawn.wireless.uci"
+            done < "$RESOURCES_DIR/dawn/uci.wireless.wifi-iface"
         done
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
             && are_there_changes=0
