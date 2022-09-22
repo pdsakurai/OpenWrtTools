@@ -230,9 +230,7 @@ function setup_unbound() {
         log "DNS queries over HTTPS and TLS are now blocked."
     }; block_encrypted_dns_requests
 
-
     log "Done set-up for $pkg."
-
     restart_services firewall $pkg dnsmasq network
 }
 
