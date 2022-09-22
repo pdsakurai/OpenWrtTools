@@ -378,6 +378,19 @@ function setup_usb_tether() {
     log "Done setting up support for Android USB-tethered internet connection."
 }
 
+function setup_ipv6_dhcp_in_router() {
+    local uci_option="dhcp.lan"
+    local resources_dir="$RESOURCES_DIR/ipv6"
+    uci revert $uci_option
+    set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
+    uci_option="dhcp.lan.ra_flags"
+    add_list_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
+    uci commit $uci_option
+
+    log "Done setting up IPv6 DHCP."
+    restart_services network
+}
+
 function setup_router() {
     opkg update
 
@@ -387,6 +400,7 @@ function setup_router() {
     setup_unbound
     setup_simpleadblock
     setup_wifi
+    setup_ipv6_dhcp_in_router
 
     log "Completed setting up router."
 }
