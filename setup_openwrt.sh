@@ -398,34 +398,32 @@ function setup_wifi() {
 
 function setup_dawn() {
     local are_there_changes=
+    local pkg="dawn"
+    local resources_dir="$RESOURCES_DIR/$pkg"
 
     function enable_802dot11k_and_802dot11v() {
         opkg remove wpad-basic-wolfssl
         install_packages wpad-wolfssl
-
-        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
-            uci revert $uci_option_prefix
-            while read uci_option_suffix; do
-                uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
-                [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
-            done < "$RESOURCES_DIR/dawn/uci.wireless.wifi-iface"
-        done
+        set_uci_from_file "set" "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wireless.wifi-iface"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11k_and_802dot11v
 
     function apply_recommended_uci_options() {
-        install_packages luci-app-dawn
+        install_packages luci-app-$pkg
         local broadcast_address="$( ip address | grep inet.*br-lan | sed 's/.*brd \(.*\) scope.*/\1/' )"
-        local uci_option="dawn.@network[0]"
-        uci revert $uci_option
-        [ -n "$broadcast_address" ] && uci set $uci_option.broadcast_ip="$broadcast_address"
-        commit_and_log_if_there_are_changes "$uci_option" "dawn is now broadcasting via $broadcast_address" \
+
+        function clean_uci_option() {
+            printf "$1" | sed s/\$broadcast_address/$broadcast_address/
+        }
+        uci revert $pkg
+        set_uci_from_file "set" "$pkg" "$resources_dir/uci.dawn" "clean_uci_option"
+        commit_and_log_if_there_are_changes "$pkg" "$pkg is now broadcasting via $broadcast_address" \
             && are_there_changes=0
     }; apply_recommended_uci_options
 
-    [ -n "$are_there_changes" ] && restart_services network dawn
-    log "Done setting up dawn"
+    [ -n "$are_there_changes" ] && restart_services network $pkg
+    log "Done setting up $pkg."
 }
 
 function setup_usb_tether() {
