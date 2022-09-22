@@ -389,7 +389,7 @@ function setup_router() {
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
 
-    add_cron_job "$RESOURCES_DIR/wan/cron" \
+    add_cron_job "$RESOURCES_DIR/cron.wan" \
         && log "Added cron job for restarting dead WAN interfaces."
 
     log "Completed setting up router."
