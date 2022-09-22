@@ -287,7 +287,7 @@ function setup_ntp_server() {
 
 function switch_back_to_dnsmasq() {
     opkg remove odhcpd
-    opkg install dnsmasq odhcpd-ipv6only
+    install_packages dnsmasq odhcpd-ipv6only
 
     uci -q delete dhcp.odhcpd
     [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
@@ -302,7 +302,7 @@ function switch_back_to_dnsmasq() {
 
 function switch_to_odhcpd() {
     opkg remove odhcpd-ipv6only
-    opkg install odhcpd
+    install_packages odhcpd
     uci revert dhcp
     uci set dhcp.lan.dhcpv4="server"
     uci set dhcp.lan.dhcpv6="server"
