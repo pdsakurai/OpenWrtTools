@@ -267,41 +267,22 @@ function setup_ntp_server() {
         uci set firewall.@$type[-1].src_dport='123'
 
         uci commit firewall
-    }
+    }; redirect_NTP_queries
 
     function apply_uci_options() {
         local uci_ntp="system.ntp"
+        local resources_dir="$RESOURCES_DIR/ntp"
+
         uci revert $uci_ntp
+        set_uci_from_file "$uci_ntp" "$resources_dir/uci.$uci_ntp"
+        add_list_uci_from_file "$uci_ntp.interface" "$resources_dir/uci.$uci_ntp.interface"
+        add_list_uci_from_file "$uci_ntp.server" "$resources_dir/uci.$uci_ntp.server"
 
-        uci set $uci_ntp.enabled='1'
-        uci set $uci_ntp.enable_server='1'
-
-        uci -q delete $uci_ntp.interface
-        uci add_list $uci_ntp.interface="lan"
-
-        local servers="""
-            ph.pool.ntp.org
-            0.asia.pool.ntp.org
-            1.asia.pool.ntp.org
-            2.asia.pool.ntp.org
-            3.asia.pool.ntp.org
-        """
-        uci -q delete $uci_ntp.server
-        for server in $servers; do
-            server="$( printf "$server" | xargs )"
-            [ -n "$server" ] && uci add_list $uci_ntp.server="$server"
-        done
-        uci commit $uci_ntp
-
-        log "Applied recommended UCI settings for NTP"
-    }
-
-    redirect_NTP_queries
-    apply_uci_options
-
-    log "Done set-up for NTP server."
+        commit_and_log_if_there_are_changes "$uci_ntp" "Applied recommended UCI settings for NTP"
+    }; apply_uci_options
 
     restart_services firewall sysntpd
+    log "Done set-up for NTP server."
 }
 
 function switch_from_odhcpd_to_dnsmasq() {
