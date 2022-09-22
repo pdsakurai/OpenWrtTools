@@ -1,26 +1,28 @@
 function __process_uci_from_file() {
     local uci_operation="${1:?Missing: UCI operation}"
-    local uci_option="${2:?Missing: UCI option}"
+    local uci_options="${2:?Missing: UCI option/s}"
     local uci_option_values_fullfilepath="${3:?Missing: UCI option values fullfilepath}"
     local line_cleaner_func="$4"
 
-    [ "$uci_operation" == "add_list" ] && uci -q delete $uci_option
-    while read uci_option_value; do
-        uci_option_value="$( printf "$uci_option_value" | xargs )"
-        [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
-        [ -n "$uci_option_value" ] && case $uci_operation in
-            "add_list")
-                uci add_list $uci_option="$uci_option_value"
-                ;;
-            "set")
-                uci set $uci_option.$uci_option_value
-                ;;
-            *)
-                log "Invalid UCI operation given: $uci_operation"
-                exit 1
-                ;;
-        esac
-    done < "$uci_option_values_fullfilepath"
+    for uci_option in $uci_options; do
+        [ "$uci_operation" == "add_list" ] && uci -q delete $uci_option
+        while read uci_option_value; do
+            uci_option_value="$( printf "$uci_option_value" | xargs )"
+            [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
+            [ -n "$uci_option_value" ] && case $uci_operation in
+                "add_list")
+                    uci add_list $uci_option="$uci_option_value"
+                    ;;
+                "set")
+                    uci set $uci_option.$uci_option_value
+                    ;;
+                *)
+                    log "Invalid UCI operation given: $uci_operation"
+                    exit 1
+                    ;;
+            esac
+        done < "$uci_option_values_fullfilepath"
+    done
 }
 
 function set_uci_from_file() {

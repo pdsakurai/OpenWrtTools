@@ -370,13 +370,7 @@ function setup_wifi() {
 
     function enable_802dot11r() {
         uci revert wireless
-        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
-            uci set $uci_option_prefix.ieee80211r='1'
-            uci set $uci_option_prefix.reassociation_deadline='20000'
-            uci set $uci_option_prefix.ft_over_ds='0'
-            uci set $uci_option_prefix.ft_psk_generate_local='1'
-            uci set $uci_option_prefix.mobility_domain='ACED'
-        done
+        set_uci_from_file "set" "$( get_all_wifi_iface_uci )" "$RESOURCES_DIR/wifi/uci.wifi-iface.802.11r"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11r
