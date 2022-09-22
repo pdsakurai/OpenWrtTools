@@ -16,7 +16,6 @@ function restart_services() {
 }
 
 function install_packages() {
-    opkg update
     opkg install ${@:?Missing: packages}
     log "Done installing packages."
 }
@@ -287,7 +286,6 @@ function setup_ntp_server() {
 }
 
 function switch_back_to_dnsmasq() {
-    opkg update
     opkg remove odhcpd
     opkg install dnsmasq odhcpd-ipv6only
 
@@ -303,7 +301,6 @@ function switch_back_to_dnsmasq() {
 }
 
 function switch_to_odhcpd() {
-    opkg update
     opkg remove odhcpd-ipv6only
     opkg install odhcpd
     uci revert dhcp
