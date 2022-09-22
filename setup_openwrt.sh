@@ -340,12 +340,13 @@ function commit_and_log_if_there_are_changes() {
     return 0
 }
 
+
+function get_all_wifi_iface_uci() {
+    uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
+}
+
 function setup_wifi() {
     local are_there_changes=
-
-    function get_all_wifi_iface_uci() {
-        uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
-    }
 
     function enable_802dot11r() {
         uci revert wireless
