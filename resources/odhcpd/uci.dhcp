@@ -1,0 +1,7 @@
+lan.dhcpv4="server"
+lan.dhcpv6="server"
+lan.ra='server'
+lan.ra_management='1'
+odhcpd.maindhcp="1"
+odhcpd.leasefile="/var/lib/odhcpd/dhcp.leases"
+odhcpd.leasetrigger="/usr/lib/unbound/odhcpd.sh"

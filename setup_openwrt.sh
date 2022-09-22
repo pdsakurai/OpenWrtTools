@@ -321,32 +321,27 @@ function switch_from_odhcpd_to_dnsmasq() {
 
 #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 function switch_from_dnsmasq_to_odhcpd() {
-    opkg remove odhcpd-ipv6only
-    install_packages odhcpd
-    uci revert dhcp
-    uci set dhcp.lan.dhcpv4="server"
-    uci set dhcp.lan.dhcpv6="server"
-    uci set dhcp.lan.ra='server'
-    uci set dhcp.lan.ra_management='1'
-    uci set dhcp.odhcpd.maindhcp="1"
-    uci set dhcp.odhcpd.leasefile="/var/lib/odhcpd/dhcp.leases"
-    uci set dhcp.odhcpd.leasetrigger="/usr/lib/unbound/odhcpd.sh"
-    uci -q delete dhcp.@dnsmasq[0]
-    uci commit dhcp
+    local pkg="odhcpd"
+    local resources_dir="$RESOURCES_DIR/$pkg"
 
-    local uci_option="unbound.@unbound[0]"
+    opkg remove $pkg-ipv6only
+    install_packages $pkg
+
+    local uci_option="dhcp"
     uci revert $uci_option
-    uci set $uci_option.add_local_fqdn="3"
-    uci set $uci_option.add_wan_fqdn="1"
-    uci set $uci_option.dhcp4_slaac6="1"
-    uci set $uci_option.dhcp_link="odhcpd"
-    uci set $uci_option.listen_port="53"
+    set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
+    uci -q delete $uci_option.@dnsmasq[0]
+    uci commit $uci_option
+
+    uci_option="unbound"
+    uci revert $uci_option
+    set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
     uci commit $uci_option
 
     opkg remove dnsmasq
-    log "Done switching from dnsmasq to odhcpd."
+    log "Done switching from dnsmasq to $pkg."
 
-    restart_services unbound odhcpd
+    restart_services unbound $pkg
 }
 
 function setup_wifi() {
