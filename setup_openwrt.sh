@@ -234,7 +234,6 @@ function setup_unbound() {
     restart_services firewall $pkg dnsmasq network
 }
 
-
 function setup_ntp_server() {
     function redirect_NTP_queries() {
         local name="Redirect NTP, port 123"
@@ -322,7 +321,7 @@ function setup_wifi() {
     function transmit_max_radio_power_always() {
         #Source: https://discord.com/channels/413223793016963073/792707384619040798/1018010444918693898
         local pkg="wireless-regdb_2022.06.06-1_all.ipk"
-        local pkg_url="https://raw.githubusercontent.com/pdsakurai/OpenWrtTools/main/resources/$pkg"
+        local pkg_url="https://raw.githubusercontent.com/pdsakurai/OpenWrtTools/main/resources/wireless/$pkg"
         local dir="/tmp"
 
         wget -P $dir -O $pkg $pkg_url
