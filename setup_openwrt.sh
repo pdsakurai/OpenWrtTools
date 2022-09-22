@@ -180,7 +180,7 @@ function setup_unbound() {
 
         uci commit network
         log "WAN interfaces now use $pkg."
-    }
+    }; use_unbound_in_wan
 
     function redirect_dns_requests() {
         local name_prefix="Redirect DNS"
@@ -200,7 +200,7 @@ function setup_unbound() {
         }; redirect_dns_ports
         uci commit firewall
         log "DNS requests from LAN are now redirected to $pkg."
-    }
+    }; redirect_dns_requests
 
     function block_encrypted_dns_requests() {
         function block_DoH_and_DoT_by_DNS() {
@@ -233,11 +233,8 @@ function setup_unbound() {
         block_DoH_and_DoT_by_DNS
         block_DoT_by_firewall
         log "DNS queries over HTTPS and TLS are now blocked."
-    }
+    }; block_encrypted_dns_requests
 
-    use_unbound_in_wan
-    redirect_dns_requests
-    block_encrypted_dns_requests
 
     log "Done set-up for $pkg."
 
