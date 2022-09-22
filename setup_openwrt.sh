@@ -196,20 +196,16 @@ function setup_unbound() {
         }; block_DoH_and_DoT_by_DNS
 
         function block_DoT_by_firewall() {
-            local name="Block DNS-over-TLS"
+            local firewall_uci_fullfilepath="$resources_dir/uci.firewall.block-dns-over-tls"
+            local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 | xargs )"
             local type="rule"
 
             uci revert firewall
-
             delete_firewall_entries "$type" "$name"
 
             uci add firewall rule
-            uci set firewall.@$type[-1].name="$name"
-            uci set firewall.@$type[-1].proto='tcp'
-            uci set firewall.@$type[-1].src='lan'
-            uci set firewall.@$type[-1].dest='wan'
-            uci set firewall.@$type[-1].dest_port='853'
-            uci set firewall.@$type[-1].target='REJECT'
+            local uci_option="firewall.@$type[-1]"
+            set_uci_from_file "$uci_option"
 
             uci commit firewall
         }; block_DoT_by_firewall
