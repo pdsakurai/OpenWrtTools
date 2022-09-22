@@ -185,8 +185,8 @@ function setup_unbound() {
     }; use_unbound_in_wan
 
     function redirect_dns_requests() {
-        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-dns.nft"
-        log "DNS requests from LAN are now redirected to $pkg."
+        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-dns.nft" \
+            && log "DNS requests from LAN are now redirected."
     }; redirect_dns_requests
 
     function block_encrypted_dns_requests() {
