@@ -32,8 +32,14 @@ function load_and_append_to_another_file() {
 }
 
 function setup_simpleadblock() {
-    local resources_dir="$RESOURCES_DIR/simple-adblock"
+    install_packages \
+        gawk \
+        grep \
+        sed \
+        coreutils-sort \
+        luci-app-simple-adblock
 
+    local resources_dir="$RESOURCES_DIR/simple-adblock"
     local script_fullfilepath="/etc/init.d/simple-adblock"
     [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
 
@@ -78,6 +84,7 @@ function setup_simpleadblock() {
 }
 
 function setup_irqbalance() {
+    install_packages irqbalance
     uci revert irqbalance
     uci set irqbalance.irqbalance.enabled='1'
     uci commit irqbalance
@@ -90,6 +97,10 @@ function setup_irqbalance() {
 function setup_unbound() {
     local domain="${1:?Missing: Domain}"
     local port="${2:-1053}"
+    
+    install_packages \
+        luci-app-unbound \
+        unbound-control
 
     local dns_packet_size="1232"
     local resources_dir="$RESOURCES_DIR/unbound"
@@ -414,14 +425,15 @@ function setup_dawn() {
     log "Done setting up dawn"
 }
 
+function setup_usb_tether() {
+    install_packages kmod-usb-net-rndis
+    log "Done setting up support for Android USB-tethered internet connection."
+}
+
 function setup_router() {
     setup_ntp_server
-    install_packages \
-        irqbalance \
-        kmod-usb-net-rndis \
-        gawk grep sed coreutils-sort luci-app-simple-adblock \
-        luci-app-unbound unbound-control
     setup_irqbalance
+    setup_usb_tether
     setup_unbound
     setup_simpleadblock
     setup_wifi
@@ -431,7 +443,6 @@ function setup_router() {
 }
 
 function setup_dumb_ap() {
-    install_packages irqbalance
     setup_irqbalance
     setup_wifi
 
