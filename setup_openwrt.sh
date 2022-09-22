@@ -304,7 +304,7 @@ function setup_ntp_server() {
     restart_services firewall sysntpd
 }
 
-function switch_back_to_dnsmasq() {
+function switch_from_odhcpd_to_dnsmasq() {
     opkg remove odhcpd
     install_packages dnsmasq odhcpd-ipv6only
 
@@ -320,7 +320,7 @@ function switch_back_to_dnsmasq() {
 }
 
 #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
-function switch_to_odhcpd() {
+function switch_from_dnsmasq_to_odhcpd() {
     opkg remove odhcpd-ipv6only
     install_packages odhcpd
     uci revert dhcp
