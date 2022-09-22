@@ -370,7 +370,7 @@ function setup_wifi() {
 
     function enable_802dot11r() {
         uci revert wireless
-        set_uci_from_file "set" "$( get_all_wifi_iface_uci )" "$RESOURCES_DIR/wifi/uci.wifi-iface.802.11r"
+        set_uci_from_file "$( get_all_wifi_iface_uci )" "$RESOURCES_DIR/wifi/uci.wifi-iface.802.11r"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11r
@@ -405,7 +405,7 @@ function setup_dawn() {
         opkg remove wpad-basic-wolfssl
         install_packages wpad-wolfssl
         uci revert wireless
-        set_uci_from_file "set" "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wireless.wifi-iface"
+        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wireless.wifi-iface"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11k_and_802dot11v
@@ -418,7 +418,7 @@ function setup_dawn() {
             printf "$1" | sed s/\$broadcast_address/$broadcast_address/
         }
         uci revert $pkg
-        set_uci_from_file "set" "$pkg" "$resources_dir/uci.dawn" "clean_uci_option"
+        set_uci_from_file "$pkg" "$resources_dir/uci.dawn" "clean_uci_option"
         commit_and_log_if_there_are_changes "$pkg" "$pkg is now broadcasting via $broadcast_address" \
             && are_there_changes=0
     }; apply_recommended_uci_options
