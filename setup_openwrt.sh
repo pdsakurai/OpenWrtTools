@@ -248,7 +248,7 @@ function setup_ntp_server() {
 }
 
 function switch_from_odhcpd_to_dnsmasq() {
-    opkg remove --autoremove odhcpd
+    uninstall_packages odhcpd
     install_packages dnsmasq odhcpd-ipv6only
 
     uci -q delete dhcp.odhcpd
@@ -267,7 +267,7 @@ function switch_from_dnsmasq_to_odhcpd() {
     local pkg="odhcpd"
     local resources_dir="$RESOURCES_DIR/$pkg"
 
-    opkg remove --autoremove $pkg-ipv6only
+    uninstall_packages $pkg-ipv6only
     install_packages $pkg
 
     local uci_option="dhcp"
@@ -281,7 +281,7 @@ function switch_from_dnsmasq_to_odhcpd() {
     set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
     uci commit $uci_option
 
-    opkg remove --autoremove dnsmasq
+    uninstall_packages dnsmasq
 
     restart_services unbound $pkg
     log "Done switching from dnsmasq to $pkg."
@@ -325,7 +325,7 @@ function setup_dawn() {
     local resources_dir="$RESOURCES_DIR/$pkg"
 
     function enable_802dot11k_and_802dot11v() {
-        opkg remove --autoremove wpad-basic-wolfssl
+        uninstall_packages wpad-basic-wolfssl
         install_packages wpad-wolfssl
         uci revert wireless
         local wifi_iface_uci="$( get_all_wifi_iface_uci )"
