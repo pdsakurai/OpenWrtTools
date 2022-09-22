@@ -204,11 +204,8 @@ function setup_unbound() {
 
     function block_encrypted_dns_requests() {
         function block_DoH_and_DoT_by_DNS() {
-            printf "\n\n" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
-            cat "$RESOURCES_DIR/firewall.${pkg}_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
-
-            printf "\n\n" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
-            cat "$RESOURCES_DIR/firewall.${pkg}_ext.conf" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
+            load_and_append_to_another_file "$resources_dir/${pkg}_srv.conf.firewall" "$UNBOUND_CONF_SRV_FULLFILEPATH"
+            load_and_append_to_another_file "$resources_dir/${pkg}_ext.conf.firewall" "$UNBOUND_CONF_EXT_FULLFILEPATH"
         }
 
         function block_DoT_by_firewall() {
