@@ -172,17 +172,11 @@ function setup_unbound() {
     }; use_unbound_in_dnsmasq
 
     function use_unbound_in_wan() {
-        function get_all_wan() {
-            uci show network | grep .*wan.*=interface | cut -d= -f1 | cut -d. -f2
-        }
+        local uci_option="$( uci show network | grep .*wan.*=interface | cut -d= -f1 )"
 
         uci revert network
-        for wan in $( get_all_wan ); do
-            uci -q delete network.$wan.dns
-            uci add_list network.$wan.dns="127.0.0.1"
-            uci add_list network.$wan.dns="::1"
-            uci set network.$wan.peerdns="0"
-        done
+        set_uci_from_file "$uci_option" "$resources_dir/uci.network.interface"
+        add_list_uci_from_file "$( printf "$uci_option" | sed "s/\(.*\)/\1.dns/" )" "$resources_dir/uci.network.interface.dns"
 
         uci commit network
         log "WAN interfaces now use $pkg."
