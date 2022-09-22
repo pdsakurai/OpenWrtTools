@@ -225,7 +225,8 @@ function setup_ntp_server() {
     local resources_dir="$RESOURCES_DIR/ntp"
 
     function redirect_NTP_queries() {
-        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-ntp.nft"
+        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-ntp.nft" \
+            && log "NTP requests from LAN are now redirected."
     }; redirect_NTP_queries
 
     function apply_uci_options() {
