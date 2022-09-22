@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -o errexit
+
 source ./src/logger_helper.sh "setup_openwrt.sh"
 source ./src/uci_helper.sh
 
