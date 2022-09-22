@@ -96,7 +96,7 @@ function setup_irqbalance() {
     install_packages $pkg
 
     uci revert $pkg
-    set_uci_from_file "$pkg" "$RESOURCES_DIR/$pkg/uci.$pkg"
+    set_uci_from_file "$pkg" "$RESOURCES_DIR/uci.$pkg"
     uci commit $pkg
 
     service $pkg enable
