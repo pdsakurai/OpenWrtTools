@@ -12,6 +12,14 @@ UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 RESOURCES_DIR="$( pwd )/resources"
 CUSTOM_FIREWALL_RULES_DIR="/etc/nftables.d"
 
+function abort_when_a_function_is_undefined() {
+    for function_name in ${@:?Missing: Function name/s}; do
+        ! command -V "$function_name" &> /dev/null \
+            && echo "Function $function_name doesn't exist" \
+            && exit 1
+    done
+}
+
 function restart_services() {
     for item in ${@:?Missing: Service/s}; do
         log "Restarting service: $item"
