@@ -185,22 +185,7 @@ function setup_unbound() {
     }; use_unbound_in_wan
 
     function redirect_dns_requests() {
-        local name_prefix="Redirect DNS"
-        local type="redirect"
-
-        uci revert firewall
-        delete_firewall_entries "$type" "$name_prefix"
-        function redirect_dns_ports() {
-            local dns_ports="53 5353"
-            for port in $dns_ports; do
-                uci add firewall $type
-                uci set firewall.@$type[-1].target='DNAT'
-                uci set firewall.@$type[-1].name="$name_prefix - port $port"
-                uci set firewall.@$type[-1].src='lan'
-                uci set firewall.@$type[-1].src_dport="$port"
-            done
-        }; redirect_dns_ports
-        uci commit firewall
+        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-dns.nft"
         log "DNS requests from LAN are now redirected to $pkg."
     }; redirect_dns_requests
 
