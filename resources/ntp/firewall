@@ -1,4 +1,4 @@
 chain user_redirect_ntp {
-	type nat hook prerouting priority dstnat; policy accept;
+    type nat hook prerouting priority dstnat; policy accept;
     meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} udp dport {123} counter packets 0 bytes 0 redirect
 }
