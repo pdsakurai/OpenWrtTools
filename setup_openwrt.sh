@@ -396,6 +396,7 @@ function setup_wifi() {
     log "Done setting up WiFi"
 }
 
+#Reference: https://openwrt.org/docs/guide-user/network/wifi/dawn
 function setup_dawn() {
     local are_there_changes=
     local pkg="dawn"
