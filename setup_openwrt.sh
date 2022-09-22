@@ -376,6 +376,9 @@ function setup_router() {
     setup_wifi
     setup_ipv6_dhcp_in_router
 
+    add_cron_job "$RESOURCES_DIR/wan/cron" \
+        && log "Added cron job for restarting dead WAN interfaces."
+
     log "Completed setting up router."
 }
 
