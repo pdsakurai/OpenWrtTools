@@ -1,7 +1,11 @@
 chain user_redirect_dns {
     type nat hook prerouting priority dstnat; policy accept;
-    meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} tcp dport {53} counter packets 0 bytes 0 redirect
-    meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} udp dport {53} counter packets 0 bytes 0 redirect
-    meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} tcp dport {5353} counter packets 0 bytes 0 redirect
-    meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} udp dport {5353} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv4} tcp dport {53} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv4} udp dport {53} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv4} tcp dport {5353} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv4} udp dport {5353} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv6} tcp dport {53} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv6} udp dport {53} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv6} tcp dport {5353} counter packets 0 bytes 0 redirect
+    meta iifname {"br-lan"} meta nfproto {ipv6} udp dport {5353} counter packets 0 bytes 0 redirect
 }
