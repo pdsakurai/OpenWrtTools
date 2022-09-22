@@ -316,7 +316,7 @@ function switch_from_odhcpd_to_dnsmasq() {
     setup_unbound "$domain"
 
     restart_services odhcpd
-    log "Done restoring dnsmasq."
+    log "Done switching from odhcpd to dnsmasq."
 }
 
 #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
@@ -344,7 +344,7 @@ function switch_from_dnsmasq_to_odhcpd() {
     uci commit $uci_option
 
     opkg remove dnsmasq
-    log "Used odhcpd with unbound, instead of dnsmasq."
+    log "Done switching from dnsmasq to odhcpd."
 
     restart_services unbound odhcpd
 }
