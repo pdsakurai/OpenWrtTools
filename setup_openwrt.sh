@@ -405,7 +405,9 @@ function setup_dawn() {
         opkg remove wpad-basic-wolfssl
         install_packages wpad-wolfssl
         uci revert wireless
-        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wireless.wifi-iface"
+        local wifi_iface_uci="$( get_all_wifi_iface_uci )"
+        set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11k"
+        set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11v"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11k_and_802dot11v
