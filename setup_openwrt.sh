@@ -7,6 +7,7 @@ UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 RESOURCES_DIR="$( pwd )/resources"
+CUSTOM_FIREWALL_RULES_DIR="/etc/nftables.d"
 
 function restart_services() {
     for item in ${@:?Missing: Service/s}; do
@@ -24,10 +25,11 @@ function load_and_append_to_another_file() {
     local source_file="${1:?Missing: Source file}"
     local destination_file="${1:?Missing: Destionation file}"
 
+    touch "$destination_file"
     local expected_first_line="$( head -1 "$source_file" )"
     [ $( grep -xc "$expected_first_line" "$destination_file" ) -gt 0 ] && return 1
 
-    printf "\n\n" >> "$destination_file"
+    [ -n "$( head -1 "$destination_file" )" ] && printf "\n\n" >> "$destination_file"
     cat "$source_file" >> "$destination_file"
 }
 
@@ -235,26 +237,14 @@ function setup_unbound() {
 }
 
 function setup_ntp_server() {
+    local resources_dir="$RESOURCES_DIR/ntp"
+
     function redirect_NTP_queries() {
-        local name="Redirect NTP, port 123"
-        local type="redirect"
-
-        uci revert firewall
-        delete_firewall_entries "$type" "$name"
-    
-        uci add firewall $type
-        uci set firewall.@$type[-1].target='DNAT'
-        uci set firewall.@$type[-1].name="$name"
-        uci set firewall.@$type[-1].proto='udp'
-        uci set firewall.@$type[-1].src='lan'
-        uci set firewall.@$type[-1].src_dport='123'
-
-        uci commit firewall
+        load_and_append_to_another_file "$resources_dir/firewall" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-ntp.nft"
     }; redirect_NTP_queries
 
     function apply_uci_options() {
         local uci_ntp="system.ntp"
-        local resources_dir="$RESOURCES_DIR/ntp"
 
         uci revert $uci_ntp
         set_uci_from_file "$uci_ntp" "$resources_dir/uci.$uci_ntp"
