@@ -365,6 +365,18 @@ function setup_ipv6_dhcp_in_router() {
     restart_services network
 }
 
+function setup_miscellaneous() {
+    local uci_option="system"
+    uci revert $uci_option
+    set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
+    commit_and_log_if_there_are_changes "$uci_option" "Timezone is set to Asia/Manila."
+
+    uci_option="uhttpd"
+    uci revert $uci_option
+    set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
+    commit_and_log_if_there_are_changes "$uci_option" "HTTP access is always redirected to HTTPS."
+}
+
 function setup_router() {
     opkg update
 
@@ -375,6 +387,7 @@ function setup_router() {
     setup_simpleadblock
     setup_wifi
     setup_ipv6_dhcp_in_router
+    setup_miscellaneous
 
     add_cron_job "$RESOURCES_DIR/wan/cron" \
         && log "Added cron job for restarting dead WAN interfaces."
@@ -387,6 +400,7 @@ function setup_dumb_ap() {
 
     setup_irqbalance
     setup_wifi
+    setup_miscellaneous
 
     log "Completed setting up dumb AP."
 }
