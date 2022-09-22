@@ -23,7 +23,7 @@ function install_packages() {
 
 function load_and_append_to_another_file() {
     local source_file="${1:?Missing: Source file}"
-    local destination_file="${1:?Missing: Destionation file}"
+    local destination_file="${2:?Missing: Destination file}"
 
     touch "$destination_file"
     local expected_first_line="$( head -1 "$source_file" )"
