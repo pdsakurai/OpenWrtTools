@@ -21,6 +21,11 @@ function install_packages() {
     log "Done installing packages."
 }
 
+function uninstall_packages() {
+    opkg remove --autoremove ${@:?Missing: packages}
+    log "Done uninstaling packages."
+}
+
 function add_cron_job() {
     local source_file="${1:?Missing: File containing cronjobs}"
     local cronjob="/etc/crontabs/root"
@@ -345,6 +350,39 @@ function setup_dawn() {
 
     [ -n "$are_there_changes" ] && restart_services network $pkg
     log "Done setting up $pkg."
+}
+
+function uninstall_dawn() {
+    local are_there_changes=
+    local pkg="dawn"
+    local resources_dir="$RESOURCES_DIR/$pkg"
+
+    function remove_uci_options() {
+        uci -q delete $pkg
+        uninstall_packages luci-app-$pkg
+        commit_and_log_if_there_are_changes "$pkg" "Removed UCI options for $pkg." \
+            && are_there_changes=0
+    }; remove_uci_options
+
+    function remove_802dot11k_and_802dot11v_uci_options() {
+        uci revert wireless
+        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+            for wifi_feature in "802.11k" "802.11v"; do
+                for uci_option_suffix in "$resources_dir/uci.wireless.wifi-iface.$wifi_feature"; do
+                    uci_option_suffix="$( printf "$uci_option_suffix" | cut -d= -f1 | xargs )"
+                    [ -n "$uci_option_suffix" ] && uci -q delete $uci_option_prefix.$uci_option_suffix
+                done
+            done
+        done
+        commit_and_log_if_there_are_changes "wireless" "Removed UCI options for 802.11k and 802.11v in all SSIDs." \
+            && are_there_changes=0
+
+        uninstall_packages wpad-wolfssl
+        install_packages wpad-basic-wolfssl
+    }; remove_802dot11k_and_802dot11v_uci_options
+
+    [ -n "$are_there_changes" ] && wifi
+    log "Done uninstalling $pkg."
 }
 
 function setup_usb_tether() {
