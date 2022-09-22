@@ -329,19 +329,20 @@ function switch_to_odhcpd() {
     restart_services unbound odhcpd
 }
 
+function commit_and_log_if_there_are_changes() {
+    local uci_option="${1:?Missing: UCI option}"
+    local log_text="${2:?Missing: Log text}"
+
+    [ -z "$( uci changes $uci_option )" ] && return 1
+
+    uci commit $uci_option
+    log "$log_text"
+    return 0
+}
+
 function setup_wifi() {
     local are_there_changes=
 
-    function commit_and_log_if_there_are_changes() {
-        local uci_option="${1:?Missing: UCI option}"
-        local log_text="${2:?Missing: Log text}"
-
-        if [ -n "$( uci changes $uci_option )" ]; then
-            uci commit $uci_option
-            log "$log_text"
-            are_there_changes=0
-        fi
-    }
     function get_all_wifi_iface_uci() {
         uci show wireless | grep wireless.*=wifi-iface | sed s/=.*//
     }
@@ -355,7 +356,8 @@ function setup_wifi() {
             uci set $uci_option_prefix.ft_psk_generate_local='1'
             uci set $uci_option_prefix.mobility_domain='ACED'
         done
-        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs."
+        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs." \
+            && are_there_changes=0
     }; enable_802dot11r
 
     function transmit_max_radio_power_always() {
@@ -371,39 +373,45 @@ function setup_wifi() {
         for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
             uci delete $uci_option
         done
-        commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power."
+        commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power." \
+            && are_there_changes=0
     }; transmit_max_radio_power_always
 
-    function setup_dawn() {
-        function enable_802dot11k_and_802dot11v() {
-            opkg update
-            opkg remove wpad-basic-wolfssl
-            opkg install wpad-wolfssl
-
-            for uci_option_prefix in $( get_all_wifi_iface_uci ); do
-                uci revert $uci_option_prefix
-                while read uci_option_suffix; do
-                    uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
-                    [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
-                done < "$RESOURCES_DIR/dawn.wireless.uci"
-            done
-            commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs."
-        }; enable_802dot11k_and_802dot11v
-
-        function apply_recommended_uci_options() {
-            local broadcast_address="$( ip address | grep inet.*br-lan | sed 's/.*brd \(.*\) scope.*/\1/' )"
-            local uci_option="dawn.@network[0]"
-            uci revert $uci_option
-            [ -n "$broadcast_address" ] && uci set $uci_option.broadcast_ip="$broadcast_address"
-            commit_and_log_if_there_are_changes "$uci_option" "dawn is now broadcasting via $broadcast_address"            
-        }; apply_recommended_uci_options
-    }; setup_dawn
-
-    [ -n "$are_there_changes" ] && restart_services network dawn
+    [ -n "$are_there_changes" ] && restart_services network
     log "Done setting up WiFi"
 }
 
+function setup_dawn() {
+    local are_there_changes=
 
+    function enable_802dot11k_and_802dot11v() {
+        opkg remove wpad-basic-wolfssl
+        install_packages wpad-wolfssl
+
+        for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+            uci revert $uci_option_prefix
+            while read uci_option_suffix; do
+                uci_option_suffix="$( printf "$uci_option_suffix" | xargs )"
+                [ -n "$uci_option_suffix" ] && uci set $uci_option_prefix.$uci_option_suffix
+            done < "$RESOURCES_DIR/dawn.wireless.uci"
+        done
+        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
+            && are_there_changes=0
+    }; enable_802dot11k_and_802dot11v
+
+    function apply_recommended_uci_options() {
+        install_packages luci-app-dawn
+        local broadcast_address="$( ip address | grep inet.*br-lan | sed 's/.*brd \(.*\) scope.*/\1/' )"
+        local uci_option="dawn.@network[0]"
+        uci revert $uci_option
+        [ -n "$broadcast_address" ] && uci set $uci_option.broadcast_ip="$broadcast_address"
+        commit_and_log_if_there_are_changes "$uci_option" "dawn is now broadcasting via $broadcast_address" \
+            && are_there_changes=0
+    }; apply_recommended_uci_options
+
+    [ -n "$are_there_changes" ] && restart_services network dawn
+    log "Done setting up dawn"
+}
 
 function setup_router() {
     setup_ntp_server
@@ -411,8 +419,7 @@ function setup_router() {
         irqbalance \
         kmod-usb-net-rndis \
         gawk grep sed coreutils-sort luci-app-simple-adblock \
-        luci-app-unbound unbound-control \
-        luci-app-dawn
+        luci-app-unbound unbound-control
     setup_irqbalance
     setup_unbound
     setup_simpleadblock
@@ -423,9 +430,7 @@ function setup_router() {
 }
 
 function setup_dumb_ap() {
-    install_packages \
-        irqbalance \
-        luci-app-dawn
+    install_packages irqbalance
     setup_irqbalance
     setup_wifi
 
