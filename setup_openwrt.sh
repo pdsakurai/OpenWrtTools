@@ -319,6 +319,7 @@ function switch_back_to_dnsmasq() {
     log "Done restoring dnsmasq."
 }
 
+#Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 function switch_to_odhcpd() {
     opkg remove odhcpd-ipv6only
     install_packages odhcpd
@@ -439,18 +440,21 @@ function setup_usb_tether() {
 }
 
 function setup_router() {
+    opkg update
+
     setup_ntp_server
     setup_irqbalance
     setup_usb_tether
     setup_unbound
     setup_simpleadblock
     setup_wifi
-    # switch_to_odhcpd #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
 
     log "Completed setting up router."
 }
 
 function setup_dumb_ap() {
+    opkg update
+
     setup_irqbalance
     setup_wifi
 
