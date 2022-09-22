@@ -21,6 +21,13 @@ function install_packages() {
     log "Done installing packages."
 }
 
+function add_cron_job() {
+    local source_file="${1:?Missing: File containing cronjobs}"
+    local cronjob="/etc/crontabs/root"
+    touch "$cronjob"
+    load_and_append_to_another_file "$source_file" "$cronjob" || return 1
+}
+
 function load_and_append_to_another_file() {
     local source_file="${1:?Missing: Source file}"
     local destination_file="${2:?Missing: Destination file}"
@@ -76,13 +83,8 @@ function setup_simpleadblock() {
             && log "$pkg now integrated with unbound."
     }; integrate_with_unbound
 
-    function add_cron_job() {
-        local cronjob="/etc/crontabs/root"
-        touch "$cronjob"
-
-        load_and_append_to_another_file "$resources_dir/cron" "$cronjob" \
-            && log "Added cronjob for refreshing $pkg's blocklist every 03:30H of Monday."
-    }; add_cron_job
+    add_cron_job "$resources_dir/cron" \
+        && log "Added cron job for refreshing $pkg's blocklist every 03:30H of Monday."
 
     service $pkg enable
     restart_services $pkg
@@ -282,10 +284,11 @@ function switch_from_dnsmasq_to_odhcpd() {
 
 function setup_wifi() {
     local are_there_changes=
+    local resources_dir="$RESOURCES_DIR/wifi"
 
     function enable_802dot11r() {
         uci revert wireless
-        set_uci_from_file "$( get_all_wifi_iface_uci )" "$RESOURCES_DIR/wifi/uci.wifi-iface.802.11r"
+        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wifi-iface.802.11r"
         commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs." \
             && are_there_changes=0
     }; enable_802dot11r
@@ -306,6 +309,9 @@ function setup_wifi() {
         commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power." \
             && are_there_changes=0
     }; transmit_max_radio_power_always
+
+    add_cron_job "$resources_dir/cron" \
+        && log "Added cron job for restarting all Wi-Fi radios every 03:15H of the day."
 
     [ -n "$are_there_changes" ] && restart_services network
     log "Done setting up WiFi"
