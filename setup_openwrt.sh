@@ -206,7 +206,7 @@ function setup_unbound() {
         function block_DoH_and_DoT_by_DNS() {
             load_and_append_to_another_file "$resources_dir/${pkg}_srv.conf.firewall" "$UNBOUND_CONF_SRV_FULLFILEPATH"
             load_and_append_to_another_file "$resources_dir/${pkg}_ext.conf.firewall" "$UNBOUND_CONF_EXT_FULLFILEPATH"
-        }
+        }; block_DoH_and_DoT_by_DNS
 
         function block_DoT_by_firewall() {
             local name="Block DNS-over-TLS"
@@ -225,10 +225,8 @@ function setup_unbound() {
             uci set firewall.@$type[-1].target='REJECT'
 
             uci commit firewall
-        }
+        }; block_DoT_by_firewall
 
-        block_DoH_and_DoT_by_DNS
-        block_DoT_by_firewall
         log "DNS queries over HTTPS and TLS are now blocked."
     }; block_encrypted_dns_requests
 
