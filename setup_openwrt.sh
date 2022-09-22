@@ -32,29 +32,31 @@ function load_and_append_to_another_file() {
 }
 
 function setup_simpleadblock() {
+    local pkg="simple-adblock"
+
     install_packages \
         gawk \
         grep \
         sed \
         coreutils-sort \
-        luci-app-simple-adblock
+        luci-app-$pkg
 
-    local resources_dir="$RESOURCES_DIR/simple-adblock"
-    local script_fullfilepath="/etc/init.d/simple-adblock"
+    local resources_dir="$RESOURCES_DIR/$pkg"
+    local script_fullfilepath="/etc/init.d/$pkg"
     [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
 
     function use_always_null(){
         sed -i 's/\(local-zone\)*static/\1always_null/' "$script_fullfilepath"
-        log "Changed simple-adblock's script for unblock: local-zone from static to always_null."
+        log "Changed $pkg's script for unblock: local-zone from static to always_null."
     }; use_always_null
 
     function prevent_reloading_whenever_wan_reloads() {
         sed -i "s/\(procd_add.*trigger.*wan.*\)/#\1/" "$script_fullfilepath"
-        log "Prevented reloading simple-adblock whenever wan reloads."
+        log "Prevented reloading $pkg whenever wan reloads."
     }; prevent_reloading_whenever_wan_reloads
 
     function apply_uci_options() {
-        local uci_option="simple-adblock.config"
+        local uci_option="$pkg.config"
         local uci_options_fullfilepath="$resources_dir/uci.$uci_option"
 
         uci revert $uci_option
@@ -64,12 +66,12 @@ function setup_simpleadblock() {
         done
         uci commit $uci_option
 
-        log "Recommended UCI options applied for simple-adblock."
+        log "Recommended UCI options applied for $pkg."
     }; apply_uci_options
 
     function integrate_with_unbound() {
         load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-            && log "simple-adblock now integrated with unbound."
+            && log "$pkg now integrated with unbound."
     }; integrate_with_unbound
 
     function add_cron_job() {
@@ -77,33 +79,39 @@ function setup_simpleadblock() {
         touch "$cronjob"
 
         load_and_append_to_another_file "$resources_dir/cron" "$cronjob" \
-            && log "Added cronjob for refreshing simple-adblock's blocklist every 03:30H of Monday."
+            && log "Added cronjob for refreshing $pkg's blocklist every 03:30H of Monday."
     }; add_cron_job
 
-    restart_services simple-adblock
+    service $pkg enable
+    restart_services $pkg
 }
 
 function setup_irqbalance() {
-    install_packages irqbalance
-    uci revert irqbalance
-    uci set irqbalance.irqbalance.enabled='1'
-    uci commit irqbalance
-    service irqbalance enable
-    service irqbalance start
+    local pkg="irqbalance"
 
-    log "Done enabling and starting irqbalance."
+    install_packages $pkg
+
+    uci revert $pkg
+    uci set $pkg.$pkg.enabled='1'
+    uci commit $pkg
+
+    service $pkg enable
+    restart_services $pkg
+
+    log "Done setting up $pkg."
 }
 
 function setup_unbound() {
     local domain="${1:?Missing: Domain}"
     local port="${2:-1053}"
-    
+
+    local pkg="unbound"
     install_packages \
-        luci-app-unbound \
-        unbound-control
+        luci-app-$pkg \
+        $pkg-control
 
     local dns_packet_size="1232"
-    local resources_dir="$RESOURCES_DIR/unbound"
+    local resources_dir="$RESOURCES_DIR/$pkg"
 
     function clean_uci_option() {
         local uci_option="$1"
@@ -132,20 +140,20 @@ function setup_unbound() {
 
     function apply_baseline_conf() {
         local is_there_change=
-        load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+        load_and_append_to_another_file "$resources_dir/${pkg}_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
             && is_there_change="true" \
             && sed -i s/\$dns_packet_size/$dns_packet_size/ "$UNBOUND_CONF_SRV_FULLFILEPATH"
         [ -n $"is_there_change" ] \
-            && load_and_append_to_another_file "$resources_dir/unbound_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
-            log "Baseline configuration applied for unbound."
+            && load_and_append_to_another_file "$resources_dir/${pkg}_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
+            log "Baseline configuration applied for $pkg."
     }; apply_baseline_conf
 
     function apply_uci_options() {
-        local uci_unbound="unbound.@unbound[0]"
+        local uci_unbound="$pkg.@$pkg[0]"
         uci revert $uci_unbound
         set_uci_from_file "$uci_unbound" "$resources_dir/uci.$uci_unbound" "clean_uci_option"
         uci commit $uci_unbound
-        log "Recommended UCI options applied for unbound."
+        log "Recommended UCI options applied for $pkg."
     }; apply_uci_options
 
     function use_unbound_in_dnsmasq() {
@@ -160,7 +168,7 @@ function setup_unbound() {
         add_list_uci_from_file "$uci_dhcp" "$resources_dir/uci.$uci_dhcp"
         uci commit $uci_dhcp
 
-        log "dnsmasq now uses unbound."
+        log "dnsmasq now uses $pkg."
     }; use_unbound_in_dnsmasq
 
     function use_unbound_in_wan() {
@@ -177,7 +185,7 @@ function setup_unbound() {
         done
 
         uci commit network
-        log "WAN interfaces now use unbound."
+        log "WAN interfaces now use $pkg."
     }
 
     function redirect_dns_requests() {
@@ -197,16 +205,16 @@ function setup_unbound() {
             done
         }; redirect_dns_ports
         uci commit firewall
-        log "DNS requests from LAN are now redirected to unbound."
+        log "DNS requests from LAN are now redirected to $pkg."
     }
 
     function block_encrypted_dns_requests() {
         function block_DoH_and_DoT_by_DNS() {
             printf "\n\n" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
-            cat "$RESOURCES_DIR/firewall.unbound_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
+            cat "$RESOURCES_DIR/firewall.${pkg}_srv.conf" >> "$UNBOUND_CONF_SRV_FULLFILEPATH"
 
             printf "\n\n" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
-            cat "$RESOURCES_DIR/firewall.unbound_ext.conf" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
+            cat "$RESOURCES_DIR/firewall.${pkg}_ext.conf" >> "$UNBOUND_CONF_EXT_FULLFILEPATH"
         }
 
         function block_DoT_by_firewall() {
@@ -237,9 +245,9 @@ function setup_unbound() {
     redirect_dns_requests
     block_encrypted_dns_requests
 
-    log "Done set-up for unbound."
+    log "Done set-up for $pkg."
 
-    restart_services firewall unbound dnsmasq network
+    restart_services firewall $pkg dnsmasq network
 }
 
 
