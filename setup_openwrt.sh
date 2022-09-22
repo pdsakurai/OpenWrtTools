@@ -284,7 +284,7 @@ function switch_from_dnsmasq_to_odhcpd() {
 
 function setup_wifi() {
     local are_there_changes=
-    local resources_dir="$RESOURCES_DIR/wifi"
+    local resources_dir="$RESOURCES_DIR/wireless"
 
     function enable_802dot11r() {
         uci revert wireless
