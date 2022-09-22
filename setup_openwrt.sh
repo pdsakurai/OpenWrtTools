@@ -339,9 +339,9 @@ function switch_from_dnsmasq_to_odhcpd() {
     uci commit $uci_option
 
     opkg remove dnsmasq
-    log "Done switching from dnsmasq to $pkg."
 
     restart_services unbound $pkg
+    log "Done switching from dnsmasq to $pkg."
 }
 
 function setup_wifi() {
