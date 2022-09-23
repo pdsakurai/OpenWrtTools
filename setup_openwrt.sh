@@ -3,13 +3,14 @@
 set -o errexit
 set -o pipefail
 
-source ./src/logger_helper.sh "setup_openwrt.sh"
-source ./src/uci_helper.sh
-
+ROOT_DIR="$( pwd )"
+RESOURCES_DIR="$ROOT_DIR/resources"
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
-RESOURCES_DIR="$( pwd )/resources"
+
+source $ROOT_DIR/src/logger_helper.sh "setup_openwrt.sh"
+source $ROOT_DIR/src/uci_helper.sh
 
 function abort_when_a_function_is_undefined() {
     for function_name in ${@:?Missing: Function name/s}; do
