@@ -10,7 +10,6 @@ UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 RESOURCES_DIR="$( pwd )/resources"
-CUSTOM_FIREWALL_RULES_DIR="/etc/nftables.d"
 
 function abort_when_a_function_is_undefined() {
     for function_name in ${@:?Missing: Function name/s}; do
@@ -203,7 +202,9 @@ function setup_unbound() {
     }; use_unbound_in_wan
 
     function redirect_dns_requests() {
-        load_and_append_to_another_file "$resources_dir/firewall.redirect" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-dns.nft" \
+        local firewall_fullfilepath="$resources_dir/firewall.redirect"
+        local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
+        load_and_append_to_another_file "$firewall_fullfilepath" "$destination_dir/99-redirect-dns.nft" \
             && log "DNS requests from LAN are now redirected."
     }; redirect_dns_requests
 
@@ -239,7 +240,9 @@ function setup_ntp_server() {
     local resources_dir="$RESOURCES_DIR/ntp"
 
     function redirect_NTP_queries() {
-        load_and_append_to_another_file "$resources_dir/firewall.redirect" "$CUSTOM_FIREWALL_RULES_DIR/99-redirect-ntp.nft" \
+        local firewall_fullfilepath="$resources_dir/firewall.redirect"
+        local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
+        load_and_append_to_another_file "$firewall_fullfilepath" "$destination_dir/99-redirect-ntp.nft" \
             && log "NTP requests from LAN are now redirected."
     }; redirect_NTP_queries
 
