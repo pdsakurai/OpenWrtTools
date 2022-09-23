@@ -58,5 +58,4 @@ function commit_and_log_if_there_are_changes() {
 
     uci commit $uci_option
     log "$log_text"
-    return 0
 }
