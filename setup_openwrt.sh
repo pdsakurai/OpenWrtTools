@@ -3,15 +3,15 @@
 set -o errexit
 set -o pipefail
 
-ROOT_DIR="$( pwd )"
-RESOURCES_DIR="$ROOT_DIR/resources"
+export PATH=$PATH:$( pwd )
+RESOURCES_DIR="./resources"
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 
-source $ROOT_DIR/src/logger_helper.sh "setup_openwrt.sh"
-source $ROOT_DIR/src/uci_helper.sh
-source $ROOT_DIR/src/utility.sh
+source ./src/logger_helper.sh "setup_openwrt.sh"
+source ./src/uci_helper.sh
+source ./src/utility.sh
 
 function setup_simpleadblock() {
     local pkg="simple-adblock"
