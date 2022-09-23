@@ -1,18 +1,22 @@
 #!/bin/sh
 
+function is_function_defined() {
+    command -V "${1:?Missing: Function name/s}" &> /dev/null
+}
+
 function abort_when_a_function_is_undefined() {
     for function_name in ${@:?Missing: Function name/s}; do
-        ! command -V "$function_name" &> /dev/null \
-            && echo "Function $function_name doesn't exist" \
+        local log_text="Function $function_name doesn't exist"
+        ! is_function_defined "$function_name" \
+            && ( is_function_defined "log" && log "$log_text" || echo "$log_text" ) \
             && exit 1
     done
 }
 
 function add_cron_job() {
-    local source_file="${1:?Missing: File containing cronjobs}"
-    local cronjob="/etc/crontabs/root"
-    touch "$cronjob"
-    load_and_append_to_another_file "$source_file" "$cronjob" || return 1
+    load_and_append_to_another_file \
+        "${1:?Missing: File containing cron jobs}" \
+        "/etc/crontabs/root"
 }
 
 function load_and_append_to_another_file() {
@@ -29,17 +33,17 @@ function load_and_append_to_another_file() {
 
 function restart_services() {
     for item in ${@:?Missing: Service/s}; do
-        log "Restarting service: $item"
+        is_function_defined "log" && log "Restarting service: $item"
         service $item restart
     done
 }
 
 function install_packages() {
     opkg install ${@:?Missing: packages}
-    log "Done installing packages."
+    is_function_defined "log" && log "Done installing packages."
 }
 
 function uninstall_packages() {
     opkg remove --autoremove ${@:?Missing: packages}
-    log "Done uninstaling packages."
+    is_function_defined "log" && log "Done uninstaling packages."
 }
