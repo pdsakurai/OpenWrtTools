@@ -5,7 +5,9 @@ function add() {
     local mac=${2:?Missing: MAC address}
     local ip=$3
 
-    ([ is_existing "$name" || is_existing "$mac" ] || ([ -n "$ip" && is_existing "$ip" ])) && printf "Cannot add duplicate.\n" && return 1
+    ( is_existing "$name" || is_existing "$mac" || ([ -n "$ip" ] && is_existing "$ip" )) \
+        && printf "Cannot add duplicate." \
+        && return 1
 
     uci revert dhcp
 
@@ -21,11 +23,8 @@ function add() {
 function is_existing() {
     local keyword=${1:?Missing: name, MAC address or IP address}
 
-    function get_hits() {
-        uci show dhcp | grep dhcp\.@host | grep -F $keyword
-    }
-
-    for hit in $( get_hits ); do
+    local hits="$( uci show dhcp | grep dhcp\.@host | grep -F $keyword )"
+    for hit in $hits; do
         hit=$( printf ${hit#*=} | xargs )
         [ "$hit" == "$keyword" ] && return 0
     done
@@ -34,11 +33,8 @@ function is_existing() {
 }
 
 function show() {
-    function get_all_entries() {
-        uci show dhcp | grep host.*name
-    }
-
-    for entry in $( get_all_entries ); do
+    local entries="$( uci show dhcp | grep host.*name )"
+    for entry in $entries; do
         #dhcp.@host[0].name='Paul-Laptop'
         local name=${entry#*=}
         name=$( printf $name | xargs )
