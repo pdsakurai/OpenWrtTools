@@ -345,8 +345,8 @@ function setup_router() {
     setup_irqbalance
     setup_usb_tether
     setup_unbound
-    source $SOURCES_DIR/simpleadblock_helper.sh "$SOURCES_DIR" "$RESOURCES_DIR" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-        && setup
+    $( source $SOURCES_DIR/simpleadblock_helper.sh "$SOURCES_DIR" "$RESOURCES_DIR" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+        && setup )
     setup_wifi
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
