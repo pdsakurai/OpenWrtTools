@@ -29,121 +29,6 @@ function setup_irqbalance() {
     log "Done setting up $pkg."
 }
 
-function setup_unbound() {
-    local domain="${1:?Missing: Domain}"
-    local port="${2:-1053}"
-
-    local pkg="unbound"
-    install_packages \
-        luci-app-$pkg \
-        $pkg-control
-
-    local dns_packet_size="1232"
-    local resources_dir="$RESOURCES_DIR/$pkg"
-
-    function clean_uci_option() {
-        local uci_option="$1"
-        uci_option="$( printf "$uci_option" | sed s/\$domain/$domain/ )"
-        uci_option="$( printf "$uci_option" | sed s/\$dns_packet_size/$dns_packet_size/ )"
-        printf "$uci_option" | sed s/\$port/$port/
-    }
-
-    function modify_sysctlconf() {
-        function read_sysctl_value() {
-            sysctl "${1:?Missing: parameter}" 2> /dev/null | cut -d= -f2 | xargs
-        }
-
-        while read config; do
-            local param=$( printf "$config" | cut -d= -f1 )
-
-            local value_new=$( printf "$config" | cut -d= -f2 )
-            local value_current=$( read_sysctl_value "$param" )
-            if [ -n "$value_current" ] && [ "$value_current" -lt "$value_new" ]; then
-                echo "$config" >> "/etc/sysctl.conf"
-                sysctl -w $config
-                log "Changed default value of $param from $value_current to $value_new"
-            fi
-        done < "$resources_dir/sysctl.conf"
-    }; modify_sysctlconf
-
-    function apply_baseline_conf() {
-        local is_there_change=
-        load_and_append_to_another_file "$resources_dir/${pkg}_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-            && is_there_change="true" \
-            && sed -i s/\$dns_packet_size/$dns_packet_size/ "$UNBOUND_CONF_SRV_FULLFILEPATH"
-        [ -n $"is_there_change" ] \
-            && load_and_append_to_another_file "$resources_dir/${pkg}_ext.conf" "$UNBOUND_CONF_EXT_FULLFILEPATH" \
-            log "Baseline configuration applied for $pkg."
-    }; apply_baseline_conf
-
-    function apply_uci_options() {
-        local uci_unbound="$pkg.@$pkg[0]"
-        uci revert $uci_unbound
-        set_uci_from_file "$uci_unbound" "$resources_dir/uci.$uci_unbound" "clean_uci_option"
-        uci commit $uci_unbound
-        log "Recommended UCI options applied for $pkg."
-    }; apply_uci_options
-
-    function use_unbound_in_dnsmasq() {
-        local uci_dnsmasq="dhcp.@dnsmasq[0]"
-        uci revert $uci_dnsmasq
-        set_uci_from_file "$uci_dnsmasq" "$resources_dir/uci.$uci_dnsmasq" "clean_uci_option"
-        add_list_uci_from_file "$uci_dnsmasq.server" "$resources_dir/uci.$uci_dnsmasq.server" "clean_uci_option"
-        uci commit $uci_dnsmasq
-
-        local uci_dhcp="dhcp.lan.dhcp_option"
-        uci revert $uci_dhcp
-        add_list_uci_from_file "$uci_dhcp" "$resources_dir/uci.$uci_dhcp"
-        uci commit $uci_dhcp
-
-        log "dnsmasq now uses $pkg."
-    }; use_unbound_in_dnsmasq
-
-    function use_unbound_in_wan() {
-        local uci_option="$( uci show network | grep .*wan.*=interface | cut -d= -f1 )"
-
-        uci revert network
-        set_uci_from_file "$uci_option" "$resources_dir/uci.network.interface"
-        add_list_uci_from_file "$( printf "$uci_option" | sed "s/\(.*\)/\1.dns/" )" "$resources_dir/uci.network.interface.dns"
-
-        uci commit network
-        log "WAN interfaces now use $pkg."
-    }; use_unbound_in_wan
-
-    function redirect_dns_requests() {
-        local firewall_fullfilepath="$resources_dir/firewall.redirect"
-        local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
-        load_and_append_to_another_file "$firewall_fullfilepath" "$destination_dir/99-redirect-dns.nft" \
-            && log "DNS requests from LAN are now redirected."
-    }; redirect_dns_requests
-
-    function block_encrypted_dns_requests() {
-        function block_DoH_and_DoT_by_DNS() {
-            load_and_append_to_another_file "$resources_dir/${pkg}_srv.conf.firewall" "$UNBOUND_CONF_SRV_FULLFILEPATH"
-            load_and_append_to_another_file "$resources_dir/${pkg}_ext.conf.firewall" "$UNBOUND_CONF_EXT_FULLFILEPATH"
-        }; block_DoH_and_DoT_by_DNS
-
-        function block_DoT_by_firewall() {
-            local firewall_uci_fullfilepath="$resources_dir/uci.firewall.block-dns-over-tls"
-            local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 | xargs )"
-            local type="rule"
-
-            uci revert firewall
-            delete_firewall_entries "$type" "$name"
-
-            uci add firewall rule
-            local uci_option="firewall.@$type[-1]"
-            set_uci_from_file "$uci_option"
-
-            uci commit firewall
-        }; block_DoT_by_firewall
-
-        log "DNS queries over HTTPS and TLS are now blocked."
-    }; block_encrypted_dns_requests
-
-    log "Done set-up for $pkg."
-    restart_services firewall $pkg dnsmasq network
-}
 
 function setup_ntp_server() {
     local resources_dir="$RESOURCES_DIR/ntp"
@@ -272,12 +157,20 @@ function setup_miscellaneous() {
 }
 
 function setup_router() {
+    local domain="${1:?Missing: Domain}"
+
     opkg update
 
     setup_ntp_server
     setup_irqbalance
     setup_usb_tether
-    setup_unbound
+    $( source $SOURCES_DIR/unbound_helper.sh \
+            "$SOURCES_DIR" \
+            "$RESOURCES_DIR" \
+            "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+            "$UNBOUND_CONF_EXT_FULLFILEPATH" \
+            "$domain" \
+        && setup )
     $( source $SOURCES_DIR/simpleadblock_helper.sh "$SOURCES_DIR" "$RESOURCES_DIR" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
         && setup )
     setup_wifi
