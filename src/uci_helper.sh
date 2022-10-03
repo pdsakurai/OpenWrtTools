@@ -1,3 +1,5 @@
+#!/bin/sh
+
 function __process_uci_from_file() {
     local uci_operation="${1:?Missing: UCI operation}"
     local uci_options="${2:?Missing: UCI option/s}"
