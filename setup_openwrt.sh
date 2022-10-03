@@ -5,63 +5,14 @@ set -o pipefail
 
 ROOT_DIR="$( pwd )"
 RESOURCES_DIR="$ROOT_DIR/resources"
+SOURCES_DIR="$SOURCES_DIR/src"
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
 
-source $ROOT_DIR/src/logger_helper.sh "setup_openwrt.sh"
-source $ROOT_DIR/src/uci_helper.sh
-source $ROOT_DIR/src/utility.sh
-
-function setup_simpleadblock() {
-    local pkg="simple-adblock"
-
-    install_packages \
-        gawk \
-        grep \
-        sed \
-        coreutils-sort \
-        luci-app-$pkg
-
-    local resources_dir="$RESOURCES_DIR/$pkg"
-    local script_fullfilepath="/etc/init.d/$pkg"
-    [ ! -e "$script_fullfilepath" ] && log "Cannot find file: $script_fullfilepath" && exit 1
-
-    function use_always_null(){
-        sed -i 's/\(local-zone\)*static/\1always_null/' "$script_fullfilepath"
-        log "Changed $pkg's script for unblock: local-zone from static to always_null."
-    }; use_always_null
-
-    function prevent_reloading_whenever_wan_reloads() {
-        sed -i "s/\(procd_add.*trigger.*wan.*\)/#\1/" "$script_fullfilepath"
-        log "Prevented reloading $pkg whenever wan reloads."
-    }; prevent_reloading_whenever_wan_reloads
-
-    function apply_uci_options() {
-        local uci_option="$pkg.config"
-        local uci_options_fullfilepath="$resources_dir/uci.$uci_option"
-
-        uci revert $uci_option
-        set_uci_from_file "$uci_option" "$uci_options_fullfilepath"
-        for uci_option_suffix in blocked_domains_url blocked_hosts_url; do
-            add_list_uci_from_file "$uci_option.$uci_option_suffix" "$uci_options_fullfilepath.$uci_option_suffix"
-        done
-        uci commit $uci_option
-
-        log "Recommended UCI options applied for $pkg."
-    }; apply_uci_options
-
-    function integrate_with_unbound() {
-        load_and_append_to_another_file "$resources_dir/unbound_srv.conf" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-            && log "$pkg now integrated with unbound."
-    }; integrate_with_unbound
-
-    add_cron_job "$resources_dir/cron" \
-        && log "Added cron job for refreshing $pkg's blocklist every 03:30H of Monday."
-
-    service $pkg enable
-    restart_services $pkg
-}
+source $SOURCES_DIR/logger_helper.sh "setup_openwrt.sh"
+source $SOURCES_DIR/uci_helper.sh
+source $SOURCES_DIR/utility.sh
 
 function setup_irqbalance() {
     local pkg="irqbalance"
@@ -394,7 +345,8 @@ function setup_router() {
     setup_irqbalance
     setup_usb_tether
     setup_unbound
-    setup_simpleadblock
+    source $SOURCES_DIR/simpleadblock_helper.sh "$RESOURCES_DIR" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+        && setup
     setup_wifi
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
