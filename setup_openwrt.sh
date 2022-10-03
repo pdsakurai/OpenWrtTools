@@ -29,7 +29,6 @@ function setup_irqbalance() {
     log "Done setting up $pkg."
 }
 
-
 function setup_ntp_server() {
     local resources_dir="$RESOURCES_DIR/ntp"
 
@@ -53,46 +52,6 @@ function setup_ntp_server() {
 
     restart_services firewall sysntpd
     log "Done set-up for NTP server."
-}
-
-function switch_from_odhcpd_to_dnsmasq() {
-    uninstall_packages odhcpd
-    install_packages dnsmasq odhcpd-ipv6only
-
-    uci -q delete dhcp.odhcpd
-    [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
-    uci commit dhcp
-
-    local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 | xargs )"
-    setup_unbound "$domain"
-
-    restart_services odhcpd
-    log "Done switching from odhcpd to dnsmasq."
-}
-
-#Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
-function switch_from_dnsmasq_to_odhcpd() {
-    local pkg="odhcpd"
-    local resources_dir="$RESOURCES_DIR/$pkg"
-
-    uninstall_packages $pkg-ipv6only
-    install_packages $pkg
-
-    local uci_option="dhcp"
-    uci revert $uci_option
-    set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
-    uci -q delete $uci_option.@dnsmasq[0]
-    uci commit $uci_option
-
-    uci_option="unbound"
-    uci revert $uci_option
-    set_uci_from_file "$uci_option" "$resources_dir/uci.$uci_option"
-    uci commit $uci_option
-
-    uninstall_packages dnsmasq
-
-    restart_services unbound $pkg
-    log "Done switching from dnsmasq to $pkg."
 }
 
 function setup_wifi() {
