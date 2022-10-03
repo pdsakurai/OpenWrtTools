@@ -241,40 +241,6 @@ function setup_wifi() {
     log "Done setting up WiFi"
 }
 
-#Reference: https://openwrt.org/docs/guide-user/network/wifi/dawn
-function setup_dawn() {
-    local are_there_changes=
-    local pkg="dawn"
-    local resources_dir="$RESOURCES_DIR/$pkg"
-
-    function enable_802dot11k_and_802dot11v() {
-        uninstall_packages wpad-basic-wolfssl
-        install_packages wpad-wolfssl
-        uci revert wireless
-        local wifi_iface_uci="$( get_all_wifi_iface_uci )"
-        set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11k"
-        set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11v"
-        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
-            && are_there_changes=0
-    }; enable_802dot11k_and_802dot11v
-
-    function apply_recommended_uci_options() {
-        install_packages luci-app-$pkg
-        local broadcast_address="$( ip address | grep inet.*br-lan | sed 's/.*brd \(.*\) scope.*/\1/' )"
-
-        function clean_uci_option() {
-            printf "$1" | sed s/\$broadcast_address/$broadcast_address/
-        }
-        uci revert $pkg
-        set_uci_from_file "$pkg" "$resources_dir/uci.dawn" "clean_uci_option"
-        commit_and_log_if_there_are_changes "$pkg" "$pkg is now broadcasting via $broadcast_address" \
-            && are_there_changes=0
-    }; apply_recommended_uci_options
-
-    [ -n "$are_there_changes" ] && restart_services network $pkg
-    log "Done setting up $pkg."
-}
-
 function setup_usb_tether() {
     install_packages kmod-usb-net-rndis
     log "Done setting up support for Android USB-tethered internet connection."
