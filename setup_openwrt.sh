@@ -33,31 +33,6 @@ function setup_irqbalance() {
     log "Done setting up $pkg."
 }
 
-function setup_ntp_server() {
-    local resources_dir="$RESOURCES_DIR/ntp"
-
-    function redirect_NTP_queries() {
-        local firewall_fullfilepath="$resources_dir/firewall.redirect"
-        local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
-        load_and_append_to_another_file "$firewall_fullfilepath" "$destination_dir/99-redirect-ntp.nft" \
-            && log "NTP requests from LAN are now redirected."
-    }; redirect_NTP_queries
-
-    function apply_uci_options() {
-        local uci_ntp="system.ntp"
-
-        uci revert $uci_ntp
-        set_uci_from_file "$uci_ntp" "$resources_dir/uci.$uci_ntp"
-        add_list_uci_from_file "$uci_ntp.interface" "$resources_dir/uci.$uci_ntp.interface"
-        add_list_uci_from_file "$uci_ntp.server" "$resources_dir/uci.$uci_ntp.server"
-
-        commit_and_log_if_there_are_changes "$uci_ntp" "Applied recommended UCI settings for NTP"
-    }; apply_uci_options
-
-    restart_services firewall sysntpd
-    log "Done set-up for NTP server."
-}
-
 function setup_wifi() {
     local are_there_changes=
     local resources_dir="$RESOURCES_DIR/wireless"
@@ -124,7 +99,7 @@ function setup_router() {
 
     opkg update
 
-    setup_ntp_server
+    $( source $SOURCES_DIR/ntp_helper.sh && setup )
     setup_irqbalance
     setup_usb_tether
     $( source $SOURCES_DIR/unbound_helper.sh \
