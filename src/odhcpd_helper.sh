@@ -9,7 +9,7 @@ source $__sources_dir/utility.sh
 __pkg="odhcpd"
 __resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/$__pkg"
 
-function uninstall() {
+function uninstall_odhcpd() {
     uninstall_packages odhcpd
     install_packages dnsmasq odhcpd-ipv6only
 
@@ -32,7 +32,7 @@ function uninstall() {
 }
 
 #Local DNS becomes unreliable based on benchmark. There's at least 30% drop in reliability metric.
-function setup() {
+function install_odhcpd() {
     uninstall_packages $__pkg-ipv6only
     install_packages $__pkg
 

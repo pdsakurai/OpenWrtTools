@@ -111,7 +111,7 @@ function __block_encrypted_dns_requests() {
     log "DNS queries over HTTPS and TLS are now blocked."
 }
 
-function setup() {
+function setup_unbound() {
     install_packages \
         luci-app-$__pkg \
         $__pkg-control

@@ -99,17 +99,17 @@ function setup_router() {
 
     opkg update
 
-    $( source $SOURCES_DIR/ntp_helper.sh && setup )
+    $( source $SOURCES_DIR/ntp_helper.sh && setup_ntp_server )
     setup_irqbalance
     setup_usb_tether
     $( source $SOURCES_DIR/unbound_helper.sh \
             "$UNBOUND_CONF_SRV_FULLFILEPATH" \
             "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             "$domain" \
-        && setup )
+        && setup_unbound )
     $( source $SOURCES_DIR/simpleadblock_helper.sh \
             "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-        && setup )
+        && setup_simpleadblock )
     setup_wifi
     setup_ipv6_dhcp_in_router
     setup_miscellaneous

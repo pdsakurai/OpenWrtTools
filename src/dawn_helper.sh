@@ -33,7 +33,7 @@ function __apply_recommended_uci_options() {
 }
 
 #Reference: https://openwrt.org/docs/guide-user/network/wifi/dawn
-function setup() {
+function install_dawn() {
     __are_there_changes=
 
     __enable_802dot11k_and_802dot11v
@@ -67,7 +67,7 @@ function __remove_802dot11k_and_802dot11v_uci_options() {
     install_packages wpad-basic-wolfssl
 }
 
-function uninstall() {
+function uninstall_dawn() {
     __are_there_changes=
 
     __remove_uci_options

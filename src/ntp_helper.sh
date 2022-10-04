@@ -24,7 +24,7 @@ function __apply_uci_options() {
     commit_and_log_if_there_are_changes "$uci_ntp" "Applied recommended UCI settings for NTP"
 }
 
-function setup() {
+function setup_ntp_server() {
     __redirect_NTP_queries
     __apply_uci_options
 

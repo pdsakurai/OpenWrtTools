@@ -39,7 +39,7 @@ function __integrate_with_unbound() {
         && log "$__pkg now integrated with unbound."
 }
 
-function setup() {
+function setup_simpleadblock() {
     install_packages \
         gawk \
         grep \
