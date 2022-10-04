@@ -5,7 +5,7 @@ set -o pipefail
 
 ROOT_DIR="$( pwd )"
 RESOURCES_DIR="$ROOT_DIR/resources"
-SOURCES_DIR="$SOURCES_DIR/src"
+SOURCES_DIR="$ROOT_DIR/src"
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
