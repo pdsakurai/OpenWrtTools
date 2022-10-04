@@ -1,12 +1,12 @@
 #!/bin/sh
 
-source ${1:?Missing: Sources directory}/logger_helper.sh "dawn_helper.sh"
-source $1/uci_helper.sh
-source $1/utility.sh
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "dawn_helper.sh"
+source $SOURCES_DIR/uci_helper.sh
+source $SOURCES_DIR/utility.sh
 
 __are_there_changes=
 __pkg="dawn"
-__resources_dir="${2:?Missing:Resources directory}/$__pkg"
+__resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/$__pkg"
 
 function __enable_802dot11k_and_802dot11v() {
     uninstall_packages wpad-basic-wolfssl

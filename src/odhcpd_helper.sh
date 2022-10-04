@@ -1,13 +1,13 @@
 #!/bin/sh
 
-__sources_dir="${1:?Missing: Sources directory}"
+__sources_dir="${SOURCES_DIR:?Define ENV var:SOURCES_DIR}"
 
 source $__sources_dir/logger_helper.sh "odhcpd_helper.sh"
 source $__sources_dir/uci_helper.sh
 source $__sources_dir/utility.sh
 
 __pkg="odhcpd"
-__resources_dir="${2:?Missing:Resources directory}/$__pkg"
+__resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/$__pkg"
 
 function uninstall() {
     uninstall_packages odhcpd

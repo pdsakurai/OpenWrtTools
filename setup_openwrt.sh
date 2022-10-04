@@ -6,6 +6,10 @@ set -o pipefail
 ROOT_DIR="$( pwd )"
 RESOURCES_DIR="$ROOT_DIR/resources"
 SOURCES_DIR="$ROOT_DIR/src"
+
+export RESOURCES_DIR
+export SOURCES_DIR
+
 UNBOUND_ROOT_DIR="/etc/unbound"
 UNBOUND_CONF_SRV_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_srv.conf"
 UNBOUND_CONF_EXT_FULLFILEPATH="$UNBOUND_ROOT_DIR/unbound_ext.conf"
@@ -124,15 +128,11 @@ function setup_router() {
     setup_irqbalance
     setup_usb_tether
     $( source $SOURCES_DIR/unbound_helper.sh \
-            "$SOURCES_DIR" \
-            "$RESOURCES_DIR" \
             "$UNBOUND_CONF_SRV_FULLFILEPATH" \
             "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             "$domain" \
         && setup )
     $( source $SOURCES_DIR/simpleadblock_helper.sh \
-            "$SOURCES_DIR" \
-            "$RESOURCES_DIR" \
             "$UNBOUND_CONF_SRV_FULLFILEPATH" \
         && setup )
     setup_wifi

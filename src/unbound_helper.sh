@@ -1,14 +1,14 @@
 #!/bin/sh
 
-source ${1:?Missing: Sources directory}/logger_helper.sh "unbound_helper.sh"
-source $1/uci_helper.sh
-source $1/utility.sh
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "unbound_helper.sh"
+source $SOURCES_DIR/uci_helper.sh
+source $SOURCES_DIR/utility.sh
 
 __pkg="unbound"
-__resources_dir="${2:?Missing:Resources directory}/$__pkg"
-__unbound_srv_conf_fullfilepath="${3:?Missing: unbound_srv.conf fullfilepath}"
-__unbound_ext_conf_fullfilepath="${4:?Missing: unbound_ext.conf fullfilepath}"
-__domain="${5:?Missing: Domain}"
+__resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/$__pkg"
+__unbound_srv_conf_fullfilepath="${1:?Missing: unbound_srv.conf fullfilepath}"
+__unbound_ext_conf_fullfilepath="${2:?Missing: unbound_ext.conf fullfilepath}"
+__domain="${3:?Missing: Domain}"
 
 __dns_packet_size=1232
 function __clean_uci_option() {

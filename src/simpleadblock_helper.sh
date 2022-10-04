@@ -1,13 +1,13 @@
 #!/bin/sh
 
-source ${1:?Missing: Sources directory}/logger_helper.sh "simpleadblock_helper.sh"
-source $1/uci_helper.sh
-source $1/utility.sh
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "simpleadblock_helper.sh"
+source $SOURCES_DIR/uci_helper.sh
+source $SOURCES_DIR/utility.sh
 
 __pkg="simple-adblock"
 __script_fullfilepath="/etc/init.d/$__pkg"
-__resources_dir="${2:?Missing:Resources directory}/$__pkg"
-__unbound_srv_conf_fullfilepath="${3:?Missing: Fullfilepath for unbound_src.conf}"
+__resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/$__pkg"
+__unbound_srv_conf_fullfilepath="${1:?Missing: Fullfilepath for unbound_src.conf}"
 
 
 function __use_always_null(){
