@@ -130,7 +130,10 @@ function setup_router() {
             "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             "$domain" \
         && setup )
-    $( source $SOURCES_DIR/simpleadblock_helper.sh "$SOURCES_DIR" "$RESOURCES_DIR" "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+    $( source $SOURCES_DIR/simpleadblock_helper.sh \
+            "$SOURCES_DIR" \
+            "$RESOURCES_DIR" \
+            "$UNBOUND_CONF_SRV_FULLFILEPATH" \
         && setup )
     setup_wifi
     setup_ipv6_dhcp_in_router
