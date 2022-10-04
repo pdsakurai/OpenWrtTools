@@ -66,8 +66,8 @@ function setup_wifi() {
     }; enable_802dot11r
 
     function transmit_max_radio_power_always() {
-        #Source: https://discord.com/channels/413223793016963073/792707384619040798/1018010444918693898
-        local pkg="wireless-regdb_2022.06.06-1_all.ipk"
+        #Source: https://discord.com/channels/413223793016963073/792707384619040798/1026685744909123654
+        local pkg="wireless-regdb.ipk"
         opkg install --force-reinstall $resources_dir/$pkg
 
         uci revert wireless
