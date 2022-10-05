@@ -1,4 +1,4 @@
-ra_management='1'
-ra='server'
-dhcpv6='server'
-ndp='hybrid'
+ra_management=1
+ra=server
+dhcpv6=server
+ndp=hybrid

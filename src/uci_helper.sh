@@ -16,7 +16,7 @@ function __process_uci_from_file() {
                     uci add_list $uci_option="$uci_option_value"
                     ;;
                 "set")
-                    uci set $uci_option.$uci_option_value
+                    uci set "$uci_option.$uci_option_value"
                     ;;
                 *)
                     log "Invalid UCI operation given: $uci_operation"

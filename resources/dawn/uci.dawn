@@ -1,1 +1,1 @@
-@network[0].broadcast_ip="$broadcast_address"
+@network[0].broadcast_ip=$broadcast_address

@@ -1,4 +1,4 @@
-bss_transition='1'
-wnm_sleep_mode='1'
-time_advertisement='2'
-time_zone='PST-8'
+bss_transition=1
+wnm_sleep_mode=1
+time_advertisement=2
+time_zone=PST-8

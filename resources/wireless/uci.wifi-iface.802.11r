@@ -1,6 +1,6 @@
-ieee80211r='1'
-reassociation_deadline='20000'
-ft_over_ds='0'
-ft_psk_generate_local='1'
-mobility_domain='ACED'
-max_inactivity='20'
+ieee80211r=1
+reassociation_deadline=20000
+ft_over_ds=0
+ft_psk_generate_local=1
+mobility_domain=ACED
+max_inactivity=20

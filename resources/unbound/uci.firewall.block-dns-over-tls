@@ -1,6 +1,6 @@
-name="Block DNS-over-TLS"
-proto='tcp'
-src='lan'
-dest='wan'
-dest_port='853'
-target='REJECT'
+proto=tcp
+src=lan
+dest=wan
+dest_port=853
+target=REJECT
+name=Block DNS-over-TLS
