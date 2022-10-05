@@ -45,6 +45,7 @@ function delete_firewall_entries() {
         uci show firewall | grep "$type.*name='$name" | cut -d. -f 2 | sort -r
     }
 
+    local entry
     for entry in $( search_entries ); do
         uci delete firewall.$entry
     done

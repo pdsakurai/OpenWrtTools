@@ -23,7 +23,7 @@ function add() {
 function is_existing() {
     local keyword=${1:?Missing: name, MAC address or IP address}
 
-    local hits="$( uci show dhcp | grep dhcp\.@host | grep -F $keyword )"
+    local hit hits="$( uci show dhcp | grep dhcp\.@host | grep -F $keyword )"
     for hit in $hits; do
         hit=$( printf ${hit#*=} | xargs )
         [ "$hit" == "$keyword" ] && return 0
@@ -33,7 +33,7 @@ function is_existing() {
 }
 
 function show() {
-    local entries="$( uci show dhcp | grep host.*name )"
+    local entry entries="$( uci show dhcp | grep host.*name )"
     for entry in $entries; do
         #dhcp.@host[0].name='Paul-Laptop'
         local name=${entry#*=}

@@ -50,6 +50,7 @@ function setup_wifi() {
         opkg install --force-reinstall $resources_dir/$pkg
 
         uci revert wireless
+        local uci_option
         for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
             uci delete $uci_option
         done

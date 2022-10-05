@@ -24,6 +24,7 @@ function __modify_sysctlconf() {
         trim_whitespaces "$value"
     }
 
+    local config
     while read config; do
         local param=$( printf "$config" | cut -d= -f1 )
 

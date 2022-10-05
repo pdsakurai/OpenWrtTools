@@ -5,6 +5,7 @@ function is_function_defined() {
 }
 
 function abort_when_a_function_is_undefined() {
+    local function_name
     for function_name in ${@:?Missing: Function name/s}; do
         local log_text="Function $function_name doesn't exist"
         ! is_function_defined "$function_name" \
@@ -33,6 +34,7 @@ function load_and_append_to_another_file() {
 }
 
 function restart_services() {
+    local item
     for item in ${@:?Missing: Service/s}; do
         is_function_defined "log" && log "Restarting service: $item"
         service $item restart

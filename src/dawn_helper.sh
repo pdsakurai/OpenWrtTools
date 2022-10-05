@@ -52,6 +52,8 @@ function __remove_uci_options() {
 
 function __remove_802dot11k_and_802dot11v_uci_options() {
     uci revert wireless
+    
+    local uci_option_prefix wifi_feature uci_option_suffix
     for uci_option_prefix in $( get_all_wifi_iface_uci ); do
         for wifi_feature in "802.11k" "802.11v"; do
             for uci_option_suffix in "$__resources_dir/uci.wireless.wifi-iface.$wifi_feature"; do
