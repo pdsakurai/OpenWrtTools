@@ -6,8 +6,10 @@ function __process_uci_from_file() {
     local uci_option_values_fullfilepath="${3:?Missing: UCI option values fullfilepath}"
     local line_cleaner_func="$4"
 
+    local uci_option
     for uci_option in $uci_options; do
         [ "$uci_operation" == "add_list" ] && uci -q delete $uci_option
+        local uci_option_value
         while read uci_option_value; do
             uci_option_value="$( printf "$uci_option_value" | sed -e "s/[[:space:]]*$//" -e "s/^[[:space:]]*//" )"
             [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
