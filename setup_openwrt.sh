@@ -109,9 +109,6 @@ function setup_router() {
             "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             "$domain" \
         && setup_unbound ) 2> /dev/null
-    $( source $SOURCES_DIR/simpleadblock_helper.sh \
-            "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-        && setup_simpleadblock ) 2> /dev/null
     setup_wifi
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
@@ -119,6 +116,10 @@ function setup_router() {
     cp -f "$ROOT_DIR/restart_dead_wan.sh" ~
     add_cron_job "$RESOURCES_DIR/cron.wan" \
         && log "Added cron job for restarting dead WAN interfaces."
+
+    $( source $SOURCES_DIR/simpleadblock_helper.sh \
+            "$UNBOUND_CONF_SRV_FULLFILEPATH" \
+        && setup_simpleadblock ) 2> /dev/null
 
     log "Completed setting up router."
 }
