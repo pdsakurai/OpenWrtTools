@@ -9,7 +9,7 @@ function __process_uci_from_file() {
     for uci_option in $uci_options; do
         [ "$uci_operation" == "add_list" ] && uci -q delete $uci_option
         while read uci_option_value; do
-            uci_option_value="$( printf "$uci_option_value" | xargs )"
+            uci_option_value="$( printf $uci_option_value | sed -e "s/[[:space:]]*$//" -e "s/^*[[:space:]]//" )"
             [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
             [ -n "$uci_option_value" ] && case $uci_operation in
                 "add_list")
