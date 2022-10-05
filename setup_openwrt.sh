@@ -34,8 +34,7 @@ function setup_irqbalance() {
 }
 
 function setup_wifi() {
-    local are_there_changes=
-    local resources_dir="$RESOURCES_DIR/wireless"
+    local are_there_changes resources_dir="$RESOURCES_DIR/wireless"
 
     function enable_802dot11r() {
         uci revert wireless

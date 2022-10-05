@@ -11,8 +11,7 @@ function convert_ipv4_address() {
     local convert="${2:?Missing: Converter function}"
     input="${input%/*}"
 
-    local output
-    local octet
+    local output octet
     for octet in ${input//./ }; do
         output="$output$( $convert "$octet" )."
     done
@@ -74,9 +73,7 @@ function optimize_ipv4_subnets() {
     local output_file="${1:?Missing: Output file}"
     local input_file="${2:?Missing: File containing translated IPv4 subnets}"
 
-    local superset
-    local superset_mask
-    local subset
+    local superset superset_mask subset
 
     function is_a_subset() {
         return $( printf "$superset != ${subset:0:$superset_mask}\n" | bc )

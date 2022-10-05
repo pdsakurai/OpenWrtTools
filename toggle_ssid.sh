@@ -10,8 +10,7 @@ function log_info() {
 }
 
 function get_all_wifi_iface() {
-    local wifi_iface
-    local uci_string
+    local wifi_iface uci_string
     for uci_string in $( uci show wireless | grep $SSID ); do
         local found_ssid="$( printf "$uci_string" | cut -d '=' -f 2 | xargs 2> /dev/null )"
         if [ "$SSID" == "$found_ssid" ]; then
@@ -57,7 +56,7 @@ function get_radio() {
 }
 
 function apply_changes {
-    local new_state="$( get_new_state )"
+    local wifi_iface new_state="$( get_new_state )"
     for wifi_iface in $( get_all_wifi_iface ); do
         uci -q set wireless.$wifi_iface.disabled=$new_state
         uci commit wireless
