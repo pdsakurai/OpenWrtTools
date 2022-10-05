@@ -15,7 +15,7 @@ function __process_uci_from_file() {
             [ -n "$line_cleaner_func" ] && uci_option_value="$( $line_cleaner_func "$uci_option_value" )"
             [ -n "$uci_option_value" ] && case $uci_operation in
                 "add_list")
-                    uci add_list $uci_option="$uci_option_value"
+                    uci add_list "$uci_option=$uci_option_value"
                     ;;
                 "set")
                     uci set "$uci_option.$uci_option_value"
