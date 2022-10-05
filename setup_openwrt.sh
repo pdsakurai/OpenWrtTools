@@ -51,7 +51,7 @@ function setup_wifi() {
         uci revert wireless
         local uci_option
         for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
-            uci delete $uci_option
+            uci -q delete $uci_option
         done
         commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power." \
             && are_there_changes=0
