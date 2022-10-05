@@ -103,7 +103,7 @@ function __block_encrypted_dns_requests() {
 
         uci add firewall rule
         local uci_option="firewall.@$type[-1]"
-        set_uci_from_file "$uci_option"
+        set_uci_from_file "$uci_option" "$firewall_uci_fullfilepath"
 
         uci commit firewall
     }; block_DoT_by_firewall
