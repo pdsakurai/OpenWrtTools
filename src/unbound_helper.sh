@@ -20,7 +20,8 @@ function __clean_uci_option() {
 
 function __modify_sysctlconf() {
     function read_sysctl_value() {
-        sysctl "${1:?Missing: parameter}" 2> /dev/null | cut -d= -f2 | xargs
+        local value="$( sysctl "${1:?Missing: parameter}" 2> /dev/null | cut -d= -f2 )"
+        trim_whitespaces "$value"
     }
 
     while read config; do
@@ -82,7 +83,7 @@ function __use_unbound_in_wan() {
 
 function __redirect_dns_requests() {
     local firewall_fullfilepath="$__resources_dir/firewall.redirect"
-    local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
+    local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" )"
     load_and_append_to_another_file "$firewall_fullfilepath" "$( trim_whitespaces "$destination_dir" )/99-redirect-dns.nft" \
         && log "DNS requests from LAN are now redirected."
 }
