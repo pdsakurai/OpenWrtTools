@@ -57,6 +57,7 @@ function setup_wifi() {
             && are_there_changes=0
     }; transmit_max_radio_power_always
 
+    cp -f "$ROOT_DIR/restart_wifi_radios.sh" ~
     add_cron_job "$resources_dir/cron" \
         && log "Added cron job for restarting all Wi-Fi radios every 03:15H of the day."
 
@@ -114,6 +115,7 @@ function setup_router() {
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
 
+    cp -f "$ROOT_DIR/restart_dead_wan.sh" ~
     add_cron_job "$RESOURCES_DIR/cron.wan" \
         && log "Added cron job for restarting dead WAN interfaces."
 
