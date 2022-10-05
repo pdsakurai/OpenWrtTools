@@ -1,6 +1,6 @@
 #!/bin/sh
 
-source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "dawn_helper.sh"
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "ntp_helper.sh"
 source $SOURCES_DIR/uci_helper.sh
 source $SOURCES_DIR/utility.sh
 
