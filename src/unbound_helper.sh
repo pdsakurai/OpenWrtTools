@@ -102,7 +102,7 @@ function __block_encrypted_dns_requests() {
         uci revert firewall
         delete_firewall_entries "$type" "$name"
 
-        uci add firewall rule
+        uci add firewall $type
         local uci_option="firewall.@$type[-1]"
         set_uci_from_file "$uci_option" "$firewall_uci_fullfilepath"
 
