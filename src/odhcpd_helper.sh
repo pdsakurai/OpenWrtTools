@@ -17,7 +17,8 @@ function uninstall_odhcpd() {
     [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
     uci commit dhcp
 
-    local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 | xargs )"
+    local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 )"
+    domain="$( trim_whitespaces "$domain" )"
     $( source $__sources_dir/unbound_helper.sh \
             "$__sources_dir" \
             "$__resources_dir/.." \

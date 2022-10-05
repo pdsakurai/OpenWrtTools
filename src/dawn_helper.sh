@@ -55,7 +55,8 @@ function __remove_802dot11k_and_802dot11v_uci_options() {
     for uci_option_prefix in $( get_all_wifi_iface_uci ); do
         for wifi_feature in "802.11k" "802.11v"; do
             for uci_option_suffix in "$__resources_dir/uci.wireless.wifi-iface.$wifi_feature"; do
-                uci_option_suffix="$( printf "$uci_option_suffix" | cut -d= -f1 | xargs )"
+                uci_option_suffix="$( printf "$uci_option_suffix" | cut -d= -f1 )"
+                uci_option_suffix="$( trim_whitespaces "$uci_option_suffix" )"
                 [ -n "$uci_option_suffix" ] && uci -q delete $uci_option_prefix.$uci_option_suffix
             done
         done

@@ -83,7 +83,7 @@ function __use_unbound_in_wan() {
 function __redirect_dns_requests() {
     local firewall_fullfilepath="$__resources_dir/firewall.redirect"
     local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" | xargs )"
-    load_and_append_to_another_file "$firewall_fullfilepath" "$destination_dir/99-redirect-dns.nft" \
+    load_and_append_to_another_file "$firewall_fullfilepath" "$( trim_whitespaces "$destination_dir" )/99-redirect-dns.nft" \
         && log "DNS requests from LAN are now redirected."
 }
 
@@ -95,7 +95,8 @@ function __block_encrypted_dns_requests() {
 
     function block_DoT_by_firewall() {
         local firewall_uci_fullfilepath="$__resources_dir/uci.firewall.block-dns-over-tls"
-        local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 | xargs )"
+        local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 )"
+        name="$( trim_whitespaces "$name" )"
         local type="rule"
 
         uci revert firewall

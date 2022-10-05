@@ -48,3 +48,7 @@ function uninstall_packages() {
     opkg remove --autoremove ${@:?Missing: packages}
     is_function_defined "log" && log "Done uninstaling packages."
 }
+
+function trim_whitespaces() {
+    printf "${1:?Missing: Text}" | sed -e "s/[[:space:]]*$//" -e "s/^[[:space:]]*//"
+}
