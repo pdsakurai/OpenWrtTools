@@ -1,7 +1,7 @@
 #!/bin/sh
 
-set -o errexit
-set -o pipefail
+# set -o errexit
+# set -o pipefail
 
 ROOT_DIR="$( pwd )"
 RESOURCES_DIR="$ROOT_DIR/resources"
