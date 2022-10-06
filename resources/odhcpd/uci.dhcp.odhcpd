@@ -1,4 +1,3 @@
 maindhcp=0
 leasefile=/tmp/hosts/odhcpd
 leasetrigger=/usr/sbin/odhcpd-update
-loglevel=4
