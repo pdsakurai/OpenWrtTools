@@ -13,8 +13,17 @@ function uninstall_odhcpd() {
     uninstall_packages odhcpd
     install_packages dnsmasq odhcpd-ipv6only
 
-    uci -q delete dhcp.odhcpd
+    uci revert dhcp
+
     [ $( uci show dhcp | grep -Fc "dnsmasq[0]" ) -le 0 ] && uci add dhcp dnsmasq
+
+    local uci_option="dhcp.odhcpd"
+    uci -q delete $uci_option
+    uci add dhcp odhcpd
+    uci rename $uci_option[0]=odhcpd
+    uci commit dhcp
+
+    set_uci_from_file "$uci_option" "$__resources_dir/uci.$uci_option"
     uci commit dhcp
 
     local domain="$( uci show unbound.@unbound[0].domain | cut -d= -f2 )"
