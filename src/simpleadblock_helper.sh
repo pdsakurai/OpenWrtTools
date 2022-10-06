@@ -27,7 +27,7 @@ function __apply_uci_options() {
     uci revert $uci_option
     set_uci_from_file "$uci_option" "$uci_options_fullfilepath"
     local uci_option_suffix
-    for uci_option_suffix in blocked_domains_url blocked_hosts_url; do
+    for uci_option_suffix in allowed_domain blocked_domains_url blocked_hosts_url; do
         add_list_uci_from_file "$uci_option.$uci_option_suffix" "$uci_options_fullfilepath.$uci_option_suffix"
     done
     uci commit $uci_option
