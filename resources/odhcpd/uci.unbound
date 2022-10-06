@@ -1,5 +1,5 @@
-@unbound[0].add_local_fqdn="3"
-@unbound[0].add_wan_fqdn="1"
-@unbound[0].dhcp4_slaac6="1"
-@unbound[0].dhcp_link="odhcpd"
-@unbound[0].listen_port="53"
+@unbound[0].add_local_fqdn=3
+@unbound[0].add_wan_fqdn=1
+@unbound[0].dhcp4_slaac6=1
+@unbound[0].dhcp_link=odhcpd
+@unbound[0].listen_port=53

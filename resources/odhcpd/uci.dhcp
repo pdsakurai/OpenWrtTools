@@ -1,4 +1,4 @@
-lan.dhcpv4="server"
-odhcpd.maindhcp="1"
-odhcpd.leasefile="/var/lib/odhcpd/dhcp.leases"
-odhcpd.leasetrigger="/usr/lib/unbound/odhcpd.sh"
+lan.dhcpv4=server
+odhcpd.maindhcp=1
+odhcpd.leasefile=/var/lib/odhcpd/dhcp.leases
+odhcpd.leasetrigger=/usr/lib/unbound/odhcpd.sh
