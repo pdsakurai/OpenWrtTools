@@ -1,0 +1,2 @@
+@defaults[0].flow_offloading=1
+@defaults[0].flow_offloading_hw=1

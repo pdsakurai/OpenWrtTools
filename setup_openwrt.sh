@@ -95,6 +95,12 @@ function setup_miscellaneous() {
     set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
     commit_and_log_if_there_are_changes "$uci_option" "HTTP access is always redirected to HTTPS." \
         && restart_services $uci_option
+    
+    uci_option="firewall"
+    uci revert $uci_option
+    set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
+    commit_and_log_if_there_are_changes "$uci_option" "Enabled Routing/NAT offloading." \
+        && restart_services $uci_option
 }
 
 function setup_router() {
