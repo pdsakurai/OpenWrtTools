@@ -87,12 +87,14 @@ function setup_miscellaneous() {
     local uci_option="system"
     uci revert $uci_option
     set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
-    commit_and_log_if_there_are_changes "$uci_option" "Timezone is set to Asia/Manila."
+    commit_and_log_if_there_are_changes "$uci_option" "Timezone is set to Asia/Manila." \
+        && restart_services sysntpd
 
     uci_option="uhttpd"
     uci revert $uci_option
     set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
-    commit_and_log_if_there_are_changes "$uci_option" "HTTP access is always redirected to HTTPS."
+    commit_and_log_if_there_are_changes "$uci_option" "HTTP access is always redirected to HTTPS." \
+        && restart_services $uci_option
 }
 
 function setup_router() {
