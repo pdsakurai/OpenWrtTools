@@ -54,3 +54,7 @@ function uninstall_packages() {
 function trim_whitespaces() {
     printf "${1:?Missing: Text}" | sed -e "s/[[:space:]]*$//" -e "s/^[[:space:]]*//"
 }
+
+function upgrade_all_packages() {
+    opkg list-upgradable | cut -f 1 -d ' ' | xargs -rt opkg upgrade
+}

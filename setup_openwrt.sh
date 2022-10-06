@@ -101,7 +101,7 @@ function setup_router() {
     local domain="${1:?Missing: Domain}"
 
     opkg update
-    opkg list-upgradable | cut -f 1 -d ' ' | xargs -rt opkg upgrade
+    upgrade_all_packages
 
     $( source $SOURCES_DIR/ntp_helper.sh && setup_ntp_server ) 2> /dev/null
     setup_irqbalance
@@ -128,6 +128,7 @@ function setup_router() {
 
 function setup_dumb_ap() {
     opkg update
+    upgrade_all_packages
 
     setup_irqbalance
     setup_wifi
