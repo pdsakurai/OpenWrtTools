@@ -18,6 +18,35 @@ function __enable_802dot11w() {
     commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11w in all SSIDs."
 }
 
+function __enable_802dot11k_and_802dot11v() {
+    uninstall_packages wpad-basic-wolfssl
+    install_packages wpad-wolfssl
+    uci revert wireless
+    local wifi_iface_uci="$( get_all_wifi_iface_uci )"
+    set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wifi-iface.802.11k"
+    set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wifi-iface.802.11v"
+    commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs."
+}
+
+function __remove_802dot11k_and_802dot11v_uci_options() {
+    uci revert wireless
+    
+    local uci_option_prefix wifi_feature uci_option_suffix
+    for uci_option_prefix in $( get_all_wifi_iface_uci ); do
+        for wifi_feature in "802.11k" "802.11v"; do
+            for uci_option_suffix in "$__resources_dir/uci.wifi-iface.$wifi_feature"; do
+                uci_option_suffix="$( printf "$uci_option_suffix" | cut -d= -f1 )"
+                uci_option_suffix="$( trim_whitespaces "$uci_option_suffix" )"
+                [ -n "$uci_option_suffix" ] && uci -q delete $uci_option_prefix.$uci_option_suffix
+            done
+        done
+    done
+    commit_and_log_if_there_are_changes "wireless" "Removed UCI options for 802.11k and 802.11v in all SSIDs."
+
+    uninstall_packages wpad-wolfssl
+    install_packages wpad-basic-wolfssl
+}
+
 function __transmit_max_radio_power_always() {
     #Source: https://discord.com/channels/413223793016963073/792707384619040798/1026685744909123654
     local pkg="wireless-regdb.ipk"
@@ -42,6 +71,7 @@ function setup_wifi() {
 
     __enable_802dot11r && are_there_changes=0
     __enable_802dot11w && are_there_changes=0
+    __enable_802dot11k_and_802dot11v && are_there_changes=0
     __transmit_max_radio_power_always && are_there_changes=0
     __enable_routine_radios_restarting
 
