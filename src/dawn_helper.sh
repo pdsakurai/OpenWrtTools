@@ -23,7 +23,7 @@ function __apply_recommended_uci_options() {
 function setup_dawn() {
     $( source $SOURCES_DIR/wireless_helper.sh && __enable_802dot11k_and_802dot11v )
     __apply_recommended_uci_options \
-        && restart_services wpad network $__pkg \
+        && restart_services wpad umdns $__pkg \
         && wifi
     log "Done setting up $__pkg."
 }
@@ -36,7 +36,7 @@ function __remove_uci_options() {
 
 function uninstall_dawn() {
     __remove_uci_options \
-        && restart_services wpad network \
+        && restart_services wpad \
         && wifi
     log "Done uninstalling $__pkg."
 }
