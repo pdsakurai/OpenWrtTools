@@ -69,6 +69,9 @@ function setup_miscellaneous() {
     set_uci_from_file "$uci_option" "$RESOURCES_DIR/uci.$uci_option"
     commit_and_log_if_there_are_changes "$uci_option" "Enabled Routing/NAT offloading." \
         && restart_services $uci_option
+
+    mkdir -p "~/src"
+    cp -f "$SOURCE_DIR/logger_helper.sh" "~/src/"
 }
 
 function setup_router() {
