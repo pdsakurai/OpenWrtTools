@@ -33,45 +33,6 @@ function setup_irqbalance() {
     log "Done setting up $pkg."
 }
 
-function setup_wifi() {
-    local are_there_changes resources_dir="$RESOURCES_DIR/wireless"
-
-    function enable_802dot11r() {
-        uci revert wireless
-        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wifi-iface.802.11r"
-        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs." \
-            && are_there_changes=0
-    }; enable_802dot11r
-
-    function enable_802dot11w() {
-        uci revert wireless
-        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wifi-iface.802.11w"
-        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11w in all SSIDs." \
-            && are_there_changes=0
-    }; enable_802dot11w
-
-    function transmit_max_radio_power_always() {
-        #Source: https://discord.com/channels/413223793016963073/792707384619040798/1026685744909123654
-        local pkg="wireless-regdb.ipk"
-        opkg install --force-reinstall $resources_dir/$pkg
-
-        uci revert wireless
-        local uci_option
-        for uci_option in $( uci show wireless | grep .txpower | cut -d= -f1 ); do
-            uci -q delete $uci_option
-        done
-        commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power." \
-            && are_there_changes=0
-    }; transmit_max_radio_power_always
-
-    cp -f "$ROOT_DIR/restart_wifi_radios.sh" ~
-    add_cron_job "$resources_dir/cron" \
-        && log "Added cron job for restarting all Wi-Fi radios every 03:15H of the day."
-
-    [ -n "$are_there_changes" ] && restart_services network
-    log "Done setting up WiFi"
-}
-
 function setup_usb_tether() {
     install_packages kmod-usb-net-rndis
     log "Done setting up support for Android USB-tethered internet connection."
@@ -124,7 +85,7 @@ function setup_router() {
             "$UNBOUND_CONF_EXT_FULLFILEPATH" \
             "$domain" \
         && setup_unbound ) 2> /dev/null
-    setup_wifi
+    $( source $SOURCES_DIR/wireless_helper.sh && setup_wifi )
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
 
@@ -144,7 +105,7 @@ function setup_dumb_ap() {
     upgrade_all_packages
 
     setup_irqbalance
-    setup_wifi
+    $( source $SOURCES_DIR/wireless_helper.sh && setup_wifi )
     setup_miscellaneous
 
     log "Completed setting up dumb AP."
