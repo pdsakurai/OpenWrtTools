@@ -13,8 +13,8 @@ function __enable_802dot11k_and_802dot11v() {
     install_packages wpad-wolfssl
     uci revert wireless
     local wifi_iface_uci="$( get_all_wifi_iface_uci )"
-    set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11k"
-    set_uci_from_file "$wifi_iface_uci" "$resources_dir/uci.wireless.wifi-iface.802.11v"
+    set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wireless.wifi-iface.802.11k"
+    set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wireless.wifi-iface.802.11v"
     commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs." \
         && are_there_changes=0
 }
@@ -27,7 +27,7 @@ function __apply_recommended_uci_options() {
         printf "$1" | sed s/\$broadcast_address/$broadcast_address/
     }
     uci revert $pkg
-    set_uci_from_file "$pkg" "$resources_dir/uci.dawn" "clean_uci_option"
+    set_uci_from_file "$pkg" "$__resources_dir/uci.dawn" "clean_uci_option"
     commit_and_log_if_there_are_changes "$pkg" "$pkg is now broadcasting via $broadcast_address" \
         && are_there_changes=0
 }
