@@ -92,8 +92,8 @@ function setup_router() {
     setup_ipv6_dhcp_in_router
     setup_miscellaneous
 
-    cp -f "$ROOT_DIR/restart_dead_wan.sh" ~
     add_cron_job "$RESOURCES_DIR/cron.wan" \
+        && cp -f "$ROOT_DIR/restart_dead_wan.sh" "~" \
         && log "Added cron job for restarting dead WAN interfaces."
 
     $( source $SOURCES_DIR/simpleadblock_helper.sh \
