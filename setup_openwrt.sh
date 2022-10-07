@@ -43,6 +43,13 @@ function setup_wifi() {
             && are_there_changes=0
     }; enable_802dot11r
 
+    function enable_802dot11w() {
+        uci revert wireless
+        set_uci_from_file "$( get_all_wifi_iface_uci )" "$resources_dir/uci.wifi-iface.802.11w"
+        commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11w in all SSIDs." \
+            && are_there_changes=0
+    }; enable_802dot11w
+
     function transmit_max_radio_power_always() {
         #Source: https://discord.com/channels/413223793016963073/792707384619040798/1026685744909123654
         local pkg="wireless-regdb.ipk"
