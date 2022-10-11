@@ -97,6 +97,22 @@ function setup_miscellaneous() {
     }; add_backup_files
 }
 
+function block_unknown_devices() {
+    local pkg="block_unknown_devices"
+    local resources_dir="$RESOURCES_DIR/$pkg"
+
+    local service_file=$( copy_resource "$resources_dir/service" )
+    [ $? -eq 0 ] && chmod +x "$service_file"
+
+    copy_resource "$resources_dir/firewall.nft" 
+    local set_file="$( copy_resource "$resources_dir/set.nft" )"
+    [ $? -eq 0 ] && sed -i "s/\$SET_FILE/$set_file/" "$destination_file"
+
+    service $pkg enable
+    service $pkg start
+    log "Unknown devices are now blocked. Make sure to assign static leases to new devices."
+}
+
 function setup_router() {
     local domain="${1:?Missing: Domain}"
 

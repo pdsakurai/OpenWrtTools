@@ -1,0 +1,32 @@
+#Destination file: /etc/init.d/block_unknown_devices
+#!/bin/sh /etc/rc.common
+USE_PROCD=1
+START=99
+
+start_service() {
+    source /root/src/logger_helper.sh "block_unknown_devices"
+    local set_name="known_devices"
+    local mac_addresses="$( uci show dhcp | grep \.mac= | sed "s/.*mac='\(.*\)'/\1/" | tr "\n" "," | sed "s/,$//g" )"
+
+    if [ -z "$mac_addresses" ]; then
+        log "Aborted updating nft set \"$set_name\" with empty list."
+        exit 1
+    fi
+
+    function update_in_runtime() {
+        local family_and_table="inet fw4"
+        nft flush set $family_and_table $set_name
+        nft add element $family_and_table $set_name { $mac_addresses }
+    }; update_in_runtime
+
+    function update_static_configuration() {
+        local new_line="elements = { $mac_addresses }"
+        sed -i "s/#\?elements.*=.*{.*}/$new_line/" "$SET_FILE"
+    }; update_static_configuration
+
+    log "Updated nft set \"$set_name\"."
+}
+
+service_triggers() {
+    procd_add_reload_trigger "dhcp"
+}

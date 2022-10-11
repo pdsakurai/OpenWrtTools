@@ -58,3 +58,20 @@ function trim_whitespaces() {
 function upgrade_all_packages() {
     opkg list-upgradable | cut -f 1 -d ' ' | xargs -rt opkg upgrade
 }
+
+function copy_resource() {
+    local source_file="${1:?Missing: Resource file}"
+    local destination_file="$( head -1 "$source_file" )"
+
+    local header="#Destination file: "
+    local header_count="$( printf "$destination_file" | grep -c "$header" )"
+    [ $header_count -ne 1 ] \
+        && ( is_function_defined "log" && log "Cannot copy resource file ($source_file) without the destination file header." ) \
+        && return 1
+
+    destination_file="$( printf "$destination_file" | sed "s/$header//" )"
+    cp -f "$source_file" "$destination_file"
+    sed -i "1d" "$destination_file"
+
+    printf "$destination_file"
+}
