@@ -88,6 +88,12 @@ function setup_miscellaneous() {
     }; secure_ssh_access
 
     install_packages luci-app-attendedsysupgrade
+
+    function add_backup_files() {
+        local backup_list="/etc/sysupgrade.conf"
+        echo "/usr/share/nftables.d/" >> "$backup_list"
+        echo "/root/" >> "$backup_list"
+    }; add_backup_files
 }
 
 function setup_router() {
