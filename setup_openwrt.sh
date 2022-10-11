@@ -113,6 +113,7 @@ function block_unknown_devices() {
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
 
     service $pkg enable && service $pkg start
+    restart_services firewall
     log "Unknown devices are now blocked. Make sure to assign static leases to new devices."
 }
 
