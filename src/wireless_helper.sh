@@ -42,7 +42,7 @@ function __enable_802dot11k_and_802dot11v() {
         destination="/etc/init.d/rrm_nr" \
             && wget -o "$destination" "$source_url/initscript" \
             && chmod +x "$destination" \
-            && $destination enable \ 
+            && $destination enable \
             && $destination start
 
         log "Neighbour reports under 802.11k are ready for syncing across APs."
