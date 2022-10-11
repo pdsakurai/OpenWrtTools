@@ -70,8 +70,9 @@ function setup_miscellaneous() {
     commit_and_log_if_there_are_changes "$uci_option" "Enabled Routing/NAT offloading." \
         && restart_services $uci_option
 
-    mkdir -p "~/src"
-    cp -f "$SOURCE_DIR/logger_helper.sh" "~/src/"
+    local destination="/root/src"
+    mkdir -p "$destination/"
+    cp -f "$SOURCE_DIR/logger_helper.sh" "$destination/"
 
     function secure_ssh_access() {
         function get_all_instances() {
@@ -115,7 +116,7 @@ function setup_router() {
     setup_miscellaneous
 
     add_cron_job "$RESOURCES_DIR/cron.wan" \
-        && cp -f "$ROOT_DIR/restart_dead_wan.sh" "~" \
+        && cp -f "$ROOT_DIR/restart_dead_wan.sh" "/root/" \
         && log "Added cron job for restarting dead WAN interfaces."
 
     $( source $SOURCES_DIR/simpleadblock_helper.sh \

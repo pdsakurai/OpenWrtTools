@@ -92,7 +92,7 @@ function __transmit_max_radio_power_always() {
 
 function __enable_routine_radios_restarting() {
     add_cron_job "$__resources_dir/cron" \
-        && cp -f "$SOURCES_DIR/../restart_wifi_radios.sh" "~" \
+        && cp -f "$SOURCES_DIR/../restart_wifi_radios.sh" "/root/" \
         && log "Added cron job for restarting all Wi-Fi radios every 03:15H of the day."
 }
 
