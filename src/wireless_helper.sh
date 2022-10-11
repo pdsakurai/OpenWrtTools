@@ -21,14 +21,44 @@ function __enable_802dot11w() {
 function __enable_802dot11k_and_802dot11v() {
     uninstall_packages wpad-basic-wolfssl
     install_packages wpad-wolfssl
+
     uci revert wireless
     local wifi_iface_uci="$( get_all_wifi_iface_uci )"
     set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wifi-iface.802.11k"
     set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wifi-iface.802.11v"
     commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs."
+
+    function install_rrm_nr_distributor() {
+        local pkg="umdns"
+        install_packages $pkg \
+            && service $pkg enable \
+            && service $pkg start
+        
+        local destination source_url="https://raw.githubusercontent.com/simonyiszk/openwrt-rrm-nr-distributor/main"
+        destination="/usr/bin/rrm_nr" \
+            && wget -o "$destination" "$source_url/bin" \
+            && chmod +x "$destination"
+        
+        destination="/etc/init.d/rrm_nr" \
+            && wget -o "$destination" "$source_url/initscript" \
+            && chmod +x "$destination" \
+            && $destination enable \ 
+            && $destination start
+
+        log "Neighbour reports under 802.11k are ready for syncing across APs."
+    }; install_rrm_nr_distributor
 }
 
 function __remove_802dot11k_and_802dot11v_uci_options() {
+    function uninstall_rrm_nr_distributor() {
+        local destination="/etc/init.d/rrm_nr"
+        $destination stop
+        $destination disable
+        rm "$destination"
+        rm "/usr/bin/rrm_nr"
+        uninstall_packages umdns
+    }; uninstall_rrm_nr_distributor
+
     uci revert wireless
     
     local uci_option_prefix wifi_feature uci_option_suffix
