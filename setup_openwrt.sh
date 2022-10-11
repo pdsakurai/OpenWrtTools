@@ -72,6 +72,22 @@ function setup_miscellaneous() {
 
     mkdir -p "~/src"
     cp -f "$SOURCE_DIR/logger_helper.sh" "~/src/"
+
+    function secure_ssh_access() {
+        function get_all_instances() {
+            uci show dropbear | grep "=dropbear" | sed "s/dropbear.\(.*\)=dropbear/\1/"
+        }
+
+        local uci_option="dropbear"
+        uci revert $uci_option
+        for instance in $( get_all_instances ); do
+            set_uci_from_file "$uci_option.$instance" "$RESOURCES_DIR/uci.$uci_option"
+        done
+        uci commit $uci_option
+        restart_services dropbear
+
+        log "SSH access accessible only thru LAN interface."
+    }; secure_ssh_access
 }
 
 function setup_router() {
