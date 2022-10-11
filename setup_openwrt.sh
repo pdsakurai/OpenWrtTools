@@ -86,6 +86,8 @@ function setup_miscellaneous() {
         commit_and_log_if_there_are_changes "$uci_option" "SSH access accessible only thru LAN interface." \
             && restart_services dropbear
     }; secure_ssh_access
+
+    install_packages luci-app-attendedsysupgrade
 }
 
 function setup_router() {
