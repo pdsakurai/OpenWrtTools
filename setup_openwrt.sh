@@ -108,7 +108,7 @@ function block_unknown_devices() {
     local service_file=$( copy_resource "$resources_dir/service" )
     [ $? -eq 0 ] && chmod +x "$service_file"
 
-    copy_resource "$resources_dir/firewall.nft" 
+    $( copy_resource "$resources_dir/firewall.nft" )
     local set_file="$( copy_resource "$resources_dir/set.nft" )"
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/$set_file/" "$destination_file"
 
