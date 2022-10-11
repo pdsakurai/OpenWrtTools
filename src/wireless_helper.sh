@@ -100,7 +100,6 @@ function setup_wifi() {
     local are_there_changes
 
     __enable_802dot11r && are_there_changes=0
-    __enable_802dot11w && are_there_changes=0
     __enable_802dot11k_and_802dot11v && are_there_changes=0
     __transmit_max_radio_power_always && are_there_changes=0
     __enable_routine_radios_restarting
