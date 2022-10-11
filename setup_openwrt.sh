@@ -110,10 +110,9 @@ function block_unknown_devices() {
 
     copy_resource "$resources_dir/firewall.nft" > /dev/null
     local set_file="$( copy_resource "$resources_dir/set.nft" )"
-    [ $? -eq 0 ] && sed -i "s/\$SET_FILE/$set_file/" "$destination_file"
+    [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
 
-    service $pkg enable
-    service $pkg start
+    service $pkg enable && service $pkg start
     log "Unknown devices are now blocked. Make sure to assign static leases to new devices."
 }
 
