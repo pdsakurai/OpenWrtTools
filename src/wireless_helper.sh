@@ -36,11 +36,11 @@ function __enable_802dot11k_and_802dot11v() {
         
         local destination source_url="https://raw.githubusercontent.com/simonyiszk/openwrt-rrm-nr-distributor/main"
         destination="/usr/bin/rrm_nr" \
-            && wget -o "$destination" "$source_url/bin" \
+            && wget -O "$destination" "$source_url/bin" \
             && chmod +x "$destination"
         
         destination="/etc/init.d/rrm_nr" \
-            && wget -o "$destination" "$source_url/initscript" \
+            && wget -O "$destination" "$source_url/initscript" \
             && chmod +x "$destination" \
             && $destination enable \
             && $destination start
