@@ -83,10 +83,8 @@ function setup_miscellaneous() {
         for instance in $( get_all_instances ); do
             set_uci_from_file "$uci_option.$instance" "$RESOURCES_DIR/uci.$uci_option"
         done
-        uci commit $uci_option
-        restart_services dropbear
-
-        log "SSH access accessible only thru LAN interface."
+        commit_and_log_if_there_are_changes "$uci_option" "SSH access accessible only thru LAN interface." \
+            && restart_services dropbear
     }; secure_ssh_access
 }
 
