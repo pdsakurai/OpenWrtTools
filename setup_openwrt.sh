@@ -98,6 +98,10 @@ function setup_miscellaneous() {
 }
 
 function block_unknown_devices() {
+    [ $( uci show dhcp | grep -c "\.mac=" ) -le 0 ] \
+        && log "Add one static lease first." \
+        && return 1
+
     local pkg="block_unknown_devices"
     local resources_dir="$RESOURCES_DIR/$pkg"
 
