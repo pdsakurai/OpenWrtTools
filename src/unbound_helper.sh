@@ -83,9 +83,7 @@ function __use_unbound_in_wan() {
 }
 
 function __redirect_dns_requests() {
-    local firewall_fullfilepath="$__resources_dir/firewall.redirect"
-    local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" )"
-    load_and_append_to_another_file "$firewall_fullfilepath" "$( trim_whitespaces "$destination_dir" )/99-redirect-dns.nft" \
+    copy_resource "$__resources_dir/firewall.nft" > /dev/null \
         && log "DNS requests from LAN are now redirected."
 }
 

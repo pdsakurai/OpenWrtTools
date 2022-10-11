@@ -7,9 +7,7 @@ source $SOURCES_DIR/utility.sh
 __resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/ntp"
 
 function __redirect_NTP_queries() {
-    local firewall_fullfilepath="$__resources_dir/firewall.redirect"
-    local destination_dir="$( head -1 "$firewall_fullfilepath" | sed "s/\#\(.*\)/\1/" )"
-    load_and_append_to_another_file "$firewall_fullfilepath" "$( trim_whitespaces "$destination_dir" )/99-redirect-ntp.nft" \
+    copy_resource "$__resources_dir/firewall.nft" > /dev/null \
         && log "NTP requests from LAN are now redirected."
 }
 

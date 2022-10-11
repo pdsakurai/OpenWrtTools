@@ -1,2 +1,0 @@
-#/usr/share/nftables.d/chain-post/dstnat
-meta iifname {"br-lan"} meta nfproto {ipv4,ipv6} udp dport {123} counter packets 0 bytes 0 redirect comment "Redirect NTP traffic via UDP:123"
