@@ -1,2 +1,2 @@
-#Destination file: /usr/share/nftables.d/chain-post/dstnat_lan/99-redirect-ntp.nft
+#Destination file: /usr/share/nftables.d/chain-post/dstnat_lan/redirect_ntp_requests.nft
 udp dport 123 redirect comment "Redirect NTP traffic via UDP:123"
