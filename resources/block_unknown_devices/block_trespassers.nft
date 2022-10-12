@@ -1,2 +1,2 @@
 #Destination file: /usr/share/nftables.d/chain-pre/forward_lan/block_tresspassing_unknown_devices.nft
-ether saddr != @known_devices counter log prefix "Blocked trespasser: " drop comment "Block trespassing devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
+ether saddr != @known_devices counter log prefix "Blocked trespasser: " flags ether drop comment "Block trespassing devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
