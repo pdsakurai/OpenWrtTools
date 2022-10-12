@@ -1,2 +1,0 @@
-#Destination file: /usr/share/nftables.d/chain-post/input_lan/block_dhcp_requests_from_unknown_devices.nft
-ether saddr != @known_devices udp dport {67,547} counter log prefix "Blocked DHCP request: " drop comment "Block DHCP requests of devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
