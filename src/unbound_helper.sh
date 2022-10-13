@@ -84,7 +84,7 @@ function __use_unbound_in_wan() {
 }
 
 function __redirect_dns_requests() {
-    copy_resource "$__resources_dir/firewall.nft" > /dev/null \
+    copy_resource "$__resources_dir/redirect_dns_requests.nft" > /dev/null \
         && log "DNS requests from LAN are now redirected."
 }
 
