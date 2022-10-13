@@ -61,6 +61,7 @@ function __use_unbound_in_dnsmasq() {
     uci revert $uci_dnsmasq
     set_uci_from_file "$uci_dnsmasq" "$__resources_dir/uci.$uci_dnsmasq" "__clean_uci_option"
     add_list_uci_from_file "$uci_dnsmasq.server" "$__resources_dir/uci.$uci_dnsmasq.server" "__clean_uci_option"
+    add_list_uci_from_file "$uci_unbound.interface" "$__resources_dir/uci.$uci_dnsmasq.interface"
     uci commit $uci_dnsmasq
 
     local uci_dhcp="dhcp.lan.dhcp_option"
