@@ -92,6 +92,7 @@ function setup_miscellaneous() {
 
     function add_backup_files() {
         local backup_list="/etc/sysupgrade.conf"
+        echo "/etc/nftables.d/" >> "$backup_list"
         echo "/usr/share/nftables.d/" >> "$backup_list"
         echo "/root/" >> "$backup_list"
     }; add_backup_files
