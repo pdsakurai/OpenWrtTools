@@ -88,6 +88,11 @@ function __redirect_dns_requests() {
         && log "DNS requests from LAN are now redirected."
 }
 
+function __block_external_access() {
+    copy_resource "$__resources_dir/block_external_access_to_unbound.nft" > /dev/null \
+        && log "External access to unbound is now blocked."
+}
+
 function __block_encrypted_dns_requests() {
     function block_DoH_and_DoT_by_DNS() {
         load_and_append_to_another_file "$__resources_dir/${__pkg}_srv.conf.firewall" "$__unbound_srv_conf_fullfilepath"
@@ -124,6 +129,7 @@ function setup_unbound() {
     __use_unbound_in_dnsmasq
     __use_unbound_in_wan
     __redirect_dns_requests
+    __block_external_access
     __block_encrypted_dns_requests
 
     log "Done set-up for $__pkg."
