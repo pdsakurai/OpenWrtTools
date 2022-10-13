@@ -1,3 +1,3 @@
 #Destination file: /usr/share/nftables.d/chain-post/input_lan/block_requests_for_router_services_from_unknown_devices.nft
-ether saddr != @known_devices udp dport {22,53,67,123,514,547,1053,5353} counter log prefix "Blocked request for router's service: " flags ether drop comment "Block DHCP requests of devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
-ether saddr != @known_devices tcp dport {22,53,80,443,1053,5353} counter log prefix "Blocked request for router's service: " flags ether drop comment "Block DHCP requests of devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
+ether saddr != @known_devices udp dport {53,67,123,547,1900,5353} counter log prefix "Blocked request for router's service: " flags ether drop comment "Block DHCP requests of devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
+ether saddr != @known_devices tcp dport {22,53,80,443,5000,5351} counter log prefix "Blocked request for router's service: " flags ether drop comment "Block DHCP requests of devices not found in [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
