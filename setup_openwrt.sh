@@ -95,6 +95,8 @@ function setup_miscellaneous() {
         echo "/etc/nftables.d/" >> "$backup_list"
         echo "/usr/share/nftables.d/" >> "$backup_list"
         echo "/root/" >> "$backup_list"
+        echo "/etc/init.d/rrm_nr" >> "$backup_list"
+        echo "/usr/bin/rrm_nr" >> "$backup_list"
     }; add_backup_files
 }
 
