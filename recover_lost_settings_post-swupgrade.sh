@@ -15,6 +15,17 @@ function modify_simpleadblock_script() {
     }; prevent_reloading_simpleadblock_whenever_wan_reloads
 }; modify_simpleadblock_script
 
+function remove_tx_limiter_on_wifi_radios() {
+    local url="https://github.com/pdsakurai/OpenWrtTools/raw/main/resources/wireless"
+    local pkg="wireless-regdb.ipk"
+
+    cd /tmp
+    wget "$url/$pkg"
+    opkg install --force-reinstall "$pkg"
+
+    log "Removed TX limiter on Wi-Fi radios."
+}; remove_tx_limiter_on_wifi_radios
+
 function distribute_rrm_nr_list() {
     service rrm_nr enable \
         && service rrm_nr start
