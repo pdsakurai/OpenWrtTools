@@ -97,6 +97,7 @@ function setup_miscellaneous() {
         echo "/root/" >> "$backup_list"
         echo "/etc/init.d/rrm_nr" >> "$backup_list"
         echo "/usr/bin/rrm_nr" >> "$backup_list"
+        echo "/usr/bin/block_unknown_devices" >> "$backup_list"
     }; add_backup_files
 }
 
