@@ -31,3 +31,9 @@ function distribute_rrm_nr_list() {
         && service rrm_nr start
     log "Re-enabled and started service: rrm_nr"
 }; distribute_rrm_nr_list
+
+function update_known_hosts_set() {
+    service block_unknown_devices enable \
+        && service block_unknown_devices start \
+        && log "Re-enabled and started service: block_unknown_devices"
+}; update_known_hosts_set
