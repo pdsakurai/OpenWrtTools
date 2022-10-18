@@ -111,7 +111,8 @@ function block_unknown_devices() {
     local service_file=$( copy_resource "$resources_dir/service" )
     [ $? -eq 0 ] && chmod +x "$service_file"
 
-    copy_resource "$resources_dir/block_requests_for_router_services.nft" > /dev/null
+    copy_resource "$resources_dir/chain_handle_unknown_devices.nft" > /dev/null
+    copy_resource "$resources_dir/identify_unknown_devices.nft" > /dev/null
     copy_resource "$resources_dir/block_trespassers.nft" > /dev/null
     local set_file="$( copy_resource "$resources_dir/set_known_devices.nft" )"
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
