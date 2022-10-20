@@ -26,14 +26,22 @@ function remove_tx_limiter_on_wifi_radios() {
     log "Removed TX limiter on Wi-Fi radios."
 }; remove_tx_limiter_on_wifi_radios
 
+function enable_service() {
+    local service_name="${1:?Missing: service name}"
+
+    [[ "$( service $service_name status )" =~ ^\(active\|running\) ]] \
+        && log "Service $service_name is already enabled." \
+        && return 1
+
+    service $service_name enable \
+        && service $service_name start \
+        && log "Service $service_name has been enabled."
+}
+
 function distribute_rrm_nr_list() {
-    service rrm_nr enable \
-        && service rrm_nr start
-    log "Re-enabled and started service: rrm_nr"
+    enable_service "rrm_nr"
 }; distribute_rrm_nr_list
 
 function update_known_hosts_set() {
-    service block_unknown_devices enable \
-        && service block_unknown_devices start \
-        && log "Re-enabled and started service: block_unknown_devices"
+    enable_service "block_unknown_devices"
 }; update_known_hosts_set
