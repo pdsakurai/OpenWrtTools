@@ -16,7 +16,7 @@ function __use_always_null(){
 }
 
 function __prevent_reloading_whenever_wan_reloads() {
-    sed -i "s/\(procd_add.*trigger.*wan.*\)/#\1/" "$__script_fullfilepath"
+    sed -i "s/\(^[[:blank:]]*\)\(procd_add.*trigger.*wan.*\)/\1#\2/" "$__script_fullfilepath"
     log "Prevented reloading $__pkg whenever wan reloads."
 }
 

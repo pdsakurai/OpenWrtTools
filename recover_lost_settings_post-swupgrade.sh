@@ -10,7 +10,7 @@ function modify_simpleadblock_script() {
     # }; use_always_null
 
     function prevent_reloading_simpleadblock_whenever_wan_reloads() {
-        sed -i "s/\(procd_add.*trigger.*wan.*\)/#\1/" "$script_fullfilepath"
+        sed -i "s/\(^[[:blank:]]*\)\(procd_add.*trigger.*wan.*\)/\1#\2/" "$script_fullfilepath"
         log "Prevented reloading simple-adblock whenever wan reloads."
     }; prevent_reloading_simpleadblock_whenever_wan_reloads
 }; modify_simpleadblock_script
