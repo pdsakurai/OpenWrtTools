@@ -34,7 +34,7 @@ function __enable_802dot11k_and_802dot11v() {
             && service $pkg enable \
             && service $pkg start
         
-        local destination source_url="https://raw.githubusercontent.com/simonyiszk/openwrt-rrm-nr-distributor/main"
+        local destination source_url="https://raw.githubusercontent.com/pdsakurai/openwrt-rrm-nr-distributor/main"
         destination="/usr/bin/rrm_nr" \
             && wget -O "$destination" "$source_url/bin" > /dev/null \
             && chmod +x "$destination"
