@@ -1,4 +1,4 @@
-#Destination file: /etc/nftables.d/chain_handle_unknown_devices.nft
+#Destination file: /usr/share/nftables.d/table-pre/chain_handle_unknown_devices.nft
 chain handle_unknown_devices {
     icmpv6 type nd-router-solicit counter log prefix "Blocked access to DHCPv6 server: " flags ether drop
     meta protocol ip udp dport 67 counter log prefix "Blocked access to DHCPv4 server: " flags ether drop

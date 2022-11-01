@@ -1,4 +1,4 @@
-#Destination file: /etc/nftables.d/set_known_devices.nft
+#Destination file: /usr/share/nftables.d/table-pre/set_known_devices.nft
 set known_devices {
     type ether_addr
     #elements = { }
