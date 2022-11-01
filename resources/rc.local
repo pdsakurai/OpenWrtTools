@@ -1,0 +1,11 @@
+function disable_unnecessary_services() {
+    for i in firewall dnsmasq odhcpd; do
+        local service_exe="/etc/init.d/$i"
+        $service_exe enabled && {
+            $service_exe disable
+            $service_exe stop
+        }
+    done
+}; disable_unnecessary_services
+
+exit 0

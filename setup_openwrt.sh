@@ -160,5 +160,12 @@ function setup_dumb_ap() {
     $( source $SOURCES_DIR/wireless_helper.sh && setup_wifi )
     setup_miscellaneous
 
+    function disable_unnecessary_services() {
+        local file="/etc/rc.local"
+        printf "" > "$file"
+        load_and_append_to_another_file "$RESOURCES_DIR/rc.local" "$file" \
+            && log "Unnecessary services will be disabled at boot."
+    }; disable_unnecessary_services
+
     log "Completed setting up dumb AP."
 }
