@@ -166,5 +166,14 @@ function setup_dumb_ap() {
             && log "Unnecessary services will be disabled at boot."
     }; disable_unnecessary_services
 
+    function resolve_connected_devices() {
+        local file="$RESOURCES_DIR/cron.fping"
+        local CIDR="$( ip address | grep "global br-lan" | sed "s/[[:blank:]]\+inet[[:blank:]]\+\(.\+\/[[:digit:]]\+\).\+/\1/" )"
+        sed -i "s/CIDR/$CIDR/" "$file"
+        install_packages fping \
+            && add_cron_job "$file" \
+            && log "Added cron job for resolving connected devices."
+    }; resolve_connected_devices
+
     log "Completed setting up dumb AP."
 }
