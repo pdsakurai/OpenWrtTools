@@ -1,0 +1,5 @@
+#Destination file: /usr/share/nftables.d/table-pre/set_doh_servers_ipv6.nft
+set doh_servers_ipv6 {
+    type ipv6_addr
+    #elements = { }
+}

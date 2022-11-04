@@ -99,6 +99,17 @@ function __block_encrypted_dns_requests() {
         load_and_append_to_another_file "$__resources_dir/${__pkg}_ext.conf.firewall" "$__unbound_ext_conf_fullfilepath"
     }; block_DoH_and_DoT_by_DNS
 
+    function block_DoH_by_firewall() {
+        copy_resource "$__resources_dir/nft.set_doh_servers_ipv4" \
+            && copy_resource "$__resources_dir/nft.set_doh_servers_ipv6" \
+            && copy_resource "$__resources_dir/nft.handle_https_requests" \
+            && copy_resource "$__resources_dir/nft.chain_block_doh_requests" \
+            && copy_resource "$__resources_dir/service.update_doh_servers.bin" \
+            && copy_resource "$__resources_dir/service.update_doh_servers.initscript" \
+            && service update_doh_servers enable \
+            && log "DoH is now blocked via firewall."
+    }; block_DoH_by_firewall
+
     function block_DoT_by_firewall() {
         local firewall_uci_fullfilepath="$__resources_dir/uci.firewall.block-dns-over-tls"
         local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 )"
@@ -133,5 +144,5 @@ function setup_unbound() {
     __block_encrypted_dns_requests
 
     log "Done set-up for $__pkg."
-    restart_services firewall $__pkg dnsmasq network
+    restart_services firewall $__pkg dnsmasq network update_doh_servers
 }

@@ -1,0 +1,10 @@
+#Destination file: /etc/init.d/update_doh_servers
+#!/bin/sh /etc/rc.common
+USE_PROCD=1
+START=99
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /bin/sh "/usr/bin/update_doh_servers"
+    procd_close_instance
+}

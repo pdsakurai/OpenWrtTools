@@ -1,0 +1,60 @@
+#Destination file: /usr/bin/update_doh_servers
+#!/bin/sh
+
+function update_set() {
+    local ip_version="${1:?Missing IP version}"
+    local set_name="doh_servers_$ip_version"
+
+    function get_ip_addresses() {
+        local file="DOH$ip_version.txt"
+        local source_url="https://raw.githubusercontent.com/jpgpi250/piholemanual/master/$file"
+        local target_directory="/tmp/update_doh_servers"
+
+        mkdir -p "$target_directory"
+        cd "$target_directory"
+        wget -4 $source_url 2> /dev/null
+        if [ -e $file ]; then
+            cat $file | tr "\n" "," | sed "s/,$//g"
+            rm $file
+            return 0
+        fi
+        return 1
+    }
+    local ip_addresses="$( get_ip_addresses )"
+    if [ -z "$ip_addresses" ]; then
+        log "Aborted updating nft set \"$set_name\" with empty list"
+        return 1
+    fi
+
+    function update_in_runtime() {
+        local family="inet"
+        local table="fw4"
+        [ $( nft list sets $family | grep -c $set_name) -le 0 ] \
+            && nft insert set $family $table $set_name { type ${ip_version}_addr \; }
+        nft flush set $family $table $set_name
+        nft add element $family $table $set_name { $ip_addresses }
+    }; update_in_runtime
+
+    function update_static_configuration() {
+        local new_line="elements = { $ip_addresses }"
+        sed -i "s/#\?elements.*=.*{.*}/$new_line/" "/usr/share/nftables.d/table-pre/set_doh_servers_$ip_version.nft"
+    }; update_static_configuration
+
+    log "Updated nft set \"$set_name\""
+    return 0
+}
+
+source /root/src/logger_helper.sh "update_doh_servers"
+
+log "Service is now running"
+while true; do
+    if update_set "ipv4" && update_set "ipv6"; then
+        log "Next update will be done after 7 days"
+        sleep 7d
+    else
+        log "Updating failed. Next update will be done after 1 minute"
+        sleep 1m
+    fi
+done
+log "Service is about to exit"
+exit 0
