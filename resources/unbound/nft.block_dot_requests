@@ -1,0 +1,2 @@
+#Destination file: /usr/share/nftables.d/chain-pre/forward_lan/block_dot_requests.nft
+tcp dport 853 counter jump reject_to_wan

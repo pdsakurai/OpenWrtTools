@@ -111,19 +111,8 @@ function __block_encrypted_dns_requests() {
     }; block_DoH_by_firewall
 
     function block_DoT_by_firewall() {
-        local firewall_uci_fullfilepath="$__resources_dir/uci.firewall.block-dns-over-tls"
-        local name="$( grep "name=" "$firewall_uci_fullfilepath" | cut -d= -f2 )"
-        name="$( trim_whitespaces "$name" )"
-        local type="rule"
-
-        uci revert firewall
-        delete_firewall_entries "$type" "$name"
-
-        uci add firewall $type
-        local uci_option="firewall.@$type[-1]"
-        set_uci_from_file "$uci_option" "$firewall_uci_fullfilepath"
-
-        uci commit firewall
+        copy_resource "$__resources_dir/nft.block_dot_requests" \
+            && log "DoT is now blocked via firewall."
     }; block_DoT_by_firewall
 
     log "DNS queries over HTTPS and TLS are now blocked."
