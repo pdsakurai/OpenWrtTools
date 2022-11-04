@@ -84,12 +84,12 @@ function __use_unbound_in_wan() {
 }
 
 function __redirect_dns_requests() {
-    copy_resource "$__resources_dir/redirect_dns_requests.nft" > /dev/null \
+    copy_resource "$__resources_dir/nft.redirect_dns_requests" > /dev/null \
         && log "DNS requests from LAN are now redirected."
 }
 
 function __block_external_access() {
-    copy_resource "$__resources_dir/block_external_access_to_unbound.nft" > /dev/null \
+    copy_resource "$__resources_dir/nft.block_external_access_to_unbound" > /dev/null \
         && log "External access to unbound is now blocked."
 }
 
