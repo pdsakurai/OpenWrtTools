@@ -113,9 +113,9 @@ function block_trespassers() {
         [ $? -eq 0 ] && include_in_backup_list "$file"
     done
 
-    local lan_ip_address=$( get_lan_ip_address )
+    local lan_ipv4_address=$( get_lan_ipv4_address )
     local chain_file=$( copy_resource "$resources_dir/nft.chain_handle_trespassers" )
-    [ $? -eq 0 ] && sed -i "s/\$LAN_IP_ADDRESS/$lan_ip_address/" "$chain_file"
+    [ $? -eq 0 ] && sed -i "s/\$LAN_IPV4_ADDRESS/$lan_ipv4_address/" "$chain_file"
 
     local service_file=$( copy_resource "$resources_dir/service" )
     [ $? -eq 0 ] && chmod +x "$service_file"
