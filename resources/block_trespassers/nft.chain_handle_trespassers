@@ -12,5 +12,6 @@ chain handle_trespassers {
     udp dport 5351 counter log prefix "Blocked trespasser (NAT-PMP server): " flags ether drop
 
     #For debugging
+    icmpv6 type {mld-listener-query,mld-listener-report,mld-listener-done} return
     counter log prefix "Trespasser detected: " flags ether
 }
