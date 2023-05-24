@@ -7,8 +7,10 @@ source $SOURCES_DIR/utility.sh
 __resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/ntp"
 
 function __redirect_NTP_queries() {
-    copy_resource "$__resources_dir/firewall.nft" > /dev/null \
-        && log "NTP requests from LAN are now redirected."
+    local file=$( copy_resource "$__resources_dir/nft.firewall" )
+    include_in_backup_list "$file"
+    setup_redirection_handling
+    log "NTP traffic from LAN are now redirected."
 }
 
 function __apply_uci_options() {

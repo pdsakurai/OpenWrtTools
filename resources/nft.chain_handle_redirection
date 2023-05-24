@@ -1,0 +1,5 @@
+#Destination file: /usr/share/nftables.d/table-pre/chain_handle_redirection.nft
+chain handle_redirection {
+    ip daddr != $LAN_IPV4_ADDRESS counter redirect
+    ip6 daddr != $LAN_IPV6_ADDRESS counter redirect
+}

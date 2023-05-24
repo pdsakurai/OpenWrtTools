@@ -89,3 +89,19 @@ function include_in_backup_list() {
 function get_lan_ipv4_address() {
     ubus call network.interface.lan status | jsonfilter -e '$["ipv4-address"][0].address'
 }
+
+function get_lan_ipv6_address() {
+    ubus call network.interface.lan status | jsonfilter -e '$["ipv6-prefix-assignment"][*]["local-address"].address' | grep -P ^f\(c\|d\)
+}
+
+function setup_redirection_handling() {
+    local resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}"
+    local file=$( copy_resource "$resources_dir/nft.chain_handle_redirection" )
+    include_in_backup_list "$file"
+
+    local type=
+    for type in 4 6; do
+        local ip_address=$( get_lan_ipv${type}_address )
+        sed -i "s/\$LAN_IPV${type}_ADDRESS/$ip_address/" "$file"
+    done
+}
