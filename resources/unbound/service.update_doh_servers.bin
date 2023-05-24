@@ -5,20 +5,30 @@ function update_set() {
     local ip_version="${1:?Missing IP version}"
     local set_name="doh_servers_$ip_version"
 
-    function get_ip_addresses() {
-        local file="DOH$ip_version.txt"
-        local source_url="https://raw.githubusercontent.com/jpgpi250/piholemanual/master/$file"
+    function get_ip_addresses() {    
         local target_directory="/tmp/update_doh_servers"
-
         mkdir -p "$target_directory"
         cd "$target_directory"
-        wget -4 $source_url 2> /dev/null
-        if [ -e $file ]; then
-            cat $file | tr "\n" "," | sed "s/,$//g"
-            rm $file
-            return 0
-        fi
-        return 1
+
+        local n=1
+        local temp_file="temp.txt"
+        local files=
+        local source_url=
+        local source_urls=https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH$ip_version.txt
+        source_urls="$source_urls https://raw.githubusercontent.com/dibdot/DoH-IP-blocklists/master/doh-$ip_version.txt"
+        
+        for source_url in $source_urls; do
+            wget $source_url -O "$temp_file" &> /dev/null
+            if [ -e "$temp_file" ]; then
+                local file="${ip_version}_addresses_source_${n}.txt"
+                cat "$temp_file" | sed "s/[[:space:]]*#.\+//" > "$file"
+                files="$file $files"
+                n=$(( n+1 ))
+            fi
+        done
+        sort -u $files | tr "\n" "," | sed "s/,$//g"
+
+        rm $target_directory/*
     }
     local ip_addresses="$( get_ip_addresses )"
     if [ -z "$ip_addresses" ]; then
