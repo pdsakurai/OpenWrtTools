@@ -46,6 +46,6 @@ function update_doh_servers_set() {
     enable_service "update_doh_servers"
 }; update_doh_servers_set
 
-function update_known_hosts_set() {
-    enable_service "block_unknown_devices"
-}; update_known_hosts_set
+function update_known_devices() {
+    enable_service "update_known_devices"
+}; update_known_devices
