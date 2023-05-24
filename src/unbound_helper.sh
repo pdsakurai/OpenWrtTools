@@ -89,7 +89,7 @@ function __redirect_dns_requests() {
 }
 
 function __block_external_access() {
-    copy_resource "$__resources_dir/nft.block_external_access_to_unbound" > /dev/null \
+    copy_resource "$__resources_dir/nft.block_access_to_dnsmasq_and_unbound" &> /dev/null \
         && log "External access to unbound is now blocked."
 }
 

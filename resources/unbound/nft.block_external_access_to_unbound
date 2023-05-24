@@ -1,3 +1,0 @@
-#Destination file: /usr/share/nftables.d/chain-post/input_lan/block_external_access_to_unbound.nft
-udp dport 1053 counter log prefix "Blocked external access to unbound: " flags ether drop comment "Block external access to unbound"
-tcp dport {1053,8953} counter log prefix "Blocked external access to unbound: " flags ether drop comment "Block external access to unbound"

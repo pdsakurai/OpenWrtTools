@@ -1,0 +1,3 @@
+#Destination file: /usr/share/nftables.d/chain-post/input_lan/block_access_to_dnsmasq_and_unbound-control.nft
+meta l4proto {tcp,udp} th dport 1053 counter log prefix "Blocked access to dnsmasq: " flags ether drop
+tcp dport 8953 counter log prefix "Blocked access to unbound-control: " flags ether drop
