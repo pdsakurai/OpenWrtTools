@@ -75,3 +75,9 @@ function copy_resource() {
 
     printf "$destination_file"
 }
+
+function include_in_backup_list() {
+    [ -e "${1:?Missing: File/directory to backup}" ] \
+        && trim_whitespaces "$1" >> "/etc/sysupgrade.conf" \
+        || return 1
+}
