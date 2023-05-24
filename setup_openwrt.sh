@@ -96,30 +96,36 @@ function setup_miscellaneous() {
         echo "/root/" >> "$backup_list"
         echo "/etc/init.d/rrm_nr" >> "$backup_list"
         echo "/usr/bin/rrm_nr" >> "$backup_list"
-        echo "/usr/bin/block_unknown_devices" >> "$backup_list"
     }; add_backup_files
 }
 
-function block_unknown_devices() {
+function block_trespassers() {
     [ $( uci show dhcp | grep -c "\.mac=" ) -le 0 ] \
         && log "Add one static lease first." \
         && return 1
 
-    local pkg="block_unknown_devices"
+    local pkg="block_trespassers"
     local resources_dir="$RESOURCES_DIR/$pkg"
+
+    local file=
+    for file in identify_trespassers.nft chain_handle_trespassers.nft block_trespassers.nft; do
+        file="$( copy_resource "$resources_dir/$file" )"
+        [ $? -eq 0 ] && include_in_backup_list "$file"
+    done
 
     local service_file=$( copy_resource "$resources_dir/service" )
     [ $? -eq 0 ] && chmod +x "$service_file"
 
-    copy_resource "$resources_dir/handle_trespassers.nft" > /dev/null
-    copy_resource "$resources_dir/identify_trespassers.nft" > /dev/null
-    copy_resource "$resources_dir/block_trespassers.nft" > /dev/null
     local set_file="$( copy_resource "$resources_dir/set_known_devices.nft" )"
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
 
+    for file in "$service_file" "$set_file"; do
+        include_in_backup_list "$file"
+    done
+
     service $pkg enable && service $pkg start
     restart_services firewall
-    log "Unknown devices are now blocked. Make sure to assign static leases to new devices."
+    log "Trespassers are now blocked. Make sure to assign static leases to new devices."
 }
 
 function setup_router() {
