@@ -1,5 +1,9 @@
 #Destination file: /usr/share/nftables.d/table-pre/chain_handle_trespassers.nft
 chain handle_trespassers {
+    #Ignore normal operations (i.e. lines with return action)
+    ip saddr $LAN_IP_ADDRESS return
+    icmpv6 type {mld-listener-query,mld-listener-report,mld-listener-done} return
+
     icmpv6 type nd-router-solicit counter log prefix "Blocked trespasser (DHCPv6 server): " flags ether drop
     meta protocol ip udp dport 67 counter log prefix "Blocked trespasser (DHCPv4 server): " flags ether drop
 
@@ -12,7 +16,5 @@ chain handle_trespassers {
     udp dport 5351 counter log prefix "Blocked trespasser (NAT-PMP server): " flags ether drop
 
     #For debugging
-    ip saddr $LAN_IP_ADDRESS return
-    icmpv6 type {mld-listener-query,mld-listener-report,mld-listener-done} return
     counter log prefix "Trespasser detected: " flags ether
 }
