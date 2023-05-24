@@ -111,7 +111,7 @@ function __block_encrypted_dns_requests() {
     }; block_DoH_by_firewall
 
     function block_DoT_by_firewall() {
-        copy_resource "$__resources_dir/nft.block_dot_requests" \
+        copy_resource "$__resources_dir/nft.block_dot_traffic" \
             && log "DoT is now blocked via firewall."
     }; block_DoT_by_firewall
 
