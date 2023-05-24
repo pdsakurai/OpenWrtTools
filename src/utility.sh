@@ -77,7 +77,11 @@ function copy_resource() {
 }
 
 function include_in_backup_list() {
-    [ -e "${1:?Missing: File/directory to backup}" ] \
-        && trim_whitespaces "$1" >> "/etc/sysupgrade.conf" \
-        || return 1
+    local item="$( trim_whitespaces "${1:?Missing: File/directory to backup}" )"
+    local backup_list="/etc/sysupgrade.conf"
+
+    [ -e "$item" ] || return 1
+    [ $( grep -xc "$item" "$backup_list" ) -le 0 ]  || return 1
+    
+    echo "$item" >> "$backup_list"
 }
