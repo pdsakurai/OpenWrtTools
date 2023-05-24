@@ -1,2 +1,0 @@
-#For refreshing simple-adblock's blocklist
-30 03 * * 1 service simple-adblock dl

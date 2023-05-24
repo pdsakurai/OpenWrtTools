@@ -154,10 +154,6 @@ function setup_router() {
         && cp -f "$ROOT_DIR/restart_dead_wan.sh" "/root/" \
         && log "Added cron job for restarting dead WAN interfaces."
 
-    $( source $SOURCES_DIR/simpleadblock_helper.sh \
-            "$UNBOUND_CONF_SRV_FULLFILEPATH" \
-        && setup_simpleadblock ) 2> /dev/null
-
     log "Completed setting up router."
 }
 
