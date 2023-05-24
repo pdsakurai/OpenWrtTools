@@ -1,2 +1,2 @@
-#Destination file: /usr/share/nftables.d/chain-post/input_lan/identify_unknown_devices.nft
+#Destination file: /usr/share/nftables.d/chain-post/input_lan/identify_trespassers.nft
 ether saddr != @known_devices jump handle_unknown_devices comment "Add new devices here: [Network] menu > [DHCP and DNS] page > [Static Leases] tab"
