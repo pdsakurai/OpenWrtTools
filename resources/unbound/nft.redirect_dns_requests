@@ -1,2 +1,0 @@
-#Destination file: /usr/share/nftables.d/chain-post/dstnat_lan/redirect_dns_requests.nft
-meta l4proto {tcp,udp} th dport 53 redirect comment "Redirect DNS traffic"
