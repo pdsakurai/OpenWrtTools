@@ -85,3 +85,7 @@ function include_in_backup_list() {
     
     echo "$item" >> "$backup_list"
 }
+
+function get_lan_ip_address() {
+    ubus call network.interface.lan status | jsonfilter -e '$["ipv4-address"][0].address'
+}
