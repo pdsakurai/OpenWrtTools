@@ -1,5 +1,0 @@
-#Destination file: /usr/share/nftables.d/table-post/chain_block_doh_requests.nft
-chain block_doh_requests {
-    ip daddr @doh_servers_ipv4 counter jump reject_to_wan
-    ip6 daddr @doh_servers_ipv6 counter jump reject_to_wan
-}

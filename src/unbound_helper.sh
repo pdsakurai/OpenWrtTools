@@ -102,8 +102,8 @@ function __block_encrypted_dns_requests() {
     function block_DoH_by_firewall() {
         copy_resource "$__resources_dir/nft.set_doh_servers_ipv4" \
             && copy_resource "$__resources_dir/nft.set_doh_servers_ipv6" \
-            && copy_resource "$__resources_dir/nft.handle_https_requests" \
-            && copy_resource "$__resources_dir/nft.chain_block_doh_requests" \
+            && copy_resource "$__resources_dir/nft.handle_https_traffic" \
+            && copy_resource "$__resources_dir/nft.chain_block_doh_traffic" \
             && copy_resource "$__resources_dir/service.update_doh_servers.bin" \
             && copy_resource "$__resources_dir/service.update_doh_servers.initscript" \
             && service update_doh_servers enable \

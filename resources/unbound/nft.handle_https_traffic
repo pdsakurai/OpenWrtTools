@@ -1,0 +1,2 @@
+#Destination file: /usr/share/nftables.d/chain-pre/forward_lan/handle_https_traffic.nft
+tcp dport 443 jump block_doh_traffic
