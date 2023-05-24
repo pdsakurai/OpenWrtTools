@@ -108,15 +108,15 @@ function block_trespassers() {
     local resources_dir="$RESOURCES_DIR/$pkg"
 
     local file=
-    for file in identify_trespassers.nft chain_handle_trespassers.nft block_trespassers.nft; do
-        file="$( copy_resource "$resources_dir/$file" )"
+    for file in identify_trespassers chain_handle_trespassers block_trespassers; do
+        file="$( copy_resource "$resources_dir/nft.$file" )"
         [ $? -eq 0 ] && include_in_backup_list "$file"
     done
 
     local service_file=$( copy_resource "$resources_dir/service" )
     [ $? -eq 0 ] && chmod +x "$service_file"
 
-    local set_file="$( copy_resource "$resources_dir/set_known_devices.nft" )"
+    local set_file="$( copy_resource "$resources_dir/nft.set_known_devices" )"
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
 
     for file in "$service_file" "$set_file"; do
