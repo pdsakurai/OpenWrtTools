@@ -73,6 +73,7 @@ function copy_resource() {
     cp -f "$source_file" "$destination_file"
     sed -i "1d" "$destination_file"
 
+    include_in_backup_list "$destination_file"
     printf "$destination_file"
 }
 
@@ -96,8 +97,7 @@ function get_lan_ipv6_address() {
 
 function setup_redirection_handling() {
     local resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}"
-    local file=$( copy_resource "$resources_dir/nft.chain_handle_redirection" )
-    include_in_backup_list "$file"
+    copy_resource "$resources_dir/nft.chain_handle_redirection" &> /dev/null
 
     local type=
     for type in 4 6; do

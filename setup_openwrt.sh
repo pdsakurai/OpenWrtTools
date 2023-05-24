@@ -109,8 +109,7 @@ function block_trespassers() {
 
     local file=
     for file in identify_trespassers block_trespassers; do
-        file="$( copy_resource "$resources_dir/nft.$file" )"
-        [ $? -eq 0 ] && include_in_backup_list "$file"
+        copy_resource "$resources_dir/nft.$file" &> /dev/null
     done
 
     local lan_ipv4_address=$( get_lan_ipv4_address )
@@ -122,10 +121,6 @@ function block_trespassers() {
 
     local set_file="$( copy_resource "$resources_dir/nft.set_known_devices" )"
     [ $? -eq 0 ] && sed -i "s/\$SET_FILE/${set_file//\//\\\/}/" "$service_file"
-
-    for file in "$chain_file" "$service_file" "$set_file"; do
-        include_in_backup_list "$file"
-    done
 
     service $pkg enable && service $pkg start
     restart_services firewall

@@ -7,8 +7,7 @@ source $SOURCES_DIR/utility.sh
 __resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/ntp"
 
 function __redirect_NTP_queries() {
-    local file=$( copy_resource "$__resources_dir/nft.firewall" )
-    include_in_backup_list "$file"
+    copy_resource "$__resources_dir/nft.firewall" &> /dev/null
     setup_redirection_handling
     log "NTP traffic from LAN are now redirected."
 }
