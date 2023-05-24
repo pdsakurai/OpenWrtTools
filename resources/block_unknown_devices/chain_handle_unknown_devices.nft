@@ -1,15 +1,16 @@
 #Destination file: /usr/share/nftables.d/table-pre/chain_handle_unknown_devices.nft
 chain handle_unknown_devices {
-    icmpv6 type nd-router-solicit counter log prefix "Blocked access to DHCPv6 server: " flags ether drop
-    meta protocol ip udp dport 67 counter log prefix "Blocked access to DHCPv4 server: " flags ether drop
+    icmpv6 type nd-router-solicit counter log prefix "Blocked trespasser (DHCPv6 server): " flags ether drop
+    meta protocol ip udp dport 67 counter log prefix "Blocked trespasser (DHCPv4 server): " flags ether drop
 
-    tcp dport 22 counter log prefix "Blocked access to SSH server: " flags ether drop
-    meta l4proto {tcp,udp} th dport 53 counter log prefix "Blocked access to DNS server: " flags ether drop
-    tcp dport {80,443} counter log prefix "Blocked access to HTTP/S server: " flags ether drop
-    udp dport 123 counter log prefix "Blocked access to NTP server: " flags ether drop
-    udp dport 1900 counter log prefix "Blocked access to UPnP server: " flags ether drop
-    tcp dport 5000 counter log prefix "Blocked access to UPnP server: " flags ether drop
-    udp dport 5351 counter log prefix "Blocked access to NAT-PMP server: " flags ether drop
+    tcp dport 22 counter log prefix "Blocked trespasser (SSH server): " flags ether drop
+    meta l4proto {tcp,udp} th dport 53 counter log prefix "Blocked trespasser (DNS server): " flags ether drop
+    tcp dport {80,443} counter log prefix "Blocked trespasser (HTTP/S server): " flags ether drop
+    udp dport 123 counter log prefix "Blocked trespasser (NTP server): " flags ether drop
+    udp dport 1900 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
+    tcp dport 5000 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
+    udp dport 5351 counter log prefix "Blocked trespasser (NAT-PMP server): " flags ether drop
 
-    #counter log prefix "Allowed unknown request to router: " flags ether #For debugging
+    #For debugging
+    counter log prefix "Trespasser detected: " flags ether
 }
