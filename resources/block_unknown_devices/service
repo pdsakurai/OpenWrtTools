@@ -1,10 +1,10 @@
-#Destination file: /etc/init.d/block_unknown_devices
+#Destination file: /etc/init.d/update_known_devices
 #!/bin/sh /etc/rc.common
 USE_PROCD=1
 START=99
 
 start_service() {
-    source /root/src/logger_helper.sh "block_unknown_devices"
+    source /root/src/logger_helper.sh "update_known_devices"
     local set_name="known_devices"
     local mac_addresses="$( uci show dhcp | grep \.mac= | sed "s/.*mac='\(.*\)'/\1/" | tr "\n" "," | sed "s/,$//g" )"
 
