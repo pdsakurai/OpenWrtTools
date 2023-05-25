@@ -10,12 +10,8 @@ __unbound_srv_conf_fullfilepath="${1:?Missing: unbound_srv.conf fullfilepath}"
 __unbound_ext_conf_fullfilepath="${2:?Missing: unbound_ext.conf fullfilepath}"
 __domain="${3:?Missing: Domain}"
 
-__dns_packet_size=1232
-function __clean_uci_option() {
-    local uci_option="$1"
-    uci_option="$( printf "$uci_option" | sed s/\$domain/$__domain/ )"
-    uci_option="$( printf "$uci_option" | sed s/\$dns_packet_size/$__dns_packet_size/ )"
-    printf "$uci_option" | sed s/\$port/1053/
+function __update_domain() {
+    printf "$1" | sed s/\$domain/$__domain/
 }
 
 function __modify_sysctlconf() {
@@ -41,8 +37,7 @@ function __modify_sysctlconf() {
 function __apply_baseline_conf() {
     local is_there_change=
     load_and_append_to_another_file "$__resources_dir/${__pkg}_srv.conf" "$__unbound_srv_conf_fullfilepath" \
-        && is_there_change="true" \
-        && sed -i s/\$dns_packet_size/$__dns_packet_size/ "$__unbound_srv_conf_fullfilepath"
+        && is_there_change="true"
     [ -n $"is_there_change" ] \
         && load_and_append_to_another_file "$__resources_dir/${__pkg}_ext.conf" "$__unbound_ext_conf_fullfilepath" \
         log "Baseline configuration applied for $__pkg."
@@ -51,7 +46,7 @@ function __apply_baseline_conf() {
 function __apply_uci_options() {
     local uci_unbound="$__pkg.@$__pkg[0]"
     uci revert $uci_unbound
-    set_uci_from_file "$uci_unbound" "$__resources_dir/uci.$uci_unbound" "__clean_uci_option"
+    set_uci_from_file "$uci_unbound" "$__resources_dir/uci.$uci_unbound" "__update_domain"
     uci commit $uci_unbound
     log "Recommended UCI options applied for $__pkg."
 }
@@ -59,7 +54,7 @@ function __apply_uci_options() {
 function __use_unbound_in_dnsmasq() {
     local uci_dnsmasq="dhcp.@dnsmasq[0]"
     uci revert $uci_dnsmasq
-    set_uci_from_file "$uci_dnsmasq" "$__resources_dir/uci.$uci_dnsmasq" "__clean_uci_option"
+    set_uci_from_file "$uci_dnsmasq" "$__resources_dir/uci.$uci_dnsmasq" "__update_domain"
     uci commit $uci_dnsmasq
 
     local uci_dhcp="dhcp.lan.dhcp_option"

@@ -3,7 +3,7 @@ boguspriv=1
 cachesize '10000'
 domain=$domain
 domainneeded=1
-ednspacket_max=$dns_packet_size
+ednspacket_max=1232
 expandhosts=1
 filterwin2k=0
 leasefile=/tmp/dhcp.leases
