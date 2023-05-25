@@ -1,2 +1,2 @@
-#For blocking DNS-over-HTTPS
+#For RPZ configuration to work
 module-config: "respip iterator"

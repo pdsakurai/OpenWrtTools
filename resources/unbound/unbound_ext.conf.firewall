@@ -1,9 +1,9 @@
-#For blocking DNS-over-HTTPS
 rpz:
-    name: Restrict_DoT/DoH
+    name: DoT_and_DoH
+    zonefile: DoT_and_DoH.rpz
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
-    zonefile: Restrict_DoT_and_DoH.rpz
-    rpz-log: yes
-    rpz-log-name: Restrict_DoT/DoH
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_DoT_and_DoH
     rpz-action-override: nxdomain
     rpz-signal-nxdomain-ra: yes
