@@ -1,0 +1,47 @@
+rpz:
+    name: stevenblack
+    zonefile: stevenblack.rpz
+    url: http://storage.capri:8124/stevenblack.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_stevenblack
+
+rpz:
+    name: winspy
+    zonefile: winspy.rpz
+    url: http://storage.capri:8124/winspy.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_winspy
+
+rpz:
+    name: nocoin
+    zonefile: nocoin.rpz
+    url: http://storage.capri:8124/nocoin.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_nocoin
+
+rpz:
+    name: smarttv
+    zonefile: smarttv.rpz
+    url: http://storage.capri:8124/smarttv.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_smarttv
+
+rpz:
+    name: hate
+    zonefile: hate.rpz
+    url: http://storage.capri:8124/hate.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_hate
+
+rpz:
+    name: dating
+    zonefile: dating.rpz
+    url: http://storage.capri:8124/dating.rpz
+    rpz-action-override: nxdomain
+    rpz-log: no
+    rpz-log-name: blocked_by_dating

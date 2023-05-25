@@ -112,6 +112,12 @@ function __block_encrypted_dns_requests() {
     log "DNS queries over HTTPS and TLS are now blocked."
 }
 
+function __block_3rd_parties_by_DNS() {
+    load_and_append_to_another_file "$__resources_dir/${__pkg}_srv.conf.firewall" "$__unbound_srv_conf_fullfilepath"
+    load_and_append_to_another_file "$__resources_dir/${__pkg}_ext.conf.firewall.3rdParties" "$__unbound_ext_conf_fullfilepath"
+    log "3rd parties (e.g. ads, trackers) are now blocked via DNS."
+}
+
 function setup_unbound() {
     install_packages \
         luci-app-$__pkg \
@@ -125,6 +131,7 @@ function setup_unbound() {
     __redirect_dns_requests
     __block_external_access
     __block_encrypted_dns_requests
+    __block_3rd_parties_by_DNS
 
     log "Done set-up for $__pkg."
     restart_services firewall $__pkg dnsmasq network update_doh_servers
