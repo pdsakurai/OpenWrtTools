@@ -1,16 +1,6 @@
-authoritative=1
 cachesize '10000'
 domain=$domain
-domainneeded=1
 ednspacket_max=1232
-expandhosts=1
-leasefile=/tmp/dhcp.leases
 local=/$domain/
-localise_queries=1
-localservice=1
 noresolv=1
 port=1053
-readethers=1
-rebind_localhost=1
-rebind_protection=1
-resolvfile=/tmp/resolv.conf.d/resolv.conf.auto
