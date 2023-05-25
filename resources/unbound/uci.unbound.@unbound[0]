@@ -2,7 +2,7 @@ enabled=1
 manual_conf=0
 localservice=1
 validator=0
-listen_port=$port
+listen_port=53
 
 rebind_localhost=0
 rebind_protection=1
