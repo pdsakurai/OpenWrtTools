@@ -1,17 +1,13 @@
 authoritative=1
-boguspriv=1
 cachesize '10000'
 domain=$domain
 domainneeded=1
 ednspacket_max=1232
 expandhosts=1
-filterwin2k=0
 leasefile=/tmp/dhcp.leases
 local=/$domain/
 localise_queries=1
 localservice=1
-nonegcache=1
-nonwildcard=1
 noresolv=1
 port=1053
 readethers=1
