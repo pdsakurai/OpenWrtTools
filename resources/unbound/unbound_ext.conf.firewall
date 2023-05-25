@@ -5,5 +5,4 @@ rpz:
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_DoT_and_DoH
-    rpz-action-override: nxdomain
-    rpz-signal-nxdomain-ra: yes
+    
