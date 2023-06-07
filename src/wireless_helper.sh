@@ -12,12 +12,6 @@ function __enable_802dot11r() {
     commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11r in all SSIDs."
 }
 
-function __enable_802dot11w() {
-    uci revert wireless
-    set_uci_from_file "$( get_all_wifi_iface_uci )" "$__resources_dir/uci.wifi-iface.802.11w"
-    commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11w in all SSIDs."
-}
-
 function __enable_802dot11k_and_802dot11v() {
     uninstall_packages wpad-basic-wolfssl
     install_packages wpad-wolfssl
