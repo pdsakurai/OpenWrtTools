@@ -1,3 +1,4 @@
+#Block DOH and DOT domains resolution
 rpz:
     name: DoT_and_DoH
     zonefile: DoT_and_DoH.rpz
