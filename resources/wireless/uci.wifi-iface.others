@@ -1,0 +1,2 @@
+proxy_arp=1
+multicast_to_unicast=1

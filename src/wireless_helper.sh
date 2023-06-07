@@ -43,6 +43,12 @@ function __enable_802dot11k_and_802dot11v() {
     }; install_rrm_nr_distributor
 }
 
+function __enable_other_features() {
+    uci revert wireless
+    set_uci_from_file "$( get_all_wifi_iface_uci )" "$__resources_dir/uci.wifi-iface.others"
+    commit_and_log_if_there_are_changes "wireless" "Done enabling other Wi-Fi features."
+}
+
 function __remove_802dot11k_and_802dot11v_uci_options() {
     function uninstall_rrm_nr_distributor() {
         local destination="/etc/init.d/rrm_nr"
@@ -95,6 +101,7 @@ function setup_wifi() {
 
     __enable_802dot11r && are_there_changes=0
     __enable_802dot11k_and_802dot11v && are_there_changes=0
+    __enable_other_features && are_there_changes=0
     __transmit_max_radio_power_always && are_there_changes=0
     __enable_routine_radios_restarting
 
