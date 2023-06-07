@@ -169,8 +169,8 @@ function setup_dumb_ap() {
 
     function resolve_connected_devices() {
         local file="$RESOURCES_DIR/cron.fping"
-        local CIDR="$( ip address | grep "global br-lan" | sed "s/[[:blank:]]\+inet[[:blank:]]\+\(.\+\/[[:digit:]]\+\).\+/\1/" )"
-        sed -i "s/CIDR/$CIDR/" "$file"
+        local CIDR="$( get_lan_cidr )"
+        sed -i "s/\$CIDR/$CIDR/" "$file"
         install_packages fping \
             && add_cron_job "$file" \
             && log "Added cron job for resolving connected devices."

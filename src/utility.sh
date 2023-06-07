@@ -105,3 +105,9 @@ function setup_redirection_handling() {
         sed -i "s/\$LAN_IPV${type}_ADDRESS/$ip_address/" "$file"
     done
 }
+
+function get_lan_cidr() {
+    local ip_address=$( ubus call network.interface.lan status | jsonfilter -e '$["ipv4-address"][0].address' )
+    local mask=$( ubus call network.interface.lan status | jsonfilter -e '$["ipv4-address"][0].mask' )
+    echo $ip_address/$mask
+}
