@@ -4,7 +4,7 @@
     && return \
     || readonly _ipv4_subnet_sh="ipv4_subnet_sh[$$]"
 
-. ./src/prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf" "/usr/bin"
+. ./src/prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf grep" "/usr/bin"
 
 function convert_ipv4_address() {
     local input="${1:?Missing: IP address}" #Slash notation is OK too
