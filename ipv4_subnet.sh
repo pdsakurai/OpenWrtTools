@@ -96,7 +96,7 @@ function get_ipv4_subnets() {
     local output_file="${1:?Missing: Output file}"
     local asns="${2:?Missing: List of ASNs, delimited by a whitespace}"
 
-    . ./temp_file.sh
+    . ./src/temp_file.sh
 
     local merged_file=$( create_temp_file )
     merge_ipv4_subnets "$merged_file" "$asns"

@@ -9,7 +9,7 @@ function get_current_time() {
 }
 
 function start_timer() {
-    . ./temp_file.sh
+    . ./src/temp_file.sh
     local file=$( create_temp_file )
     get_current_time > "$file"
     printf "$file"

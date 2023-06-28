@@ -43,7 +43,7 @@ function are_the_same_files() {
 function reroute_traffic_by_asn() {
     local asns=${1:?Missing: ASNs, delimited by whitespace}
     
-    . ./temp_file.sh
+    . ./src/temp_file.sh
     local ip_subnets_file=$( create_temp_file )
 
     . ./timer_helper.sh
