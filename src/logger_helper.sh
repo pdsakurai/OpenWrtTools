@@ -1,5 +1,9 @@
 #!/bin/sh
 
+[ -n "$_logger_helper_sh" ] \
+    && return \
+    || readonly _logger_helper_sh="_logger_helper_sh[$$]"
+
 __tag="${1:?Missing: Tag}"
 
 function log() {
