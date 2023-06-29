@@ -4,7 +4,7 @@
     && return \
     || readonly _ipv4_subnet_sh="ipv4_subnet_sh[$$]"
 
-source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf grep" "/usr/bin"
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/utility.sh; abort_when_a_function_is_undefined "whois bc sort cut tr printf grep"
 source $SOURCES_DIR/temp_file.sh
 
 function convert_ipv4_address() {
