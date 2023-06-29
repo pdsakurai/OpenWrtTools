@@ -5,13 +5,20 @@ function is_function_defined() {
 }
 
 function abort_when_a_function_is_undefined() {
-    local function_name
+    local function_name has_error log_text
     for function_name in ${@:?Missing: Function name/s}; do
-        local log_text="Function $function_name doesn't exist"
-        ! is_function_defined "$function_name" \
-            && ( is_function_defined "log" && log "$log_text" || echo "$log_text" ) \
-            && exit 1
+        ! is_function_defined "$function_name" && {
+            has_error=true
+            log_text="Function $function_name doesn't exist."
+            is_function_defined "log_error" && log_error "$log_text" || echo "$log_text"
+        }
     done
+
+    [ "$has_error" == "true" ] && {
+        log_text="Aborting..."
+        is_function_defined "log_error" && log_error "$log_text" || echo "$log_text"
+        exit $SIGABRT
+    }
 }
 
 function add_cron_job() {
