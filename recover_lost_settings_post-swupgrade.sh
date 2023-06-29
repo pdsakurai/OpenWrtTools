@@ -1,6 +1,8 @@
 #!/bin/sh
 
-source /root/src/logger_helper.sh "recover_lost_settings.sh"
+readonly SOURCES_DIR="$( pwd )/src"
+export SOURCES_DIR
+source $SOURCES_DIR/logger_helper.sh "recover_lost_settings.sh"
 
 function remove_tx_limiter_on_wifi_radios() {
     local url="https://github.com/pdsakurai/OpenWrtTools/raw/main/resources/wireless"

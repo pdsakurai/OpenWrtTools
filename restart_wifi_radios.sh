@@ -1,6 +1,8 @@
 #!/bin/sh
 
-source ./src/logger_helper.sh "restart_wifi_radio.sh"
+readonly SOURCES_DIR="$( pwd )/src"
+export SOURCES_DIR
+source $SOURCES_DIR/logger_helper.sh "restart_wifi_radio.sh"
 
 function get_wifi_radios() {
     uci show wireless | grep wireless.*=wifi-device | sed 's/wireless.\(radio.*\)=wifi-device/\1/'

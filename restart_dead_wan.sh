@@ -1,6 +1,8 @@
 #!/bin/sh
 
-source ./src/logger_helper.sh "restart_dead_wan.sh"
+readonly SOURCES_DIR="$( pwd )/src"
+export SOURCES_DIR
+source $SOURCES_DIR/logger_helper.sh "restart_dead_wan.sh"
 
 readonly ip_version=${1:?Missing: IP version}
 case "$ip_version" in
