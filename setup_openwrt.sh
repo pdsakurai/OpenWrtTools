@@ -4,9 +4,11 @@
 # set -o pipefail
 
 ROOT_DIR="$( pwd )"
+EXTERNALS_DIR="$ROOT_DIR/externals"
 RESOURCES_DIR="$ROOT_DIR/resources"
 SOURCES_DIR="$ROOT_DIR/src"
 
+export EXTERNALS_DIR
 export RESOURCES_DIR
 export SOURCES_DIR
 

@@ -4,6 +4,7 @@ source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "wireless_hel
 source $SOURCES_DIR/uci_helper.sh
 source $SOURCES_DIR/utility.sh
 
+__externals_service_dir="${EXTERNALS_DIR:?Define ENV var:EXTERNALS_DIR}/update_rrm_nr"
 __resources_dir="${RESOURCES_DIR:?Define ENV var:RESOURCES_DIR}/wireless"
 
 function __enable_802dot11r() {
@@ -28,16 +29,14 @@ function __enable_802dot11k_and_802dot11v() {
             && service $pkg enable \
             && service $pkg start
         
-        local destination source_url="https://raw.githubusercontent.com/pdsakurai/openwrt-rrm-nr-distributor/main"
-        destination="/usr/bin/update_rrm_nr" \
-            && wget -O "$destination" "$source_url/bin" > /dev/null \
-            && chmod +x "$destination"
+        local destination="/usr/bin/update_rrm_nr"
+        cp -f "$__externals_service_dir/bin" "$destination"
         
-        destination="/etc/init.d/update_rrm_nr" \
-            && wget -O "$destination" "$source_url/initscript" > /dev/null \
-            && chmod +x "$destination" \
-            && $destination enable \
-            && $destination start
+        destination="/etc/init.d/update_rrm_nr"
+        cp -f "$__externals_service_dir/initscript" "$destination"
+        chmod +x "$destination"
+        $destination enable
+        $destination start
 
         log "Neighbour reports under 802.11k are ready for syncing across APs."
     }; install_service_update_rrm_nr
