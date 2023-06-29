@@ -35,7 +35,6 @@ function is_existing() {
 function show() {
     local entry entries="$( uci show dhcp | grep host.*name )"
     for entry in $entries; do
-        #dhcp.@host[0].name='Paul-Laptop'
         local name=${entry#*=}
         name=$( printf $name | xargs )
 
