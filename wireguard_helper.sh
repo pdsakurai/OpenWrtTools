@@ -21,7 +21,7 @@ source $SOURCES_DIR/temp_file.sh
 source $SOURCES_DIR/timer_helper.sh
 source $SOURCES_DIR/ipv4_subnet.sh
 
-readonly target_uci_section="network.wireguard_$target_interface"
+readonly target_uci_section="network.$target_interface"
 readonly target_uci_option="$target_uci_section.allowed_ips"
 
 function are_the_same_files() {
