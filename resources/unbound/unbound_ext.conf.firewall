@@ -1,9 +1,9 @@
 #Block DOH and DOT domains resolution
 rpz:
-    name: DoT_and_DoH
-    zonefile: DoT_and_DoH.rpz
+    name: DoH_and_DoT
+    zonefile: DoH_and_DoT.rpz
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
     rpz-action-override: nxdomain
     rpz-log: no
-    rpz-log-name: blocked_by_DoT_and_DoH
+    rpz-log-name: blocked_by_DoH_and_DoT
     
