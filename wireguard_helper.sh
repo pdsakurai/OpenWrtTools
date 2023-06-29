@@ -5,7 +5,7 @@
     || readonly _wireguard_helper_sh="wireguard_helper_sh[$$]"
 
 #Configuration
-readonly target_interface="wireguard"
+readonly target_interface="${1:?Missing: Target Wireguard interface}"
 
 #ASNs
 readonly asn_facebook="32934"
