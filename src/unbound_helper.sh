@@ -70,7 +70,7 @@ function __use_unbound_in_wan() {
 
     uci revert network
     set_uci_from_file "$uci_option" "$__resources_dir/uci.network.interface"
-    add_list_uci_from_file "$( printf "$uci_option" | sed "s/\(.*\)/\1.dns/" )" "$__resources_dir/uci.network.interface.dns"
+    uci delete ${uci_option}.dns
 
     uci commit network
     log "WAN interfaces now use $__pkg."
