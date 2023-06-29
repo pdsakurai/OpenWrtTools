@@ -1,13 +1,11 @@
 #!/bin/sh
 
+readonly SOURCES_DIR="$( pwd )/src"
+export SOURCES_DIR
+source $SOURCES_DIR/logger_helper.sh "toggle_ssid.sh"
+
 readonly SSID="${1?Missing: SSID}"
 readonly NEW_STATE="${2?Missing: New state for SSID [off/on]}"
-
-function log_info() {
-    local _toggle_ssid_sh="toggle_ssid_sh[$$]"
-    logger -t "$_toggle_ssid_sh" "$@"
-    printf "$_toggle_ssid_sh: $@\n"
-}
 
 function get_all_wifi_iface() {
     local wifi_iface uci_string
@@ -25,7 +23,7 @@ function get_all_wifi_iface() {
 
 function validate_SSID() {
     [ -z "$( get_all_wifi_iface )" ] \
-        && log_info "SSID '$SSID' not found." \
+        && log "SSID '$SSID' not found." \
         && exit 1
 }
 
@@ -38,7 +36,7 @@ function get_new_state() {
 
 function validate_NEWSTATE() {
     [ -z "$( get_new_state )" ] \
-        && log_info "Invalid new state [off/on]: $NEW_STATE" \
+        && log "Invalid new state [off/on]: $NEW_STATE" \
         && exit 1
 }
 
@@ -51,7 +49,7 @@ function get_radio() {
         return 0
     fi
 
-    log_info "Radio tagged to wifi-iface '$wifi_iface' not found."
+    log "Radio tagged to wifi-iface '$wifi_iface' not found."
     return 1
 }
 
@@ -63,7 +61,7 @@ function apply_changes {
         wifi reload $( get_radio "$wifi_iface" )
         sleep 1m
     done
-    log_info "Successfully applied the new state '$NEW_STATE' for SSID '$SSID'."
+    log "Successfully applied the new state '$NEW_STATE' for SSID '$SSID'."
 }
 
 validate_SSID
