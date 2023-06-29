@@ -32,7 +32,7 @@ function update_set() {
     }
     local ip_addresses="$( get_ip_addresses )"
     if [ -z "$ip_addresses" ]; then
-        log "Aborted updating nft set \"$set_name\" with empty list"
+        log_error "Aborted updating nft set \"$set_name\" with empty list"
         return 1
     fi
 
@@ -50,21 +50,18 @@ function update_set() {
         sed -i "s/#\?elements.*=.*{.*}/$new_line/" "/usr/share/nftables.d/table-pre/set_doh_servers_$ip_version.nft"
     }; update_static_configuration
 
-    log "Updated nft set \"$set_name\""
+    log_info "Updated nft set \"$set_name\""
     return 0
 }
 
-source /root/src/logger_helper.sh "update_doh_servers"
+source /root/OpenWrtTools/src/logger_helper.sh "update_doh_servers"
 
-log "Service is now running"
 while true; do
     if update_set "ipv4" && update_set "ipv6"; then
-        log "Next update will be done after 7 days"
+        log_info "Next update will be done after 7 days"
         sleep 7d
     else
-        log "Updating failed. Next update will be done after 1 minute"
+        log_error "Updating failed. Next update will be done after 1 minute"
         sleep 1m
     fi
 done
-log "Service is about to exit"
-exit 0
