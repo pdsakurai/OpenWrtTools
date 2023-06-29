@@ -1,2 +1,2 @@
 #For maintaining Wi-Fi's stability
-15 03 * * * /root/restart_wifi_radios.sh
+15 03 * * * /root/OpenWrtTools/restart_wifi_radios.sh
