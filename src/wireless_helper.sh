@@ -28,15 +28,14 @@ function __enable_802dot11k_and_802dot11v() {
         install_packages $pkg \
             && service $pkg enable \
             && service $pkg start
-        
-        local destination="/usr/bin/update_rrm_nr"
-        cp -f "$__externals_service_dir/bin" "$destination"
 
-        destination="/etc/init.d/update_rrm_nr"
-        cp -f "$__externals_service_dir/initscript" "$destination"
-        chmod +x "$destination"
-        $destination enable
-        $destination start
+        local file
+        for file in bin initscript; do
+            file=$( copy_resource "$__externals_service_dir/$file" )
+        done
+        chmod +x "$file"
+        $file enable
+        $file start
 
         log "Neighbour reports under 802.11k are ready for syncing across APs."
     }; install_service_update_rrm_nr
