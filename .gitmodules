@@ -1,3 +1,6 @@
 [submodule "externals/update_rrm_nr"]
 	path = externals/update_rrm_nr
 	url = git@github.com:pdsakurai/openwrt-rrm-nr-distributor.git
+[submodule "externals/update_ddns"]
+	path = externals/update_ddns
+	url = git@github.com:pdsakurai/openwrt-nsupdate.info-updater.git
