@@ -6,6 +6,7 @@
 
 #Configuration
 readonly target_interface="${1:?Missing: Target Wireguard interface}"
+readonly target_peer="${2:?Missing: Target peer based on UCI section}"
 
 #ASNs
 readonly asn_facebook="32934"
@@ -13,7 +14,6 @@ readonly asn_google="15169"
 readonly asn_pldt="9299"
 readonly asn_smart="10139"
 
-#Don't edit anything starting from this line
 readonly SOURCES_DIR="$( pwd )/src"
 export SOURCES_DIR
 source $SOURCES_DIR/logger_helper.sh "wireguard_helper.sh"
@@ -21,7 +21,7 @@ source $SOURCES_DIR/temp_file.sh
 source $SOURCES_DIR/timer_helper.sh
 source $SOURCES_DIR/ipv4_subnet.sh
 
-readonly target_uci_section="network.$target_interface"
+readonly target_uci_section="network.$target_peer"
 readonly target_uci_option="$target_uci_section.allowed_ips"
 
 function are_the_same_files() {
