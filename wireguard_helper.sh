@@ -16,17 +16,13 @@ readonly asn_smart="10139"
 #Don't edit anything starting from this line
 readonly SOURCES_DIR="$( pwd )/src"
 export SOURCES_DIR
+source $SOURCES_DIR/logger_helper.sh "wireguard_helper.sh"
 source $SOURCES_DIR/temp_file.sh
 source $SOURCES_DIR/timer_helper.sh
 source $SOURCES_DIR/ipv4_subnet.sh
 
 readonly target_uci_section="network.wireguard_$target_interface"
 readonly target_uci_option="$target_uci_section.allowed_ips"
-
-function log_info() {
-    logger -t "$_wireguard_helper_sh" "$@"
-    printf "$_wireguard_helper_sh: $@\n"
-}
 
 function are_the_same_files() {
     local file_1="${1:?Missing: File 1}"
@@ -51,18 +47,18 @@ function reroute_traffic_by_asn() {
     
     local ip_subnets_file=$( create_temp_file )
     local timer=$( start_timer )
-    log_info "Started retrieving IPv4 subnets for ASNs: ${asns// /,}"
+    log "Started retrieving IPv4 subnets for ASNs: ${asns// /,}"
     $( get_ipv4_subnets "$ip_subnets_file" "$asns" )
     timer=$( end_timer "$timer" )
-    log_info "Done retrieving IPv4 subnets within $timer."
+    log "Done retrieving IPv4 subnets within $timer."
 
     timer=$( start_timer )
-    log_info "Started re-routing traffic."
+    log "Started re-routing traffic."
     local file_previous_allowed_ips="/tmp/wireguard_helper_allowed_ips.txt"
     if are_the_same_files "$ip_subnets_file" "$file_previous_allowed_ips"; then
-        log_info "Same set of IP subnets produced. No changes made."
+        log "Same set of IP subnets produced. No changes made."
     elif [ $( wc -l "$ip_subnets_file" | cut -d' ' -f1 ) -le 0 ]; then
-        log_info "No IP subnets found. No changes made."
+        log "No IP subnets found. No changes made."
     else
         function reset_allowed_ips() {
             uci -q revert $target_uci_option
@@ -82,6 +78,6 @@ function reroute_traffic_by_asn() {
         apply_changes
         mv "$ip_subnets_file" "$file_previous_allowed_ips"
         timer=$( end_timer "$timer" )
-        log_info "Done re-routing traffic within $timer."
+        log "Done re-routing traffic within $timer."
     fi
 }
