@@ -143,7 +143,7 @@ function install_service_update_ddns() {
 
     file=${file##*/}
     service $file enable && service $file start
-    log "Service for updating DDNS has been installed.
+    log "Service for updating DDNS has been installed."
 }
 
 function setup_router() {
