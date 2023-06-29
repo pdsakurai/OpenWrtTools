@@ -31,7 +31,7 @@ function __enable_802dot11k_and_802dot11v() {
         
         local destination="/usr/bin/update_rrm_nr"
         cp -f "$__externals_service_dir/bin" "$destination"
-        
+
         destination="/etc/init.d/update_rrm_nr"
         cp -f "$__externals_service_dir/initscript" "$destination"
         chmod +x "$destination"
