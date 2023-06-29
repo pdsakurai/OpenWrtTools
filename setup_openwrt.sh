@@ -131,20 +131,19 @@ function block_trespassers() {
 
 function install_service_update_ddns() {
     local host_name=${1:?Missing: Host name}
-    local secret_key=${2:?Missing: secret_key}
+    local secret_key=${2:?Missing: Secret key}
 
-    local pkg="ddns"
-    local resources_dir="$RESOURCES_DIR/$pkg"
+    local externals_dir="$EXTERNALS_DIR/update_ddns"
 
     local file=
-    for file in bin service; do
-        file=$( copy_resource "$resources_dir/$file" )
-        sed -i "s/\$HOST_NAME/$host_name/" "$file"
-        sed -i "s/\$SECRET_KEY/$secret_key/" "$file"
+    for file in bin initscript; do
+        file=$( copy_resource "$externals_dir/$file" )
+        sed -i "s/\(HOST_NAME=\)/\1$host_name/" "$file"
+        sed -i "s/\(SECRET_KEY=\)/\1$secret_key/" "$file"
     done
 
-    file=${file##*/}
-    service $file enable && service $file start
+    $file enable
+    $file start
     log "Service for updating DDNS has been installed."
 }
 
