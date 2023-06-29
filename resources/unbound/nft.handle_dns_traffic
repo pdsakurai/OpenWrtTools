@@ -1,2 +1,2 @@
-#Destination file: /usr/share/nftables.d/chain-post/dstnat_lan/handle_dns_traffic.nft
-meta l4proto {tcp,udp} th dport 53 jump handle_redirection comment "Handle DNS traffic"
+#Destination file: /usr/share/nftables.d/chain-pre/dstnat/handle_dns_traffic.nft
+iifname "br-lan" meta l4proto {tcp,udp} th dport 53 jump handle_redirection comment "Handle DNS traffic"
