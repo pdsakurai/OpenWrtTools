@@ -44,6 +44,7 @@ function are_the_same_files() {
 
 function reroute_traffic_by_asn() {
     local asns=${1:?Missing: ASNs, delimited by whitespace}
+    local other_ip_addresses=$2
     
     local ip_subnets_file=$( create_temp_file )
     local timer=$( start_timer )
@@ -67,6 +68,10 @@ function reroute_traffic_by_asn() {
         reset_allowed_ips
 
         local ip_subnet
+        for ip_subnet in $other_ip_addresses; do
+            uci add_list $target_uci_option="$ip_subnet"
+        done
+
         while read ip_subnet; do
             uci add_list $target_uci_option="$ip_subnet"
         done < "$ip_subnets_file"
