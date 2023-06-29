@@ -4,12 +4,13 @@
     && return \
     || readonly _timer_helper_sh="timer_helper_sh[$$]"
 
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/temp_file.sh
+
 function get_current_time() {
     date +%s
 }
 
 function start_timer() {
-    . ./src/temp_file.sh
     local file=$( create_temp_file )
     get_current_time > "$file"
     printf "$file"

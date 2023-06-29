@@ -4,7 +4,8 @@
     && return \
     || readonly _ipv4_subnet_sh="ipv4_subnet_sh[$$]"
 
-. ./src/prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf grep" "/usr/bin"
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/prerequisite_checking.sh; abort_if_missing_executable "whois bc sort cut tr printf grep" "/usr/bin"
+source $SOURCES_DIR/temp_file.sh
 
 function convert_ipv4_address() {
     local input="${1:?Missing: IP address}" #Slash notation is OK too
@@ -95,8 +96,6 @@ function optimize_ipv4_subnets() {
 function get_ipv4_subnets() {
     local output_file="${1:?Missing: Output file}"
     local asns="${2:?Missing: List of ASNs, delimited by a whitespace}"
-
-    . ./src/temp_file.sh
 
     local merged_file=$( create_temp_file )
     merge_ipv4_subnets "$merged_file" "$asns"

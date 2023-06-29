@@ -14,6 +14,11 @@ readonly asn_pldt="9299"
 readonly asn_smart="10139"
 
 #Don't edit anything starting from this line
+readonly SOURCES_DIR="$( pwd )/src"
+export SOURCES_DIR
+source $SOURCES_DIR/temp_file.sh
+source $SOURCES_DIR/timer_helper.sh
+
 readonly target_uci_section="network.wireguard_$target_interface"
 readonly target_uci_option="$target_uci_section.allowed_ips"
 
@@ -43,10 +48,7 @@ function are_the_same_files() {
 function reroute_traffic_by_asn() {
     local asns=${1:?Missing: ASNs, delimited by whitespace}
     
-    . ./src/temp_file.sh
     local ip_subnets_file=$( create_temp_file )
-
-    . ./timer_helper.sh
     local timer=$( start_timer )
     log_info "Started retrieving IPv4 subnets for ASNs: ${asns// /,}"
     $( . ./ipv4_subnet.sh; get_ipv4_subnets "$ip_subnets_file" "$asns" )
