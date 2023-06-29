@@ -12,33 +12,21 @@ function remove_tx_limiter_on_wifi_radios() {
     wget "$url/$pkg"
     opkg install --force-reinstall "$pkg"
 
-    log "Removed TX limiter on Wi-Fi radios."
+    log_info "Removed TX limiter on Wi-Fi radios."
 }; remove_tx_limiter_on_wifi_radios
 
 function enable_service() {
     local service_name="${1:?Missing: service name}"
 
     [[ "$( service $service_name status )" =~ ^\(active\|running\) ]] \
-        && log "Service $service_name is already enabled." \
+        && log_warning "Service $service_name is already enabled." \
         && return 1
 
     service $service_name enable \
         && service $service_name start \
-        && log "Service $service_name has been enabled."
+        && log_info "Service $service_name has been enabled."
 }
 
-function update_rrm_nr() {
-    enable_service "update_rrm_nr"
-}; update_rrm_nr
-
-function update_doh_servers_set() {
-    enable_service "update_doh_servers"
-}; update_doh_servers_set
-
-function update_known_devices() {
-    enable_service "update_known_devices"
-}; update_known_devices
-
-function update_ddns() {
-    enable_service "update_ddns"
-}; update_ddns
+for item in update_ddns update_doh_servers update_known_devices update_rrm_nr; do
+    enable_service $item
+done
