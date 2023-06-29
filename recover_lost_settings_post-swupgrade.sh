@@ -27,9 +27,9 @@ function enable_service() {
         && log "Service $service_name has been enabled."
 }
 
-function distribute_rrm_nr_list() {
-    enable_service "rrm_nr"
-}; distribute_rrm_nr_list
+function update_rrm_nr() {
+    enable_service "update_rrm_nr"
+}; update_rrm_nr
 
 function update_doh_servers_set() {
     enable_service "update_doh_servers"

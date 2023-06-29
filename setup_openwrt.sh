@@ -94,8 +94,8 @@ function setup_miscellaneous() {
         local backup_list="/etc/sysupgrade.conf"
         echo "/usr/share/nftables.d/" >> "$backup_list"
         echo "/root/" >> "$backup_list"
-        echo "/etc/init.d/rrm_nr" >> "$backup_list"
-        echo "/usr/bin/rrm_nr" >> "$backup_list"
+        echo "/etc/init.d/update_rrm_nr" >> "$backup_list"
+        echo "/usr/bin/update_rrm_nr" >> "$backup_list"
     }; add_backup_files
 }
 

@@ -22,25 +22,25 @@ function __enable_802dot11k_and_802dot11v() {
     set_uci_from_file "$wifi_iface_uci" "$__resources_dir/uci.wifi-iface.802.11v"
     commit_and_log_if_there_are_changes "wireless" "Done enabling 802.11k and 802.11v in all SSIDs."
 
-    function install_rrm_nr_distributor() {
+    function install_service_update_rrm_nr() {
         local pkg="umdns"
         install_packages $pkg \
             && service $pkg enable \
             && service $pkg start
         
         local destination source_url="https://raw.githubusercontent.com/pdsakurai/openwrt-rrm-nr-distributor/main"
-        destination="/usr/bin/rrm_nr" \
+        destination="/usr/bin/update_rrm_nr" \
             && wget -O "$destination" "$source_url/bin" > /dev/null \
             && chmod +x "$destination"
         
-        destination="/etc/init.d/rrm_nr" \
+        destination="/etc/init.d/update_rrm_nr" \
             && wget -O "$destination" "$source_url/initscript" > /dev/null \
             && chmod +x "$destination" \
             && $destination enable \
             && $destination start
 
         log "Neighbour reports under 802.11k are ready for syncing across APs."
-    }; install_rrm_nr_distributor
+    }; install_service_update_rrm_nr
 }
 
 function __enable_other_features() {
@@ -50,14 +50,14 @@ function __enable_other_features() {
 }
 
 function __remove_802dot11k_and_802dot11v_uci_options() {
-    function uninstall_rrm_nr_distributor() {
-        local destination="/etc/init.d/rrm_nr"
+    function uninstall_service_update_rrm_nr() {
+        local destination="/etc/init.d/update_rrm_nr"
         $destination stop
         $destination disable
         rm "$destination"
-        rm "/usr/bin/rrm_nr"
+        rm "/usr/bin/update_rrm_nr"
         uninstall_packages umdns
-    }; uninstall_rrm_nr_distributor
+    }; uninstall_service_update_rrm_nr
 
     uci revert wireless
     
