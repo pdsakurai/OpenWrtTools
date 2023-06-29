@@ -38,3 +38,7 @@ function update_doh_servers_set() {
 function update_known_devices() {
     enable_service "update_known_devices"
 }; update_known_devices
+
+function update_ddns() {
+    enable_service "update_ddns"
+}; update_ddns

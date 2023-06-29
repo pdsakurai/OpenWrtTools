@@ -127,6 +127,25 @@ function block_trespassers() {
     log "Trespassers are now blocked. Make sure to assign static leases to new devices."
 }
 
+function install_service_update_ddns() {
+    local host_name=${1:?Missing: Host name}
+    local secret_key=${2:?Missing: secret_key}
+
+    local pkg="ddns"
+    local resources_dir="$RESOURCES_DIR/$pkg"
+
+    local file=
+    for file in bin service; do
+        file=$( copy_resource "$resources_dir/$file" )
+        sed -i "s/\$HOST_NAME/$host_name/" "$file"
+        sed -i "s/\$SECRET_KEY/$secret_key/" "$file"
+    done
+
+    file=${file##*/}
+    service $file enable && service $file start
+    log "Service for updating DDNS has been installed.
+}
+
 function setup_router() {
     local domain="${1:?Missing: Domain}"
 

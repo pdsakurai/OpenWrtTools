@@ -1,0 +1,122 @@
+#Destination file: /usr/bin/update_ddns
+#!/bin/sh
+
+source ${SOURCES_DIR:?Define ENV var:SOURCES_DIR}/logger_helper.sh "update_ddns.sh"
+
+function is_under_CGN() {
+    local my_ip_address="${1:?Missing:IP address}"
+
+    local result=$( traceroute "$my_ip_address" -n -m3 | tail -1 | xargs )
+    local hops=$( printf "$result" | cut -d ' ' -f 1 )
+    local ip_address=$( printf "$result" | cut -d ' ' -f 2 )
+
+    if [ "$hops" == "1" ] && [ "$my_ip_address" == "$ip_address" ]; then
+        return 1
+    fi
+
+    log_warning "IPv4 network is under CGN."
+    return 0
+}
+
+function is_update_needed() {
+    local ip_version="${1:?Missing: IP version}"
+    local my_ip_address="${2:-NXDOMAIN}"
+
+    local dns_record_type="$( [ "$ip_version" == "IPv4" ] \
+        && printf "a" \
+        || printf "aaaa" )"
+
+    local _is_update_needed=0 retry_left=3
+    while [ $retry_left -gt 0 ] && [ $_is_update_needed -ne 1 ]; do
+        [ $( nslookup -type=$dns_record_type $HOST_NAME | grep -c "$my_ip_address" ) -ge 1 ] \
+            && _is_update_needed=1 \
+            || sleep 1s
+        retry_left=$(( retry_left - 1 ))
+    done
+
+    [ $_is_update_needed -eq 1 ] && log_info "$ip_version address of $HOST_NAME is still $my_ip_address."
+    return $_is_update_needed
+}
+
+function delete_hostname() {
+    local ip_version="${1:?Missing: IP version}"
+
+    local result="$( uclient-fetch -qO- "https://$HOST_NAME:$SECRET_KEY@$ip_version.nsupdate.info/nic/delete" )"
+    local result_successful="deleted *"
+    case "$result" in
+        $result_successful)
+            log_info "$ip_version address deleted for $HOST_NAME."
+            return 0
+            ;;
+        *)
+            log_error "Failed to delete $ip_version address for $HOST_NAME. Error: $result"
+            return 1
+            ;;
+    esac
+}
+
+function change_hostname() {
+    local ip_version="${1:?Missing: IP version}"
+
+    local result=$( uclient-fetch -qO- "https://$HOST_NAME:$SECRET_KEY@$ip_version.nsupdate.info/nic/update" )
+    local updated_ip_address=$( printf "$result" | cut -d ' ' -f 2 )
+    local result_successful_changed="good"
+    local result_successful_unchanged="nochg"
+    case $( printf "$result" | cut -d ' ' -f 1 ) in
+        $result_successful_changed)
+            log_info "$HOST_NAME has been updated successfully with $ip_version address: $updated_ip_address"
+            ;;
+        $result_successful_unchanged)
+            log_warning "$HOST_NAME still has the same $ip_version address: $updated_ip_address."
+            ;;
+        *)
+            log_error "Failed to update $HOST_NAME with $ip_version address. Error: $result"
+            return 1
+            ;;
+    esac
+
+    return 0
+}
+
+function update_hostname() {
+    local ip_version="${1:?Missing: IP version}"
+    local my_ip_address="$2"
+
+    if [ -z "$my_ip_address" ]; then
+        delete_hostname "$1"
+    else
+        change_hostname "$1"
+    fi
+
+    return $?
+}
+
+function get_my_ip_address() {
+    uclient-fetch -qO- "https://${1:?Missing: IP version}.nsupdate.info/myip" 2> /dev/null
+}
+
+function process() {
+    local ip_version="${1:?Missing: IP version}"
+
+    local my_ip_address=$( get_my_ip_address "$ip_version" )
+    if [ "$ip_version" == "IPv4" ] && [ -n "$my_ip_address" ] && is_under_CGN "$my_ip_address"; then
+        my_ip_address=""
+    fi
+
+    if is_update_needed "$ip_version" "$my_ip_address"; then
+        update_hostname "$ip_version" "$my_ip_address"
+    fi
+}
+
+if [ -z "$HOST_NAME" ] || [ -z "$SECRET_KEY" ]; then
+    log_error "Environment variables--HOST_NAME and SECRET_KEY--must be defined."
+    exit 1
+fi
+
+while true; do
+    process "IPv4"
+    process "IPv6"
+
+    log_info "Next update will be done after 5 minutes."
+    sleep 5m
+done
