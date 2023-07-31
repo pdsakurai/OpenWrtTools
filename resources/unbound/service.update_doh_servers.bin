@@ -26,8 +26,25 @@ function update_set() {
                 n=$(( n+1 ))
             fi
         done
-        sort -u $files | tr "\n" "," | sed "s/,$//g"
 
+        sort -u "$files" > "$temp_file"
+
+        function apply_whitelist() {
+            local file="${1:?Missing: File}"
+
+            [ ! -e "$WHITELIST_FILE" ] && return 1
+
+            local sed_command="$( sort -u "$WHITELIST_FILE" \
+                | sed "s/[[:space:]]*#.\+//g" \
+                | tr "\n" "," \
+                | sed "{ s/^,//g; s/,$//g; }" \
+                | sed "s/,/\\$\/D;\/^/g" \
+                | sed "s/\(.\+\)/\{\/\^\1\$\/D\}/g" )"
+
+            sed -i "$sed_command" "$file"
+        }; apply_whitelist "$temp_file"
+
+        cat "$temp_file" | tr "\n" "," | sed "s/,$//g"
         rm $target_directory/*
     }
     local ip_addresses="$( get_ip_addresses )"
