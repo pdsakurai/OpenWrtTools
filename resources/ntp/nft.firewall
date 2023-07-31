@@ -1,2 +1,0 @@
-#Destination file: /usr/share/nftables.d/chain-pre/dstnat/handle_ntp_traffic.nft
-iifname "br-lan" udp dport 123 jump handle_redirection comment "Handle NTP traffic"

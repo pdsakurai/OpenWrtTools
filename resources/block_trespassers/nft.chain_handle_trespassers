@@ -10,7 +10,6 @@ chain handle_trespassers {
     tcp dport 22 counter log prefix "Blocked trespasser (SSH server): " flags ether drop
     meta l4proto {tcp,udp} th dport 53 counter log prefix "Blocked trespasser (DNS server): " flags ether drop
     tcp dport {80,443} counter log prefix "Blocked trespasser (HTTP/S server): " flags ether drop
-    udp dport 123 counter log prefix "Blocked trespasser (NTP server): " flags ether drop
     udp dport 1900 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
     tcp dport 5000 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
     udp dport 5351 counter log prefix "Blocked trespasser (NAT-PMP server): " flags ether drop
