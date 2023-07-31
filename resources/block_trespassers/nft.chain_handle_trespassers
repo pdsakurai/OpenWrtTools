@@ -14,6 +14,7 @@ chain handle_trespassers {
     udp dport 1900 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
     tcp dport 5000 counter log prefix "Blocked trespasser (UPnP server): " flags ether drop
     udp dport 5351 counter log prefix "Blocked trespasser (NAT-PMP server): " flags ether drop
+    udp dport 5353 counter log prefix "Blocked trespasser (mDNS): " flags ether drop
 
     #For debugging
     counter log prefix "Trespasser detected: " flags ether
