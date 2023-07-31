@@ -41,6 +41,7 @@ function update_set() {
                 | sed "s/,/\\$\/D;\/^/g" \
                 | sed "s/\(.\+\)/\{\/\^\1\$\/D\}/g" )"
 
+            echo $sed_command
             sed -i "$sed_command" "$file"
         }; apply_whitelist "$temp_file"
 
