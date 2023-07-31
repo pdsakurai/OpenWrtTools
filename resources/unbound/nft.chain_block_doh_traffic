@@ -1,5 +1,5 @@
 #Destination file: /usr/share/nftables.d/table-pre/chain_block_doh_traffic.nft
 chain block_doh_traffic {
-    ip daddr @doh_servers_ipv4 counter jump reject_to_wan comment "Block IPv4 DNS-over-HTTPS traffic"
-    ip6 daddr @doh_servers_ipv6 counter jump reject_to_wan comment "Block IPv6 DNS-over-HTTPS traffic"
+    ip daddr @doh_servers_ipv4 counter log prefix "Blocked traffic (DoH): " flags ether jump reject_to_wan 
+    ip6 daddr @doh_servers_ipv6 counter log prefix "Blocked traffic (DoH): " flags ether jump reject_to_wan 
 }
