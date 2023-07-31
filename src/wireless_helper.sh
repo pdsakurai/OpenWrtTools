@@ -88,12 +88,6 @@ function __transmit_max_radio_power_always() {
     commit_and_log_if_there_are_changes "wireless" "Wi-Fi radios are now transmitting at max power."
 }
 
-function __enable_routine_radios_restarting() {
-    add_cron_job "$__resources_dir/cron" \
-        && cp -f "$SOURCES_DIR/../restart_wifi_radios.sh" "/root/" \
-        && log "Added cron job for restarting all Wi-Fi radios every 03:15H of the day."
-}
-
 function setup_wifi() {
     local are_there_changes
 
@@ -101,7 +95,6 @@ function setup_wifi() {
     __enable_802dot11k_and_802dot11v && are_there_changes=0
     __enable_other_features && are_there_changes=0
     __transmit_max_radio_power_always && are_there_changes=0
-    __enable_routine_radios_restarting
 
     [ -n "$are_there_changes" ] \
         && restart_services wpad \
