@@ -22,4 +22,3 @@ if [ $? -ne 0 ]; then
 	log "$interface is down. Trying to recover by restarting it." 
 	ifup $interface
 fi
-
