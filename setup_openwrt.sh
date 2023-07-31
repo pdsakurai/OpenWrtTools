@@ -72,10 +72,6 @@ function setup_miscellaneous() {
     commit_and_log_if_there_are_changes "$uci_option" "Enabled Routing/NAT offloading." \
         && restart_services $uci_option
 
-    local destination="/root/src"
-    mkdir -p "$destination/"
-    cp -f "$SOURCE_DIR/logger_helper.sh" "$destination/"
-
     function secure_ssh_access() {
         function get_all_instances() {
             uci show dropbear | grep "=dropbear" | sed "s/dropbear.\(.*\)=dropbear/\1/"
@@ -96,8 +92,6 @@ function setup_miscellaneous() {
         local backup_list="/etc/sysupgrade.conf"
         echo "/usr/share/nftables.d/" >> "$backup_list"
         echo "/root/" >> "$backup_list"
-        echo "/etc/init.d/update_rrm_nr" >> "$backup_list"
-        echo "/usr/bin/update_rrm_nr" >> "$backup_list"
     }; add_backup_files
 }
 
