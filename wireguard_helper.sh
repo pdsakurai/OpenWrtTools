@@ -78,7 +78,7 @@ function reroute_traffic_by_asn() {
 
         function apply_changes() {
             uci commit $target_uci_section
-            ifdown $target_interface && ifup $target_interface
+            ifup $target_interface
         }
         apply_changes
         mv "$ip_subnets_file" "$file_previous_allowed_ips"
