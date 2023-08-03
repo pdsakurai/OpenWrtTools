@@ -27,7 +27,7 @@ function update_set() {
             fi
         done
 
-        sort -u "$files" > "$temp_file"
+        sort -u $files > "$temp_file"
 
         function apply_whitelist() {
             local file="${1:?Missing: File}"
@@ -41,7 +41,6 @@ function update_set() {
                 | sed "s/,/\\$\/D;\/^/g" \
                 | sed "s/\(.\+\)/\{\/\^\1\$\/D\}/g" )"
 
-            echo $sed_command
             sed -i "$sed_command" "$file"
         }; apply_whitelist "$temp_file"
 
