@@ -75,8 +75,8 @@ source /root/OpenWrtTools/src/logger_helper.sh "update_doh_servers"
 
 while true; do
     if update_set "ipv4" && update_set "ipv6"; then
-        log_info "Next update will be done after 7 days"
-        sleep 7d
+        log_info "Next update will be done after 1 day"
+        sleep 1d
     else
         log_error "Updating failed. Next update will be done after 1 minute"
         sleep 1m
