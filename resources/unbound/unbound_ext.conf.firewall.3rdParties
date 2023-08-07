@@ -2,7 +2,7 @@
 rpz:
     name: stevenblack
     zonefile: stevenblack.rpz
-    url: http://storage.capri:8124/stevenblack.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/stevenblack.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_stevenblack
@@ -10,7 +10,7 @@ rpz:
 rpz:
     name: winspy
     zonefile: winspy.rpz
-    url: http://storage.capri:8124/winspy.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/winspy.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_winspy
@@ -18,7 +18,7 @@ rpz:
 rpz:
     name: nocoin
     zonefile: nocoin.rpz
-    url: http://storage.capri:8124/nocoin.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/nocoin.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_nocoin
@@ -26,7 +26,7 @@ rpz:
 rpz:
     name: smarttv
     zonefile: smarttv.rpz
-    url: http://storage.capri:8124/smarttv.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/smarttv.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_smarttv
@@ -34,7 +34,7 @@ rpz:
 rpz:
     name: hate
     zonefile: hate.rpz
-    url: http://storage.capri:8124/hate.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/hate.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_hate
@@ -42,7 +42,7 @@ rpz:
 rpz:
     name: dating
     zonefile: dating.rpz
-    url: http://storage.capri:8124/dating.rpz
+    url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/dating.rpz
     rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_dating
