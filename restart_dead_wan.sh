@@ -17,7 +17,7 @@ case "$ip_version" in
 		;;
 esac
 
-ping -${ip_version#ipv} -c1 -q -w10 -I wan google.com &> /dev/null
+ping -${ip_version#ipv} -c1 -q -w50 -I wan google.com &> /dev/null
 if [ $? -ne 0 ]; then
 	log "$interface is down. Trying to recover by restarting it." 
 	ifup $interface
