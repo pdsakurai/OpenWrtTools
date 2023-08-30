@@ -2,7 +2,6 @@
 rpz:
     name: DoH_and_DoT
     url: https://raw.githubusercontent.com/jpgpi250/piholemanual/master/DOH.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_DoH_and_DoT
     
