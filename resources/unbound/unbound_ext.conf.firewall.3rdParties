@@ -1,7 +1,6 @@
 #3rd-party blacklists
 rpz:
     name: stevenblack
-    zonefile: stevenblack.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/stevenblack.rpz
     rpz-action-override: nxdomain
     rpz-log: no
@@ -9,7 +8,6 @@ rpz:
 
 rpz:
     name: winspy
-    zonefile: winspy.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/winspy.rpz
     rpz-action-override: nxdomain
     rpz-log: no
@@ -17,7 +15,6 @@ rpz:
 
 rpz:
     name: nocoin
-    zonefile: nocoin.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/nocoin.rpz
     rpz-action-override: nxdomain
     rpz-log: no
@@ -25,7 +22,6 @@ rpz:
 
 rpz:
     name: smarttv
-    zonefile: smarttv.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/smarttv.rpz
     rpz-action-override: nxdomain
     rpz-log: no
@@ -33,7 +29,6 @@ rpz:
 
 rpz:
     name: hate
-    zonefile: hate.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/hate.rpz
     rpz-action-override: nxdomain
     rpz-log: no
@@ -41,7 +36,6 @@ rpz:
 
 rpz:
     name: dating
-    zonefile: dating.rpz
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/dating.rpz
     rpz-action-override: nxdomain
     rpz-log: no
