@@ -2,41 +2,35 @@
 rpz:
     name: stevenblack
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/stevenblack.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_stevenblack
 
 rpz:
     name: winspy
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/winspy.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_winspy
 
 rpz:
     name: nocoin
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/nocoin.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_nocoin
 
 rpz:
     name: smarttv
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/smarttv.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_smarttv
 
 rpz:
     name: hate
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/hate.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_hate
 
 rpz:
     name: dating
     url: https://raw.githubusercontent.com/pdsakurai/response_policy_zones/master/dating.rpz
-    rpz-action-override: nxdomain
     rpz-log: no
     rpz-log-name: blocked_by_dating
