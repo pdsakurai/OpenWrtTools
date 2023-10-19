@@ -15,6 +15,11 @@ start_service() {
         exit 1
     fi
 
+    if [ $( echo $mac_addresses | grep -E [^A-Fa-f0-9,:] | wc -l ) -ne 0 ]; then
+        log_error "Aborted updating nft set \"$set_name\" due to a wrong MAC in DHCP static leases."
+        exit 1
+    fi
+
     function update_in_runtime() {
         local family="inet"
         local table="fw4"
