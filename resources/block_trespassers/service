@@ -8,7 +8,7 @@ start_service() {
     source /root/OpenWrtTools/src/logger_helper.sh "update_known_devices"
 
     local set_name="known_devices"
-    local mac_addresses="$( uci show dhcp | grep \.mac= | sed "s/.*mac='\(.*\)'/\1/" | tr "\n" "," | sed "s/,$//g" )"
+    local mac_addresses="$( uci show dhcp | grep \.mac= | sed "s/.*mac='\(.*\)'/\1/" | tr "\n" "," | tr " " "," | sed "s/,$//g" )"
 
     if [ -z "$mac_addresses" ]; then
         log_error "Aborted updating nft set \"$set_name\" with empty list."
