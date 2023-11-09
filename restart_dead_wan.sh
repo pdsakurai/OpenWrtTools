@@ -19,8 +19,21 @@ case "$ip_version" in
 		;;
 esac
 
-ping -${ip_version#ipv} -c1 -q -w50 $target &> /dev/null
-if [ $? -ne 0 ]; then
+retry_left=3
+is_successful=1
+while [ $retry_left -gt 0 ]; do
+	ping -${ip_version#ipv} -c1 -q -w18 $target &> /dev/null
+	[ $? -ne 0 ] \
+		&& retry_left=$(( retry_left - 1 )) \
+		|| {
+			is_successful=0
+			retry_left=0
+		}
+done
+
+if [ $is_successful -ne 0 ]; then
 	log "$interface is down. Trying to recover by restarting it." 
 	ifup $interface
 fi
+
+exit $is_successful
