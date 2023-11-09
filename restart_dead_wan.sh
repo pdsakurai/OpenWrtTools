@@ -4,14 +4,13 @@ readonly SOURCES_DIR="$( pwd )/src"
 export SOURCES_DIR
 source $SOURCES_DIR/logger_helper.sh "restart_dead_wan.sh"
 
-readonly ip_version=${1:?Missing: IP version}
+readonly interface=${1:?Missing: Target interface}
+readonly ip_version=${2:?Missing: IP version}
 case "$ip_version" in
 	ipv4)
-		interface=wan
 		target=9.9.9.9
 		;;
 	ipv6)
-		interface=wan6
 		target=2620:fe::fe
 		;;
 	*)
