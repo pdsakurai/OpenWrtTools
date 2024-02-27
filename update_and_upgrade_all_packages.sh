@@ -30,17 +30,20 @@ function enable_backup_dns_server {
     log "Enabled backup DNS server"
 }
 
-function update_packages_list {
-    opkg update
-    log "Done updating packages lists."
+function get_packages_to_upgrade {
+    $( opkg update )
+    local packages=$( opkg list-upgradable | grep -v wireless-regdb | cut -f 1 -d ' ' )
+    echo $packages
 }
 
 function upgrade_packages {
-    opkg list-upgradable | grep -v wireless-regdb | cut -f 1 -d ' ' | xargs -rt opkg upgrade
-    log "Done upgrading packages."
+    local packages=${1:?Missing: Packages to upgrade}
+    opkg upgrade $packages
+    log "Upgraded packages: $packages"
 }
 
-enable_backup_dns_server
-update_packages_list
-upgrade_packages
-restore_dns_servers_list
+readonly PACKAGES=$( get_packages_to_upgrade )
+readonly SHOULD_ENABLE_BACKUP_DNS_SERVER=$( echo $PACKAGES | grep -c "unbound" )
+[ $SHOULD_ENABLE_BACKUP_DNS_SERVER -gt 0 ] && enable_backup_dns_server
+upgrade_packages $PACKAGES
+[ $SHOULD_ENABLE_BACKUP_DNS_SERVER -gt 0 ] && restore_dns_servers_list
