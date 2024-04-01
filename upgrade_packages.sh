@@ -45,5 +45,5 @@ readonly PACKAGES=$( opkg list-upgradable | grep -v wireless-regdb | cut -f 1 -d
 
 readonly SHOULD_ENABLE_BACKUP_DNS_SERVER=$( echo $PACKAGES | grep -c "unbound" )
 [ $SHOULD_ENABLE_BACKUP_DNS_SERVER -gt 0 ] && enable_backup_dns_server
-upgrade_packages $PACKAGES
+upgrade_packages "$PACKAGES"
 [ $SHOULD_ENABLE_BACKUP_DNS_SERVER -gt 0 ] && restore_dns_servers_list
