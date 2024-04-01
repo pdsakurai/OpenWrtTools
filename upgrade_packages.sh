@@ -37,7 +37,7 @@ function upgrade_packages {
 }
 
 opkg update
-readonly PACKAGES=$( opkg list-upgradable | grep -v wireless-regdb | cut -f 1 -d ' ' )
+readonly PACKAGES=$( opkg list-upgradable | grep -v wireless-regdb | cut -f 1 -d ' ' | xargs )
 [ -z "$PACKAGES" ] && {
     log "There's nothing to upgrade."
     exit 0
