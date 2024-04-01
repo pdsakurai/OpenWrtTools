@@ -2,7 +2,7 @@
 
 readonly SOURCES_DIR="$( pwd )/src"
 export SOURCES_DIR
-source $SOURCES_DIR/logger_helper.sh "update_and_upgrade_all_packages.sh"
+source $SOURCES_DIR/logger_helper.sh "upgrade_packages.sh"
 
 readonly UCI_OPTION_DNS_SERVER="dhcp.@dnsmasq[0].server"
 readonly DNS_SERVERS_LIST=$( uci show $UCI_OPTION_DNS_SERVER | cut -f2 -d= )
