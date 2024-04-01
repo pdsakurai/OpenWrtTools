@@ -19,7 +19,7 @@ function restore_dns_servers_list {
 
 function add_dns_server {
     local ip_address=${1:?Missing: DNS server\'s IP address}
-    uci add_list $UCI_OPTION_DNS_SERVER="${ip_address//\'/}"
+    uci add_list $UCI_OPTION_DNS_SERVER="$ip_address"
     log "Added DNS server: $ip_address"
 }
 
